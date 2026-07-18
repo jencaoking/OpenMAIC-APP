@@ -35,7 +35,7 @@ export class ApiError extends Error {
 }
 
 const DEFAULT_TIMEOUT = 15000;
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api/runtime';
 
 async function fetchWithTimeout(input: RequestInfo, init?: RequestInit, timeout: number = DEFAULT_TIMEOUT): Promise<Response> {
   const controller = new AbortController();

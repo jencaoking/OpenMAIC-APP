@@ -1,7 +1,11 @@
 import React, { useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, RefreshControl, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, RefreshControl, StyleSheet, Pressable } from 'react-native';
 import type { RuntimeSession } from '@openmaic/storage-types';
 import { useSessionStore } from '../../core/store/sessionStore';
+
+interface SessionListScreenProps {
+  onAddSession: () => void;
+}
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -68,7 +72,7 @@ function SessionItem({ session }: SessionItemProps) {
   );
 }
 
-const SessionListScreen: React.FC = () => {
+const SessionListScreen: React.FC<SessionListScreenProps> = ({ onAddSession }) => {
   const { state, fetchSessions } = useSessionStore();
   const { sessions, status, error } = state;
 
@@ -88,7 +92,7 @@ const SessionListScreen: React.FC = () => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error}</Text>
-        <Text style={styles.retryText} onPress={fetchSessions}>
+        <Text style={styles.retryText} onPress={() => fetchSessions()}>
           点击重试
         </Text>
       </View>
@@ -97,7 +101,12 @@ const SessionListScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>会话列表</Text>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>会话列表</Text>
+        <Pressable style={styles.addButton} onPress={onAddSession}>
+          <Text style={styles.addButtonText}>+ 新建</Text>
+        </Pressable>
+      </View>
       {status === 'loading' && sessions.length === 0 ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#3b82f6" />
@@ -121,6 +130,9 @@ const SessionListScreen: React.FC = () => {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>暂无会话</Text>
+              <Pressable style={styles.emptyActionButton} onPress={onAddSession}>
+                <Text style={styles.emptyActionButtonText}>创建第一个会话</Text>
+              </Pressable>
             </View>
           }
         />
@@ -135,11 +147,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   header: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 16,
     paddingTop: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
     color: '#1f2937',
+  },
+  addButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#3b82f6',
+    borderRadius: 8,
+  },
+  addButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#ffffff',
   },
   loadingContainer: {
     flex: 1,
@@ -227,6 +257,18 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: '#6b7280',
+    marginBottom: 16,
+  },
+  emptyActionButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: '#3b82f6',
+    borderRadius: 8,
+  },
+  emptyActionButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
   },
 });
 
