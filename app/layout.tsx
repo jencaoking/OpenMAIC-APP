@@ -14,6 +14,7 @@ import { AccessCodeGuard } from '@/components/access-code-guard';
 import { EditModeProvider } from '@/lib/contexts/edit-mode-context';
 import { FloatingToolbar } from '@/components/builder/FloatingToolbar';
 import { MaterialPanel } from '@/components/builder/MaterialPanel';
+import { PropertyInspector } from '@/components/builder/PropertyInspector';
 
 const inter = localFont({
   src: '../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
@@ -45,6 +46,7 @@ export default function RootLayout({
               <AccessCodeGuard>{children}</AccessCodeGuard>
               <FloatingToolbar />
               <MaterialPanel />
+              <PropertyInspector />
             </EditModeProvider>
             <Toaster position="top-center" />
           </I18nProvider>

@@ -15,6 +15,7 @@ interface BuilderState {
   isMaterialPanelOpen: boolean;
   setDslTree: (tree: DslSchema) => void;
   updateNode: (nodeId: string, updates: Partial<IDslNode>) => void;
+  updateNodeProps: (nodeId: string, path: string[], value: unknown) => void;
   addNode: (parentId: string | null, node: IDslNode) => void;
   deleteNode: (nodeId: string) => void;
   moveNode: (nodeId: string, newParentId: string | null, index: number) => void;
@@ -218,6 +219,53 @@ const useBuilderStoreBase = create<BuilderState>()((set, get) => ({
       if (typeof node === 'string') return node;
       if (node.id === nodeId) {
         return { ...node, ...updates };
+      }
+      if (node.children) {
+        return {
+          ...node,
+          children: node.children.map(updateNodeRecursive),
+        };
+      }
+      return node;
+    };
+
+    const { dslTree } = get();
+    let newTree: DslSchema;
+    if (Array.isArray(dslTree)) {
+      newTree = dslTree.map(updateNodeRecursive) as IDslNode[];
+    } else {
+      newTree = updateNodeRecursive(dslTree) as IDslNode;
+    }
+    set({ dslTree: newTree });
+    get().saveToHistory();
+  },
+
+  updateNodeProps: (nodeId, path, value) => {
+    const updatePropsRecursive = (props: Record<string, unknown>, currentPath: string[], currentValue: unknown): Record<string, unknown> => {
+      if (currentPath.length === 1) {
+        return { ...props, [currentPath[0]]: currentValue };
+      }
+
+      const [key, ...rest] = currentPath;
+      const existingValue = props[key];
+      const newValue =
+        existingValue && typeof existingValue === 'object'
+          ? updatePropsRecursive(
+              existingValue as Record<string, unknown>,
+              rest,
+              currentValue
+            )
+          : {};
+
+      return { ...props, [key]: newValue };
+    };
+
+    const updateNodeRecursive = (node: IDslNode | string): IDslNode | string => {
+      if (typeof node === 'string') return node;
+      if (node.id === nodeId) {
+        const currentProps = node.props || {};
+        const newProps = updatePropsRecursive(currentProps, path, value);
+        return { ...node, props: newProps };
       }
       if (node.children) {
         return {

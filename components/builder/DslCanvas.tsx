@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GripVertical, Settings, Copy, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useEditMode } from '@/lib/contexts/edit-mode-context';
 import { useBuilderStore } from '@/lib/store/builder';
 import type { IDslNode, DslComponentType } from '@openmaic/core-engine';
@@ -60,17 +59,29 @@ const componentMap: Record<DslComponentType, React.ComponentType<{
   ),
 };
 
+interface DslNodeRendererProps {
+  node: IDslNode;
+  isSelected: boolean;
+  isEditMode: boolean;
+  onSelect: () => void;
+  onDragStart: (e: React.DragEvent, node: IDslNode) => void;
+  onDragOver: (e: React.DragEvent, node: IDslNode) => void;
+  onDragLeave: () => void;
+  onDrop: (e: React.DragEvent, node: IDslNode) => void;
+  dragOverIndex: number | null;
+}
+
 function DslNodeRenderer({
   node,
   isSelected,
+  isEditMode,
   onSelect,
   onDragStart,
-}: {
-  node: IDslNode;
-  isSelected: boolean;
-  onSelect: () => void;
-  onDragStart: (e: React.DragEvent, node: IDslNode) => void;
-}) {
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  dragOverIndex,
+}: DslNodeRendererProps) {
   const { selectNode, copyNode, deleteNode } = useBuilderStore();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -114,16 +125,22 @@ function DslNodeRenderer({
 
   const nodeStyle = node.props?.style as React.CSSProperties || {};
 
+  const isContainer = node.type === 'View' || node.type === 'ScrollView';
+  const hasChildren = node.children && Array.isArray(node.children) && node.children.length > 0;
+
   return (
     <div
-      draggable={isSelected}
+      draggable={isEditMode}
       onDragStart={(e) => onDragStart(e, node)}
+      onDragOver={(e) => isContainer && onDragOver(e, node)}
+      onDragLeave={onDragLeave}
+      onDrop={(e) => onDrop(e, node)}
       onClick={handleClick}
       onContextMenu={handleContextMenu}
       className={`relative group transition-all duration-200 ${
         isSelected ? 'ring-2 ring-primary ring-offset-2 rounded-lg' : 'hover:ring-2 hover:ring-border hover:ring-offset-1 rounded-lg'
-      }`}
-      style={{ cursor: isSelected ? 'move' : 'pointer', ...nodeStyle }}
+      } ${isContainer && hasChildren ? 'drag-over-container' : ''}`}
+      style={{ cursor: isEditMode ? 'move' : 'pointer', ...nodeStyle }}
     >
       <AnimatePresence>
         {isSelected && (
@@ -178,18 +195,58 @@ function DslNodeRenderer({
         <Component {...node.props}>{node.children}</Component>
       ) : (
         <Component {...node.props}>
+          {isContainer && (
+            <div
+              className="h-2 w-full bg-primary/20 rounded my-1"
+              onDragOver={(e) => onDragOver(e, node)}
+              onDrop={(e) => {
+                e.preventDefault();
+                const nodeId = e.dataTransfer.getData('nodeId');
+                if (nodeId) {
+                  onDrop(e, node);
+                }
+              }}
+            />
+          )}
           {node.children?.map((child, index) =>
             typeof child === 'string' ? (
               <span key={index}>{child}</span>
             ) : (
-              <DslNodeRenderer
-                key={child.id || index}
-                node={child}
-                isSelected={builderStore.getState().selectedNodeId === child.id}
-                onSelect={() => selectNode(child.id || null)}
-                onDragStart={onDragStart}
-              />
+              <div key={child.id || index}>
+                {dragOverIndex === index && (
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: 4 }}
+                    exit={{ height: 0 }}
+                    className="w-full bg-primary/40 rounded mb-1"
+                  />
+                )}
+                <DslNodeRenderer
+                  node={child}
+                  isSelected={builderStore.getState().selectedNodeId === child.id}
+                  isEditMode={isEditMode}
+                  onSelect={() => selectNode(child.id || null)}
+                  onDragStart={onDragStart}
+                  onDragOver={onDragOver}
+                  onDragLeave={onDragLeave}
+                  onDrop={onDrop}
+                  dragOverIndex={dragOverIndex}
+                />
+              </div>
             )
+          )}
+          {isContainer && (
+            <div
+              className="h-2 w-full bg-primary/20 rounded my-1"
+              onDragOver={(e) => onDragOver(e, node)}
+              onDrop={(e) => {
+                e.preventDefault();
+                const nodeId = e.dataTransfer.getData('nodeId');
+                if (nodeId) {
+                  onDrop(e, node);
+                }
+              }}
+            />
           )}
         </Component>
       )}
@@ -199,12 +256,65 @@ function DslNodeRenderer({
 
 export function DslCanvas({ className = '' }: DslCanvasProps) {
   const { isEditMode } = useEditMode();
-  const { dslTree, selectedNodeId, selectNode } = useBuilderStore();
+  const { dslTree, selectedNodeId, selectNode, moveNode, getNodeById } = useBuilderStore();
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [dragOverParentId, setDragOverParentId] = useState<string | null>(null);
 
   const handleDragStart = (e: React.DragEvent, node: IDslNode) => {
     if (node.id) {
       e.dataTransfer.setData('nodeId', node.id);
+      e.dataTransfer.effectAllowed = 'move';
     }
+  };
+
+  const handleDragOver = (e: React.DragEvent, node: IDslNode) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+
+    const isContainer = node.type === 'View' || node.type === 'ScrollView';
+    if (!isContainer) return;
+
+    const nodeId = e.dataTransfer.getData('nodeId');
+    if (!nodeId || nodeId === node.id) return;
+
+    setDragOverParentId(node.id || null);
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const height = rect.height;
+    const children = node.children || [];
+    const childCount = children.filter((c) => typeof c !== 'string').length;
+
+    if (childCount === 0) {
+      setDragOverIndex(0);
+      return;
+    }
+
+    const relativeY = y / height;
+    const index = Math.floor(relativeY * childCount);
+    setDragOverIndex(Math.min(index, childCount));
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+    setDragOverParentId(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetNode: IDslNode) => {
+    e.preventDefault();
+    const nodeId = e.dataTransfer.getData('nodeId');
+    if (!nodeId || nodeId === targetNode.id) {
+      handleDragLeave();
+      return;
+    }
+
+    const isContainer = targetNode.type === 'View' || targetNode.type === 'ScrollView';
+    const newParentId = isContainer ? (targetNode.id || null) : null;
+    const dropIndex = dragOverIndex ?? 0;
+
+    moveNode(nodeId, newParentId, dropIndex);
+
+    handleDragLeave();
   };
 
   const handleCanvasClick = () => {
@@ -215,23 +325,33 @@ export function DslCanvas({ className = '' }: DslCanvasProps) {
     return (
       <div className={`${className}`}>
         {Array.isArray(dslTree) ? (
-          dslTree.map((node) => (
-            <DslNodeRenderer
-              key={node.id}
-              node={node}
-              isSelected={false}
-              onSelect={() => {}}
-              onDragStart={() => {}}
-            />
-          ))
-        ) : (
+        dslTree.map((node) => (
           <DslNodeRenderer
-            node={dslTree}
+            key={node.id}
+            node={node}
             isSelected={false}
+            isEditMode={false}
             onSelect={() => {}}
             onDragStart={() => {}}
+            onDragOver={() => {}}
+            onDragLeave={() => {}}
+            onDrop={() => {}}
+            dragOverIndex={null}
           />
-        )}
+        ))
+      ) : (
+        <DslNodeRenderer
+          node={dslTree}
+          isSelected={false}
+          isEditMode={false}
+          onSelect={() => {}}
+          onDragStart={() => {}}
+          onDragOver={() => {}}
+          onDragLeave={() => {}}
+          onDrop={() => {}}
+          dragOverIndex={null}
+        />
+      )}
       </div>
     );
   }
@@ -240,26 +360,55 @@ export function DslCanvas({ className = '' }: DslCanvasProps) {
     <div
       className={`${className} min-h-full p-8`}
       onClick={handleCanvasClick}
+      onDragOver={(e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setDragOverParentId(null);
+        setDragOverIndex(0);
+      }}
+      onDragLeave={handleDragLeave}
+      onDrop={(e) => {
+        e.preventDefault();
+        const nodeId = e.dataTransfer.getData('nodeId');
+        if (nodeId) {
+          moveNode(nodeId, null, 0);
+        }
+        handleDragLeave();
+      }}
     >
       <div className="max-w-4xl mx-auto">
         <AnimatePresence>
           {Array.isArray(dslTree) ? (
-            dslTree.map((node) => (
-              <motion.div
-                key={node.id}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <DslNodeRenderer
-                  node={node}
-                  isSelected={selectedNodeId === node.id}
-                  onSelect={() => selectNode(node.id || null)}
-                  onDragStart={handleDragStart}
-                />
-              </motion.div>
+            dslTree.map((node, index) => (
+              <div key={node.id}>
+                {dragOverParentId === null && dragOverIndex === index && (
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: 4 }}
+                    exit={{ height: 0 }}
+                    className="w-full bg-primary/40 rounded mb-1"
+                  />
+                )}
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <DslNodeRenderer
+                    node={node}
+                    isSelected={selectedNodeId === node.id}
+                    isEditMode={true}
+                    onSelect={() => selectNode(node.id || null)}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    dragOverIndex={dragOverIndex}
+                  />
+                </motion.div>
+              </div>
             ))
           ) : (
             <motion.div
@@ -272,8 +421,13 @@ export function DslCanvas({ className = '' }: DslCanvasProps) {
               <DslNodeRenderer
                 node={dslTree}
                 isSelected={selectedNodeId === dslTree.id}
+                isEditMode={true}
                 onSelect={() => selectNode(dslTree.id || null)}
                 onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                dragOverIndex={dragOverIndex}
               />
             </motion.div>
           )}
