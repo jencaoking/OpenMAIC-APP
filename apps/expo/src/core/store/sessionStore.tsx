@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useCallback, type ReactNode } from 'react';
 import type { RuntimeSession, RuntimeSessionCreate } from '@openmaic/storage-types';
-import { apiGet, apiPost } from '../api/client';
+import { apiPost } from '../api/client';
+import { syncManager } from '../../db/syncManager';
 
 export interface SessionState {
   sessions: RuntimeSession[];
@@ -68,12 +69,22 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const fetchSessions = useCallback(async (stageId?: string, learnerKey?: string) => {
     dispatch({ type: 'FETCH_START' });
     try {
-      let url = '/sessions';
-      if (stageId && learnerKey) {
-        url = `/sessions?stageId=${encodeURIComponent(stageId)}&learnerKey=${encodeURIComponent(learnerKey)}`;
-      }
-      const sessions = await apiGet<RuntimeSession[]>(url);
-      dispatch({ type: 'FETCH_SUCCESS', payload: sessions });
+      const localSessions = await syncManager.getSessions(stageId, learnerKey);
+
+      const runtimeSessions: RuntimeSession[] = localSessions.map((session) => ({
+        id: session.id,
+        runtimeDslVersion: '',
+        kind: session.kind,
+        stageId: session.stage_id,
+        learnerKey: session.learner_key,
+        status: session.status as RuntimeSession['status'],
+        createdAt: session.updated_at || new Date().toISOString(),
+        updatedAt: session.updated_at,
+      }));
+
+      dispatch({ type: 'FETCH_SUCCESS', payload: runtimeSessions });
+
+      syncManager.forceSync();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch sessions';
       dispatch({ type: 'FETCH_ERROR', payload: errorMessage });
@@ -84,7 +95,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'CREATE_START' });
     try {
       const session = await apiPost<RuntimeSession, RuntimeSessionCreate>('/sessions', payload);
+
+      await syncManager.insertSession({
+        id: session.id,
+        course_id: null,
+        stage_id: session.stageId,
+        learner_key: session.learnerKey,
+        kind: session.kind,
+        status: session.status,
+        last_message_at: null,
+        updated_at: session.updatedAt,
+      });
+
       dispatch({ type: 'CREATE_SUCCESS', payload: session });
+
+      syncManager.forceSync();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to create session';
       dispatch({ type: 'CREATE_ERROR', payload: errorMessage });
