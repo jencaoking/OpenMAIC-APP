@@ -32,50 +32,92 @@ export function resolveBindingsInProps(props: Record<string, unknown> | undefine
     return {};
   }
 
+  let hasChanged = false;
   const resolved: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(props)) {
     if (typeof value === 'string') {
-      resolved[key] = resolveTemplate(value, context);
+      const resolvedValue = resolveTemplate(value, context);
+      if (resolvedValue !== value) {
+        hasChanged = true;
+      }
+      resolved[key] = resolvedValue;
     } else if (typeof value === 'object' && value !== null) {
       if (Array.isArray(value)) {
-        resolved[key] = value.map((item) => {
+        const resolvedArray = value.map((item) => {
           if (typeof item === 'string') {
-            return resolveTemplate(item, context);
+            const resolvedItem = resolveTemplate(item, context);
+            if (resolvedItem !== item) {
+              hasChanged = true;
+            }
+            return resolvedItem;
           }
           return item;
         });
+        if (!hasChanged && resolvedArray.length !== value.length) {
+          hasChanged = true;
+        }
+        resolved[key] = hasChanged ? resolvedArray : value;
       } else {
-        resolved[key] = resolveBindingsInProps(value as Record<string, unknown>, context);
+        const resolvedNested = resolveBindingsInProps(value as Record<string, unknown>, context);
+        if (resolvedNested !== value) {
+          hasChanged = true;
+        }
+        resolved[key] = resolvedNested;
       }
     } else {
       resolved[key] = value;
     }
   }
 
-  return resolved;
+  return hasChanged ? resolved : props;
 }
 
 export function resolveBindingsInNode(node: IDslNode, context: DslContext): IDslNode {
   const resolvedProps = resolveBindingsInProps(node.props, context);
 
-  const resolvedChildren = node.children?.map((child) => {
-    if (typeof child === 'string') {
-      return resolveTemplate(child, context);
-    }
-    return resolveBindingsInNode(child, context);
-  });
+  let resolvedChildren: (IDslNode | string)[] | undefined;
+  let childrenChanged = false;
+
+  if (node.children) {
+    resolvedChildren = node.children.map((child) => {
+      if (typeof child === 'string') {
+        const resolvedChild = resolveTemplate(child, context);
+        if (resolvedChild !== child) {
+          childrenChanged = true;
+        }
+        return resolvedChild;
+      }
+      const resolvedChildNode = resolveBindingsInNode(child, context);
+      if (resolvedChildNode !== child) {
+        childrenChanged = true;
+      }
+      return resolvedChildNode;
+    });
+  }
+
+  if (resolvedProps === node.props && !childrenChanged) {
+    return node;
+  }
 
   return {
     ...node,
     props: resolvedProps,
-    children: resolvedChildren,
+    children: childrenChanged ? resolvedChildren : node.children,
   };
 }
 
 export function resolveBindingsInSchema(schema: IDslNode | IDslNode[], context: DslContext): IDslNode | IDslNode[] {
   if (Array.isArray(schema)) {
-    return schema.map((node) => resolveBindingsInNode(node, context));
+    let arrayChanged = false;
+    const resolvedArray = schema.map((node) => {
+      const resolvedNode = resolveBindingsInNode(node, context);
+      if (resolvedNode !== node) {
+        arrayChanged = true;
+      }
+      return resolvedNode;
+    });
+    return arrayChanged ? resolvedArray : schema;
   }
   return resolveBindingsInNode(schema, context);
 }

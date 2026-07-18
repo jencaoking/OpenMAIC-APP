@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, TextInput, Pressable, Image, ScrollView, Alert, StyleSheet } from 'react-native';
 import { renderDsl, createDslRenderer, type IDslNode, type ComponentMap, type DslAction, type DslContext } from '@openmaic/core-engine';
 import { useSessionStore } from '../../core/store/sessionStore';
@@ -135,7 +135,7 @@ const DslRenderScreen: React.FC<DslRenderScreenProps> = ({ onBack }) => {
     }
   }, [addEventLog, onBack]);
 
-  const dslContext: DslContext = {
+  const dslContext = useMemo(() => ({
     session: {
       count: sessionCount,
       message: dynamicMessage,
@@ -146,9 +146,9 @@ const DslRenderScreen: React.FC<DslRenderScreenProps> = ({ onBack }) => {
     input: {
       value: inputValue,
     },
-  };
+  }), [sessionCount, dynamicMessage, inputValue]);
 
-  const dslSchema: IDslNode[] = [
+  const dslSchema = useMemo<IDslNode[]>(() => [
     {
       type: 'View',
       props: {
@@ -473,9 +473,9 @@ const DslRenderScreen: React.FC<DslRenderScreenProps> = ({ onBack }) => {
         },
       ],
     },
-  ];
+  ], [inputValue]);
 
-  const renderer = createDslRenderer(rnComponentMap);
+  const renderer = useMemo(() => createDslRenderer(rnComponentMap), []);
   const renderedContent = renderer.render(dslSchema, {
     context: dslContext,
     onAction: handleAction,

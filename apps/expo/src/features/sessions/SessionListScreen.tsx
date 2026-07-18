@@ -6,6 +6,7 @@ import { useSessionStore } from '../../core/store/sessionStore';
 interface SessionListScreenProps {
   onAddSession: () => void;
   onShowDsl: () => void;
+  onShowStressTest: () => void;
 }
 
 function formatDate(dateString: string): string {
@@ -73,7 +74,7 @@ function SessionItem({ session }: SessionItemProps) {
   );
 }
 
-const SessionListScreen: React.FC<SessionListScreenProps> = ({ onAddSession, onShowDsl }) => {
+const SessionListScreen: React.FC<SessionListScreenProps> = ({ onAddSession, onShowDsl, onShowStressTest }) => {
   const { state, fetchSessions } = useSessionStore();
   const { sessions, status, error } = state;
 
@@ -107,6 +108,9 @@ const SessionListScreen: React.FC<SessionListScreenProps> = ({ onAddSession, onS
         <View style={styles.headerButtons}>
           <Pressable style={styles.dslButton} onPress={onShowDsl}>
             <Text style={styles.dslButtonText}>DSL</Text>
+          </Pressable>
+          <Pressable style={styles.stressButton} onPress={onShowStressTest}>
+            <Text style={styles.stressButtonText}>压力测试</Text>
           </Pressable>
           <Pressable style={styles.addButton} onPress={onAddSession}>
             <Text style={styles.addButtonText}>+ 新建</Text>
@@ -191,6 +195,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#374151',
+  },
+  stressButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#fef3c7',
+    borderRadius: 8,
+  },
+  stressButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#d97706',
   },
   loadingContainer: {
     flex: 1,
