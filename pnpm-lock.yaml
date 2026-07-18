@@ -110,6 +110,9 @@ importers:
       '@napi-rs/canvas':
         specifier: ^0.1.88
         version: 0.1.96
+      '@openmaic/core-engine':
+        specifier: workspace:*
+        version: link:packages/@openmaic/core-engine
       '@openmaic/dsl':
         specifier: workspace:*
         version: link:packages/@openmaic/dsl
@@ -423,6 +426,9 @@ importers:
 
   apps/expo:
     dependencies:
+      '@openmaic/core-engine':
+        specifier: workspace:*
+        version: link:../../packages/@openmaic/core-engine
       '@openmaic/storage-types':
         specifier: workspace:*
         version: link:../../packages/@openmaic/storage-types
@@ -448,6 +454,15 @@ importers:
       typescript:
         specifier: ~6.0.3
         version: 6.0.3
+
+  packages/@openmaic/core-engine:
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.0
+        version: 19.2.14
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
 
   packages/@openmaic/dsl:
     devDependencies:

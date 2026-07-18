@@ -5,6 +5,7 @@ import { useSessionStore } from '../../core/store/sessionStore';
 
 interface SessionListScreenProps {
   onAddSession: () => void;
+  onShowDsl: () => void;
 }
 
 function formatDate(dateString: string): string {
@@ -72,7 +73,7 @@ function SessionItem({ session }: SessionItemProps) {
   );
 }
 
-const SessionListScreen: React.FC<SessionListScreenProps> = ({ onAddSession }) => {
+const SessionListScreen: React.FC<SessionListScreenProps> = ({ onAddSession, onShowDsl }) => {
   const { state, fetchSessions } = useSessionStore();
   const { sessions, status, error } = state;
 
@@ -103,9 +104,14 @@ const SessionListScreen: React.FC<SessionListScreenProps> = ({ onAddSession }) =
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>会话列表</Text>
-        <Pressable style={styles.addButton} onPress={onAddSession}>
-          <Text style={styles.addButtonText}>+ 新建</Text>
-        </Pressable>
+        <View style={styles.headerButtons}>
+          <Pressable style={styles.dslButton} onPress={onShowDsl}>
+            <Text style={styles.dslButtonText}>DSL</Text>
+          </Pressable>
+          <Pressable style={styles.addButton} onPress={onAddSession}>
+            <Text style={styles.addButtonText}>+ 新建</Text>
+          </Pressable>
+        </View>
       </View>
       {status === 'loading' && sessions.length === 0 ? (
         <View style={styles.loadingContainer}>
@@ -170,6 +176,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#ffffff',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  dslButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 8,
+  },
+  dslButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
   },
   loadingContainer: {
     flex: 1,
