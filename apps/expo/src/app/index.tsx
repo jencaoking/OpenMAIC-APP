@@ -1,24 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import SessionListScreen from '../features/sessions/SessionListScreen';
 
 const HomePage: React.FC = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>OpenMAIC Mobile Ready</Text>
-    </View>
-  );
+  return <SessionListScreen />;
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-});
 
 export default HomePage;
