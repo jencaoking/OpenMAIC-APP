@@ -7,7 +7,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Animated as RNAnimated,
-  type GestureResponderEvent,
+  PanResponder,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
@@ -102,12 +102,12 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
     }).start();
   }, [currentIndex]);
 
-  const handlePanResponderMove = (e: React.NativeSyntheticEvent, gestureState: RNAnimated.GestureState) => {
+  const handlePanResponderMove = (_e: unknown, gestureState: { dx: number }) => {
     translateX.setValue(gestureState.dx);
     opacity.setValue(1 - Math.abs(gestureState.dx) / 400);
   };
 
-  const handlePanResponderRelease = (e: React.NativeSyntheticEvent, gestureState: RNAnimated.GestureState) => {
+  const handlePanResponderRelease = (_e: unknown, gestureState: { dx: number }) => {
     if (gestureState.dx > 100 && currentIndex > 0) {
       RNAnimated.timing(translateX, {
         toValue: -300,
@@ -146,7 +146,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
     }
   };
 
-  const panResponder = RNAnimated.createPanResponder({
+  const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onPanResponderMove: handlePanResponderMove,
     onPanResponderRelease: handlePanResponderRelease,
@@ -247,15 +247,10 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
   };
 
   const getOptionStyle = (optionId: string) => {
-    const baseStyle = [styles.option];
     const isSelected =
       currentQuestion.type === 'checkbox'
         ? (answers[currentQuestion.id] as string[])?.includes(optionId)
         : answers[currentQuestion.id] === optionId;
-
-    if (isSelected) {
-      baseStyle.push(styles.optionSelected);
-    }
 
     if (submittedAnswers.has(currentQuestion.id)) {
       const isCorrect =
@@ -264,20 +259,24 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
           : currentQuestion.correctAnswer === optionId;
 
       if (isCorrect) {
-        baseStyle.push(styles.optionCorrect);
+        return [styles.option, { backgroundColor: '#ecfdf5', borderColor: '#10b981' }];
       } else if (isSelected) {
-        baseStyle.push(styles.optionWrong);
+        return [styles.option, { backgroundColor: '#fef2f2', borderColor: '#ef4444' }];
       }
     }
 
-    return baseStyle;
+    if (isSelected) {
+      return [styles.option, { backgroundColor: '#eff6ff', borderColor: '#3b82f6' }];
+    }
+
+    return styles.option;
   };
 
   const answeredCount = submittedAnswers.size;
   const correctCount = Object.entries(showResult).filter(([, value]) => value).length;
 
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.progressContainer}>
           <View
@@ -410,7 +409,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
           </TouchableOpacity>
         )}
       </View>
-    </GestureHandlerRootView>
+    </View>
   );
 };
 
@@ -517,21 +516,19 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: 'transparent',
-    transitionProperty: 'backgroundColor, borderColor',
-    transitionDuration: '200ms',
   },
   optionSelected: {
     backgroundColor: '#eff6ff',
     borderColor: '#3b82f6',
-  },
+  } as const,
   optionCorrect: {
     backgroundColor: '#ecfdf5',
     borderColor: '#10b981',
-  },
+  } as const,
   optionWrong: {
     backgroundColor: '#fef2f2',
     borderColor: '#ef4444',
-  },
+  } as const,
   optionIndicator: {
     width: 32,
     height: 32,
