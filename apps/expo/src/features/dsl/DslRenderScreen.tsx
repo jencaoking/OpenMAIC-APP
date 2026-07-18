@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, Pressable, Image, ScrollView, Alert, StyleSheet } from 'react-native';
-import { renderDsl, createDslRenderer, type IDslNode, type ComponentMap } from '@openmaic/core-engine';
+import { renderDsl, createDslRenderer, type IDslNode, type ComponentMap, type DslAction, type DslContext } from '@openmaic/core-engine';
+import { useSessionStore } from '../../core/store/sessionStore';
 
 const DslView: React.FC<{ style?: Record<string, unknown>; children?: React.ReactNode; [key: string]: unknown }> = ({ style, children, ...rest }) => (
   <View style={style as any} {...rest}>
@@ -14,14 +15,13 @@ const DslText: React.FC<{ style?: Record<string, unknown>; children?: React.Reac
   </Text>
 );
 
-const DslButton: React.FC<{ style?: Record<string, unknown>; children?: string; onPress?: () => void; disabled?: boolean; [key: string]: unknown }> = ({
+const DslButton: React.FC<{ style?: Record<string, unknown>; children?: string; disabled?: boolean; [key: string]: unknown }> = ({
   style,
   children,
-  onPress,
   disabled,
   ...rest
 }) => (
-  <Pressable style={[styles.dslButton, style as any, disabled && styles.dslButtonDisabled]} onPress={onPress} disabled={disabled} {...rest}>
+  <Pressable style={[styles.dslButton, style as any, disabled && styles.dslButtonDisabled]} disabled={disabled} {...rest}>
     <Text style={styles.dslButtonText}>{children}</Text>
   </Pressable>
 );
@@ -90,33 +90,65 @@ interface DslRenderScreenProps {
 const DslRenderScreen: React.FC<DslRenderScreenProps> = ({ onBack }) => {
   const [inputValue, setInputValue] = useState('');
   const [eventLog, setEventLog] = useState<string[]>([]);
+  const [dynamicMessage, setDynamicMessage] = useState('暂无消息');
+  
+  const { state } = useSessionStore();
+  const sessionCount = state.sessions.length;
 
-  const handleEvent = (eventName: string, payload: unknown) => {
-    const log = `${new Date().toLocaleTimeString()}: ${eventName} - ${JSON.stringify(payload)}`;
-    setEventLog((prev) => [log, ...prev].slice(0, 10));
+  const addEventLog = useCallback((message: string) => {
+    const log = `${new Date().toLocaleTimeString()}: ${message}`;
+    setEventLog((prev) => [log, ...prev].slice(0, 15));
+  }, []);
+
+  const handleAction = useCallback((action: DslAction, context: DslContext) => {
+    addEventLog(`Action: ${action.type} - ${JSON.stringify(action.payload)}`);
+
+    switch (action.type) {
+      case 'NAVIGATE':
+        if (action.payload.path === 'back') {
+          onBack();
+        }
+        break;
+
+      case 'UPDATE_STATE':
+        if (action.payload.key === 'message') {
+          setDynamicMessage(String(action.payload.value));
+        }
+        break;
+
+      case 'SET_VALUE':
+        if (action.payload.target === 'input') {
+          setInputValue(action.payload.value);
+        }
+        break;
+
+      case 'CUSTOM':
+        Alert.alert('自定义动作', `执行: ${action.name}`);
+        break;
+
+      case 'FETCH_DATA':
+        addEventLog(`请求数据: ${action.payload.endpoint}`);
+        break;
+
+      default:
+        addEventLog(`未知动作: ${(action as DslAction).type}`);
+    }
+  }, [addEventLog, onBack]);
+
+  const dslContext: DslContext = {
+    session: {
+      count: sessionCount,
+      message: dynamicMessage,
+    },
+    user: {
+      name: '测试用户',
+    },
+    input: {
+      value: inputValue,
+    },
   };
 
-  const handleButtonPress = () => {
-    Alert.alert('成功', '按钮点击事件通过 DSL 引擎捕获！');
-  };
-
-  const childrenWithValue = inputValue
-    ? [
-        {
-          type: 'Text' as const,
-          props: {
-            style: {
-              fontSize: 14,
-              color: '#3b82f6',
-              marginTop: 8,
-            },
-          },
-          children: [`当前值: ${inputValue}`],
-        },
-      ]
-    : [];
-
-  const dslWithInteractions: IDslNode[] = [
+  const dslSchema: IDslNode[] = [
     {
       type: 'View',
       props: {
@@ -147,13 +179,15 @@ const DslRenderScreen: React.FC<DslRenderScreenProps> = ({ onBack }) => {
                   color: '#1f2937',
                 },
               },
-              children: ['DSL 渲染器'],
+              children: ['DSL 交互引擎'],
             },
             {
               type: 'Button',
               props: {
                 children: '返回',
-                onPress: onBack,
+              },
+              actions: {
+                onPress: { type: 'NAVIGATE', payload: { path: 'back' } },
               },
             },
           ],
@@ -193,7 +227,70 @@ const DslRenderScreen: React.FC<DslRenderScreenProps> = ({ onBack }) => {
                       marginBottom: 8,
                     },
                   },
-                  children: ['交互式输入框'],
+                  children: ['上下文数据绑定'],
+                },
+                {
+                  type: 'Text',
+                  props: {
+                    style: {
+                      fontSize: 14,
+                      color: '#6b7280',
+                      marginBottom: 4,
+                    },
+                  },
+                  children: ['会话数量: ${session.count}'],
+                },
+                {
+                  type: 'Text',
+                  props: {
+                    style: {
+                      fontSize: 14,
+                      color: '#6b7280',
+                      marginBottom: 4,
+                    },
+                  },
+                  children: ['用户名: ${user.name}'],
+                },
+                {
+                  type: 'Text',
+                  props: {
+                    style: {
+                      fontSize: 14,
+                      color: '#3b82f6',
+                      marginTop: 8,
+                    },
+                  },
+                  children: ['动态消息: ${session.message}'],
+                },
+              ],
+            },
+            {
+              type: 'View',
+              props: {
+                style: {
+                  backgroundColor: '#ffffff',
+                  borderRadius: 12,
+                  padding: 20,
+                  marginBottom: 16,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 2,
+                },
+              },
+              children: [
+                {
+                  type: 'Text',
+                  props: {
+                    style: {
+                      fontSize: 16,
+                      fontWeight: '600',
+                      color: '#374151',
+                      marginBottom: 8,
+                    },
+                  },
+                  children: ['输入框双向绑定'],
                 },
                 {
                   type: 'TextInput',
@@ -212,7 +309,17 @@ const DslRenderScreen: React.FC<DslRenderScreenProps> = ({ onBack }) => {
                     onChangeText: setInputValue,
                   },
                 },
-                ...childrenWithValue,
+                {
+                  type: 'Text',
+                  props: {
+                    style: {
+                      fontSize: 14,
+                      color: '#6b7280',
+                      marginTop: 8,
+                    },
+                  },
+                  children: ['当前输入: ${input.value}'],
+                },
               ],
             },
             {
@@ -241,17 +348,71 @@ const DslRenderScreen: React.FC<DslRenderScreenProps> = ({ onBack }) => {
                       marginBottom: 12,
                     },
                   },
-                  children: ['带事件回调的按钮'],
+                  children: ['声明式动作按钮'],
                 },
                 {
-                  type: 'Button',
+                  type: 'View',
                   props: {
                     style: {
-                      width: '100%',
+                      flexDirection: 'row',
+                      flexWrap: 'wrap',
+                      gap: 8,
                     },
-                    children: '点击触发事件',
-                    onPress: handleButtonPress,
                   },
+                  children: [
+                    {
+                      type: 'Button',
+                      props: {
+                        style: {
+                          flex: 1,
+                          minWidth: 120,
+                        },
+                        children: '更新消息',
+                      },
+                      actions: {
+                        onPress: { type: 'UPDATE_STATE', payload: { key: 'message', value: '消息已更新！' } },
+                      },
+                    },
+                    {
+                      type: 'Button',
+                      props: {
+                        style: {
+                          flex: 1,
+                          minWidth: 120,
+                        },
+                        children: '清空输入',
+                      },
+                      actions: {
+                        onPress: { type: 'SET_VALUE', payload: { target: 'input', value: '' } },
+                      },
+                    },
+                    {
+                      type: 'Button',
+                      props: {
+                        style: {
+                          flex: 1,
+                          minWidth: 120,
+                        },
+                        children: '自定义动作',
+                      },
+                      actions: {
+                        onPress: { type: 'CUSTOM', name: 'showToast', payload: { message: 'Hello DSL!' } },
+                      },
+                    },
+                    {
+                      type: 'Button',
+                      props: {
+                        style: {
+                          flex: 1,
+                          minWidth: 120,
+                        },
+                        children: '获取数据',
+                      },
+                      actions: {
+                        onPress: { type: 'FETCH_DATA', payload: { endpoint: '/api/sessions', method: 'GET' } },
+                      },
+                    },
+                  ],
                 },
               ],
             },
@@ -280,7 +441,7 @@ const DslRenderScreen: React.FC<DslRenderScreenProps> = ({ onBack }) => {
                       marginBottom: 12,
                     },
                   },
-                  children: ['事件日志'],
+                  children: ['动作日志'],
                 },
                 {
                   type: 'ScrollView',
@@ -294,7 +455,7 @@ const DslRenderScreen: React.FC<DslRenderScreenProps> = ({ onBack }) => {
                     },
                     showsVerticalScrollIndicator: true,
                   },
-                  children: eventLog.map((log) => ({
+                  children: eventLog.map((log, index) => ({
                     type: 'Text' as const,
                     props: {
                       style: {
@@ -315,7 +476,10 @@ const DslRenderScreen: React.FC<DslRenderScreenProps> = ({ onBack }) => {
   ];
 
   const renderer = createDslRenderer(rnComponentMap);
-  const renderedContent = renderer.render(dslWithInteractions, { onEvent: handleEvent });
+  const renderedContent = renderer.render(dslSchema, {
+    context: dslContext,
+    onAction: handleAction,
+  });
 
   return <>{renderedContent}</>;
 };

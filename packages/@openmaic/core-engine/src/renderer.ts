@@ -1,12 +1,14 @@
 import React from 'react';
-import type { IDslNode, ComponentMap, DslRenderOptions, DslSchema } from './types';
+import type { IDslNode, ComponentMap, DslRenderOptions, DslSchema, DslContext, DslAction } from './types';
+import { resolveBindingsInSchema } from './binding';
 
-function renderNode(
+function renderNode<TContext extends DslContext>(
   node: IDslNode,
   componentMap: ComponentMap,
-  onEvent?: (eventName: string, payload: unknown) => void
+  context: TContext,
+  onAction?: (action: DslAction, ctx: TContext) => void
 ): React.ReactElement | null {
-  const { type, props, children, id } = node;
+  const { type, props, children, id, actions } = node;
 
   const Component = componentMap[type];
   if (!Component) {
@@ -22,41 +24,35 @@ function renderNode(
     mergedProps.id = id;
   }
 
-  if (type === 'Button' && mergedProps.onPress && typeof mergedProps.onPress === 'function') {
-    const originalOnPress = mergedProps.onPress as () => void;
-    mergedProps.onPress = () => {
-      onEvent?.('buttonPress', { id, type });
-      originalOnPress();
-    };
-  }
-
-  if (type === 'TextInput' && mergedProps.onChangeText && typeof mergedProps.onChangeText === 'function') {
-    const originalOnChangeText = mergedProps.onChangeText as (text: string) => void;
-    mergedProps.onChangeText = (text: string) => {
-      onEvent?.('textInputChange', { id, type, value: text });
-      originalOnChangeText(text);
-    };
+  if (actions) {
+    for (const [eventName, action] of Object.entries(actions)) {
+      mergedProps[eventName] = () => {
+        onAction?.(action, context);
+      };
+    }
   }
 
   const renderedChildren = children?.map((child, index) => {
     if (typeof child === 'string') {
       return child;
     }
-    return renderNode(child, componentMap, onEvent);
+    return renderNode(child, componentMap, context, onAction);
   });
 
   return React.createElement(Component, mergedProps, ...(renderedChildren ?? []));
 }
 
-export function renderDsl(
+export function renderDsl<TContext extends DslContext = DslContext>(
   schema: DslSchema,
-  options: DslRenderOptions
+  options: DslRenderOptions<TContext>
 ): React.ReactElement | React.ReactElement[] | null {
-  const { componentMap, onEvent } = options;
+  const { componentMap, context = {} as TContext, onAction } = options;
 
-  if (Array.isArray(schema)) {
-    const elements = schema.map((node, index) => {
-      const element = renderNode(node, componentMap, onEvent);
+  const resolvedSchema = resolveBindingsInSchema(schema, context);
+
+  if (Array.isArray(resolvedSchema)) {
+    const elements = resolvedSchema.map((node, index) => {
+      const element = renderNode(node, componentMap, context, onAction);
       if (element) {
         return React.cloneElement(element, { key: node.id ?? index });
       }
@@ -72,15 +68,16 @@ export function renderDsl(
     return elements;
   }
 
-  return renderNode(schema, componentMap, onEvent);
+  return renderNode(resolvedSchema, componentMap, context, onAction);
 }
 
-export function createDslRenderer(componentMap: ComponentMap) {
+export function createDslRenderer<TContext extends DslContext = DslContext>(componentMap: ComponentMap) {
   return {
-    render: (schema: DslSchema, options?: Omit<DslRenderOptions, 'componentMap'>) => {
+    render: (schema: DslSchema, options?: Omit<DslRenderOptions<TContext>, 'componentMap'>) => {
       return renderDsl(schema, {
         componentMap,
-        onEvent: options?.onEvent,
+        context: options?.context,
+        onAction: options?.onAction,
       });
     },
   };
