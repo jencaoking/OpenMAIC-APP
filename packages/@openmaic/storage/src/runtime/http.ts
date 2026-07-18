@@ -5,8 +5,9 @@ import type {
   RuntimeRecordInit,
   RuntimeSession,
   RuntimeSessionStatus,
-} from '@openmaic/dsl';
-import type { RuntimeSessionInit, RuntimeStore } from './types.js';
+  RuntimeSessionInit,
+} from '@openmaic/storage-types';
+import type { RuntimeStore } from './types.js';
 import { assertJsonValue } from './json-value.js';
 
 export interface HttpRuntimeHeadersContext {

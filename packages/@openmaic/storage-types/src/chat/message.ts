@@ -1,4 +1,4 @@
-import type { ISO8601 } from '../runtime/session';
+import type { ISO8601 } from '../runtime/session.js';
 
 /**
  * Role of the message sender in chat context.

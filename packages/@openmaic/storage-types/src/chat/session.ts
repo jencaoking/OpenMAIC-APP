@@ -1,8 +1,8 @@
-import type { ISO8601 } from '../runtime/session';
-import type { ChatMessage, ChatMessageMetadata } from './message';
-import type { SessionConfig } from './config';
-import type { ToolCallRecord, ToolCallRequest } from './tool';
-import type { DirectorState } from './director';
+import type { ISO8601 } from '../runtime/session.js';
+import type { ChatMessage, ChatMessageMetadata } from './message.js';
+import type { SessionConfig } from './config.js';
+import type { ToolCallRecord, ToolCallRequest } from './tool.js';
+import type { DirectorState } from './director.js';
 
 /**
  * Chat session type classification.

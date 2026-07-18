@@ -25,8 +25,9 @@ import type {
   RuntimeRecordInit,
   RuntimeSession,
   RuntimeSessionStatus,
-} from '@openmaic/dsl';
-import type { RuntimePayloadValidator, RuntimeSessionInit, RuntimeStore } from './types.js';
+  RuntimeSessionInit,
+} from '@openmaic/storage-types';
+import type { RuntimePayloadValidator, RuntimeStore } from './types.js';
 
 const SESSIONS = 'sessions';
 const RECORDS = 'records';

@@ -660,6 +660,9 @@ importers:
       '@openmaic/dsl':
         specifier: workspace:*
         version: link:../dsl
+      '@openmaic/storage-types':
+        specifier: workspace:*
+        version: link:../storage-types
     devDependencies:
       '@electric-sql/pglite':
         specifier: ^0.3.14

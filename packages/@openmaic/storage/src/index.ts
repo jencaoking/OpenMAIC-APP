@@ -36,6 +36,5 @@ export { BrowserDocumentStore, type BrowserDocumentStoreOptions } from './docume
 export type { RuntimeStore, RuntimeSessionInit, RuntimePayloadValidator } from './runtime/types.js';
 export { BrowserRuntimeStore, type BrowserRuntimeStoreOptions } from './runtime/browser.js';
 
-// Re-export the DSL-owned asset contract for convenience, so consumers can get
-// the interface and a backend from one import without reaching into the DSL.
-export type { AssetRef, AssetMeta, BinaryBlob, StorageProvider } from '@openmaic/dsl';
+export type { AssetRef, AssetMeta } from '@openmaic/storage-types';
+export type { BinaryBlob, StorageProvider } from '@openmaic/dsl';

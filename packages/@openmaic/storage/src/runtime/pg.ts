@@ -27,8 +27,9 @@ import type {
   RuntimeRecordInit,
   RuntimeSession,
   RuntimeSessionStatus,
-} from '@openmaic/dsl';
-import type { RuntimePayloadValidator, RuntimeSessionInit, RuntimeStore } from './types.js';
+  RuntimeSessionInit,
+} from '@openmaic/storage-types';
+import type { RuntimePayloadValidator, RuntimeStore } from './types.js';
 import { assertJsonValue, isLosslessJsonString } from './json-value.js';
 
 export interface QueryResult<TRow extends Record<string, unknown> = Record<string, unknown>> {

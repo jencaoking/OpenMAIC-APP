@@ -1,4 +1,4 @@
-import type { ISO8601 } from '../runtime/session';
+import type { ISO8601 } from '../runtime/session.js';
 
 /**
  * Status of a tool call.

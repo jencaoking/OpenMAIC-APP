@@ -1,4 +1,4 @@
-import type { ISO8601 } from './session';
+import type { ISO8601 } from './session.js';
 
 /**
  * The set of values a RuntimeRecord.payload may hold.
@@ -28,7 +28,14 @@ export interface RuntimeRecord<TPayload extends RuntimePayload = RuntimePayload>
  * Omits server-generated field (seq).
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
-export type RuntimeRecordCreate<TPayload extends RuntimePayload = RuntimePayload> = Omit<
+export type RuntimeRecordInit<TPayload extends RuntimePayload = RuntimePayload> = Omit<
   RuntimeRecord<TPayload>,
   'seq'
 >;
+
+/**
+ * Alias for RuntimeRecordInit for backward compatibility.
+ * @deprecated Use RuntimeRecordInit instead.
+ * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
+ */
+export type RuntimeRecordCreate<TPayload extends RuntimePayload = RuntimePayload> = RuntimeRecordInit<TPayload>;

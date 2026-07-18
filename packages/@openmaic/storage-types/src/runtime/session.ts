@@ -36,7 +36,14 @@ export interface RuntimeSession extends RuntimeVersioned {
 
 /**
  * Payload for creating a new runtime session.
- * Omits server-generated fields (id, runtimeDslVersion, createdAt, updatedAt).
+ * Omits only the server-generated runtimeDslVersion (backward compatible).
+ * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
+ */
+export type RuntimeSessionInit = Omit<RuntimeSession, 'runtimeDslVersion'>;
+
+/**
+ * Strict payload for creating a new runtime session.
+ * Omits all server-generated fields (id, runtimeDslVersion, createdAt, updatedAt).
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
 export type RuntimeSessionCreate = Omit<RuntimeSession, 'id' | 'runtimeDslVersion' | 'createdAt' | 'updatedAt'>;

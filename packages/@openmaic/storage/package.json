@@ -61,7 +61,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@openmaic/dsl": "workspace:*"
+    "@openmaic/dsl": "workspace:*",
+    "@openmaic/storage-types": "workspace:*"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.3.14",
