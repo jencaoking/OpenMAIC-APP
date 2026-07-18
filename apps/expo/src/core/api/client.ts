@@ -36,6 +36,15 @@ export class ApiError extends Error {
 
 const DEFAULT_TIMEOUT = 15000;
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api/runtime';
+let authToken: string | null = null;
+
+export function setAuthToken(token: string | null): void {
+  authToken = token;
+}
+
+export function getAuthToken(): string | null {
+  return authToken;
+}
 
 async function fetchWithTimeout(input: RequestInfo, init?: RequestInit, timeout: number = DEFAULT_TIMEOUT): Promise<Response> {
   const controller = new AbortController();
@@ -62,7 +71,9 @@ async function handleResponse<T extends ApiResponseType>(response: Response): Pr
     let errorMessage = `HTTP error! Status: ${response.status}`;
     try {
       const body = await response.json();
-      if (body.message) {
+      if (body.error?.message) {
+        errorMessage = body.error.message;
+      } else if (body.message) {
         errorMessage = body.message;
       }
     } catch {
@@ -79,13 +90,21 @@ async function handleResponse<T extends ApiResponseType>(response: Response): Pr
   }
 }
 
+function getDefaultHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+  return headers;
+}
+
 export async function apiGet<T extends ApiResponseType>(endpoint: string): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
   const response = await fetchWithTimeout(url, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getDefaultHeaders(),
   });
   return handleResponse<T>(response);
 }
@@ -94,10 +113,27 @@ export async function apiPost<T extends ApiResponseType, P extends ApiPayloadTyp
   const url = `${BASE_URL}${endpoint}`;
   const response = await fetchWithTimeout(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getDefaultHeaders(),
     body: JSON.stringify(payload),
+  });
+  return handleResponse<T>(response);
+}
+
+export async function apiPatch<T extends ApiResponseType, P extends ApiPayloadType>(endpoint: string, payload: P): Promise<T> {
+  const url = `${BASE_URL}${endpoint}`;
+  const response = await fetchWithTimeout(url, {
+    method: 'PATCH',
+    headers: getDefaultHeaders(),
+    body: JSON.stringify(payload),
+  });
+  return handleResponse<T>(response);
+}
+
+export async function apiDelete<T extends ApiResponseType>(endpoint: string): Promise<T> {
+  const url = `${BASE_URL}${endpoint}`;
+  const response = await fetchWithTimeout(url, {
+    method: 'DELETE',
+    headers: getDefaultHeaders(),
   });
   return handleResponse<T>(response);
 }

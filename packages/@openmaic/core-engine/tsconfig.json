@@ -8,8 +8,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
-    "noEmit": true,
-    "declaration": false,
+    "noEmit": false,
+    "declaration": true,
     "sourceMap": false,
     "jsx": "react"
   },

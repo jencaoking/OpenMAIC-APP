@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/@openmaic/storage ./packages/@openmaic/storage
+COPY packages/@openmaic/dsl ./packages/@openmaic/dsl
+COPY packages/@openmaic/storage-types ./packages/@openmaic/storage-types
+COPY packages/maic-storage-server ./packages/maic-storage-server
+
+RUN npm install -g pnpm@10.28.0 && \
+    pnpm install --frozen-lockfile && \
+    cd packages/@openmaic/dsl && pnpm run build && \
+    cd ../storage && pnpm run build && \
+    cd ../../maic-storage-server && pnpm run build
+
+EXPOSE 3001
+
+CMD ["node", "packages/maic-storage-server/dist/index.js"]
