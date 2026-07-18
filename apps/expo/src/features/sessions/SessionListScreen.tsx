@@ -7,6 +7,8 @@ interface SessionListScreenProps {
   onAddSession: () => void;
   onShowDsl: () => void;
   onShowStressTest: () => void;
+  onStartChat: (sessionId: string) => void;
+  onStartQuiz: () => void;
 }
 
 function formatDate(dateString: string): string {
@@ -51,11 +53,12 @@ function getStatusText(status: RuntimeSession['status']): string {
 
 interface SessionItemProps {
   session: RuntimeSession;
+  onPress: () => void;
 }
 
-function SessionItem({ session }: SessionItemProps) {
+function SessionItem({ session, onPress }: SessionItemProps) {
   return (
-    <View style={styles.itemContainer}>
+    <Pressable style={styles.itemContainer} onPress={onPress}>
       <View style={styles.itemHeader}>
         <Text style={styles.idText}>{session.id}</Text>
         <View style={[styles.statusBadge, { backgroundColor: getStatusColor(session.status) }]}>
@@ -70,11 +73,12 @@ function SessionItem({ session }: SessionItemProps) {
       {session.updatedAt !== session.createdAt && (
         <Text style={styles.dateText}>更新时间: {formatDate(session.updatedAt)}</Text>
       )}
-    </View>
+      <Text style={styles.chatButtonText}>点击进入聊天 →</Text>
+    </Pressable>
   );
 }
 
-const SessionListScreen: React.FC<SessionListScreenProps> = ({ onAddSession, onShowDsl, onShowStressTest }) => {
+const SessionListScreen: React.FC<SessionListScreenProps> = ({ onAddSession, onShowDsl, onShowStressTest, onStartChat, onStartQuiz }) => {
   const { state, fetchSessions } = useSessionStore();
   const { sessions, status, error } = state;
 
