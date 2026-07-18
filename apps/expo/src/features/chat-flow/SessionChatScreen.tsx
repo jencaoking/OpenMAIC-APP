@@ -11,27 +11,54 @@ import {
   ActivityIndicator,
   Keyboard,
 } from 'react-native';
-import { MessageBubble, type Message } from './components/MessageBubble';
+import { MessageBubble } from './components/MessageBubble';
+import { AttachmentPanel } from './components/AttachmentPanel';
+import { ImagePreviewBar } from './components/ImagePreviewBar';
+import { VoiceModeScreen } from './VoiceModeScreen';
+import { VisionMessageBuilder } from '../../core/media';
+import type { IMessage, ImageAttachment, VoiceEngineConfig } from '../../types';
 
 interface SessionChatScreenProps {
   sessionId: string;
 }
 
+/**
+ * 默认语音引擎配置。
+ * 实际部署时应通过环境变量注入：
+ *   - EXPO_PUBLIC_STT_WS_URL
+ *   - EXPO_PUBLIC_TTS_URL
+ *   - EXPO_PUBLIC_LLM_STREAM_URL
+ */
+const VOICE_CONFIG: VoiceEngineConfig = {
+  sttWsUrl: process.env.EXPO_PUBLIC_STT_WS_URL ?? '',
+  ttsUrl: process.env.EXPO_PUBLIC_TTS_URL ?? '',
+  llmStreamUrl: process.env.EXPO_PUBLIC_LLM_STREAM_URL ?? '',
+  authToken: undefined,
+  vadThreshold: 0.18,
+  vadConsecutiveFrames: 6,
+  ttsChunkSize: 80,
+};
+
 export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [streamingContent, setStreamingContent] = useState<string>('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [inputText, setInputText] = useState('');
   const [inputHeight, setInputHeight] = useState(44);
+  const [pendingAttachments, setPendingAttachments] = useState<ImageAttachment[]>([]);
+  const [attachmentPanelVisible, setAttachmentPanelVisible] = useState(false);
+  const [voiceModeVisible, setVoiceModeVisible] = useState(false);
+
   const flatListRef = useRef<FlatList>(null);
   const keyboardOffsetRef = useRef(0);
+  const visionBuilderRef = useRef<VisionMessageBuilder>(new VisionMessageBuilder({ format: 'openmaic' }));
 
   const maxInputHeight = 44 * 4;
 
   useEffect(() => {
-    const welcomeMessage: Message = {
+    const welcomeMessage: IMessage = {
       id: '1',
-      content: '欢迎来到 OpenMAIC！我是你的 AI 学习助手。请开始提问，我会为你提供详细的解答。\n\n**支持的功能：**\n- 📝 代码高亮展示\n- 📊 表格渲染\n- 📋 一键复制代码\n- 🎯 互动答题',
+      content: '欢迎来到 OpenMAIC！我是你的 AI 学习助手。请开始提问，我会为你提供详细的解答。\n\n**支持的功能：**\n- 📝 代码高亮展示\n- 📊 表格渲染\n- 📋 一键复制代码\n- 🎯 互动答题\n- 📷 拍照识题（点击 + 按钮）\n- 🎙️ 语音对话（点击右下角麦克风）',
       role: 'assistant',
       timestamp: new Date(),
     };
@@ -65,18 +92,18 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
   }, [messages, isStreaming]);
 
   const handleSend = useCallback(async () => {
-    if (!inputText.trim() || isStreaming) return;
+    const trimmed = inputText.trim();
+    const hasText = trimmed.length > 0;
+    const hasAttachments = pendingAttachments.length > 0;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: inputText.trim(),
-      role: 'user',
-      timestamp: new Date(),
-    };
+    if ((!hasText && !hasAttachments) || isStreaming) return;
 
+    // 构造本地用户消息（立即显示）
+    const userMessage = visionBuilderRef.current.buildLocalMessage(trimmed, pendingAttachments);
     setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setInputHeight(44);
+    setPendingAttachments([]);
     setIsStreaming(true);
     setStreamingContent('');
 
@@ -84,13 +111,23 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 100);
 
+    // 构造后端请求体（即使后端未对接，也走一遍构造逻辑，便于未来接入）
+    try {
+      visionBuilderRef.current.buildRequest(trimmed, userMessage.attachments ?? [], sessionId);
+    } catch {
+      // 构造失败不阻断 UI 流程
+    }
+
+    // 后端未对接时的本地降级响应（与 Phase 5 保持一致的体验）
     const sampleResponses = [
       '这是一个很好的问题！让我为你详细解答。\n\n**关键点：**\n1. 首先理解问题的核心\n2. 分析可能的解决方案\n3. 选择最优方案\n\n```javascript\nfunction solveProblem(input) {\n  return input * 2;\n}\n```',
       '我来给你展示一个示例表格：\n\n| 功能 | 描述 | 状态 |\n|------|------|------|\n| 代码高亮 | 支持多种语言 | ✅ |\n| 表格渲染 | 自适应宽度 | ✅ |\n| 流式输出 | 实时显示 | ✅ |',
       '以下是一些重要的概念：\n\n- **概念一**：这是第一个概念的解释\n- **概念二**：这是第二个概念的解释\n- **概念三**：这是第三个概念的解释\n\n> 引用文本用于强调重要信息',
     ];
 
-    const response = sampleResponses[Math.floor(Math.random() * sampleResponses.length)];
+    const response = hasAttachments
+      ? '我已经收到你上传的图片，让我仔细分析一下…\n\n**图片识别结果：**\n- 检测到内容：' + (userMessage.attachments?.[0]?.source === 'camera' ? '相机拍摄' : '相册图片') + '\n- 分辨率：' + (userMessage.attachments?.[0]?.width + 'x' + userMessage.attachments?.[0]?.height) + '\n- 大小：' + (userMessage.attachments?.[0]?.byteSize + ' bytes') + '\n\n请在后端接入 Vision 模型后获得真实解析结果。'
+      : sampleResponses[Math.floor(Math.random() * sampleResponses.length)];
 
     let index = 0;
     const chunkSize = 5;
@@ -100,7 +137,7 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
         clearInterval(interval);
         setIsStreaming(false);
 
-        const assistantMessage: Message = {
+        const assistantMessage: IMessage = {
           id: (Date.now() + 1).toString(),
           content: response,
           role: 'assistant',
@@ -116,9 +153,7 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
       setStreamingContent(response.substring(0, endIndex));
       index = endIndex;
     }, 30);
-
-    return () => clearInterval(interval);
-  }, [inputText, isStreaming]);
+  }, [inputText, isStreaming, pendingAttachments, sessionId]);
 
   const handleInputChange = (text: string) => {
     setInputText(text);
@@ -126,7 +161,15 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
     setInputHeight(newHeight);
   };
 
-  const renderMessageItem = ({ item }: { item: Message }) => (
+  const handleAttachmentsSelected = (attachments: ImageAttachment[]) => {
+    setPendingAttachments((prev) => [...prev, ...attachments]);
+  };
+
+  const handleRemoveAttachment = (id: string) => {
+    setPendingAttachments((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const renderMessageItem = ({ item }: { item: IMessage }) => (
     <MessageBubble message={item} />
   );
 
@@ -152,8 +195,9 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
           <MessageBubble
             message={{
               id: 'streaming',
-              content: streamingContent + '▌',
+              content: streamingContent,
               role: 'assistant',
+              streaming: true,
             }}
           />
         </View>
@@ -161,9 +205,20 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.inputContainer}
+        style={styles.inputSection}
       >
+        <ImagePreviewBar attachments={pendingAttachments} onRemove={handleRemoveAttachment} />
+
         <View style={styles.inputWrapper}>
+          <TouchableOpacity
+            style={styles.attachBtn}
+            onPress={() => setAttachmentPanelVisible(true)}
+            disabled={isStreaming}
+            accessibilityLabel="添加附件"
+          >
+            <Text style={styles.attachBtnIcon}>+</Text>
+          </TouchableOpacity>
+
           <TextInput
             style={[styles.input, { height: inputHeight }]}
             value={inputText}
@@ -176,10 +231,11 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
             onSubmitEditing={handleSend}
             returnKeyType="send"
           />
+
           <TouchableOpacity
             style={[styles.sendButton, isStreaming && styles.sendButtonDisabled]}
             onPress={handleSend}
-            disabled={!inputText.trim() || isStreaming}
+            disabled={(!inputText.trim() && pendingAttachments.length === 0) || isStreaming}
             accessibilityLabel="发送消息"
           >
             {isStreaming ? (
@@ -190,6 +246,29 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      {/* 悬浮语音按钮 */}
+      <TouchableOpacity
+        style={styles.voiceFab}
+        onPress={() => setVoiceModeVisible(true)}
+        accessibilityLabel="进入语音对话模式"
+        accessibilityRole="button"
+      >
+        <Text style={styles.voiceFabIcon}>🎙️</Text>
+      </TouchableOpacity>
+
+      <AttachmentPanel
+        visible={attachmentPanelVisible}
+        onClose={() => setAttachmentPanelVisible(false)}
+        onAttachmentsSelected={handleAttachmentsSelected}
+        maxSelection={4}
+      />
+
+      <VoiceModeScreen
+        visible={voiceModeVisible}
+        onClose={() => setVoiceModeVisible(false)}
+        voiceConfig={VOICE_CONFIG}
+      />
     </View>
   );
 };
@@ -226,18 +305,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
-  inputContainer: {
+  inputSection: {
     backgroundColor: '#ffffff',
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    paddingBottom: Platform.OS === 'ios' ? 34 : 8,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 8,
+  },
+  attachBtn: {
+    width: 36,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    borderRadius: 18,
+  },
+  attachBtnIcon: {
+    fontSize: 22,
+    fontWeight: '300',
+    color: '#374151',
+    lineHeight: 24,
   },
   input: {
     flex: 1,
@@ -265,5 +358,24 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 15,
     fontWeight: '500',
+  },
+  voiceFab: {
+    position: 'absolute',
+    right: 16,
+    bottom: Platform.OS === 'ios' ? 96 : 72,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#3b82f6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  voiceFabIcon: {
+    fontSize: 24,
   },
 });

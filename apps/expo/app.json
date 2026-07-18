@@ -5,9 +5,30 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
+    "scheme": "openmaic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.openmaic.expo",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "OpenMAIC 需要使用麦克风进行实时语音对话与语音答题。",
+        "NSCameraUsageDescription": "OpenMAIC 需要使用相机拍照识别题目、白板笔记或代码报错。",
+        "NSPhotoLibraryUsageDescription": "OpenMAIC 需要访问相册以选择图片进行多模态提问。",
+        "NSPhotoLibraryAddUsageDescription": "OpenMAIC 需要将拍摄的图片保存到相册。",
+        "NSSupportsLiveActivities": true,
+        "NSSupportsLiveActivitiesFrequentUpdates": true,
+        "UIBackgroundModes": [
+          "audio",
+          "fetch",
+          "processing",
+          "remote-notification"
+        ],
+        "FirebaseAppDelegateProxyEnabled": false
+      },
+      "associatedDomains": ["applinks:openmaic.dev"],
+      "entitlements": {
+        "com.apple.developer.app-group": ["group.com.openmaic.shared"]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -16,10 +37,59 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
+      "package": "dev.openmaic.expo",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.WAKE_LOCK",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MICROPHONE"
+      ],
+      "useNextNotificationsApi": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#3b82f6",
+          "defaultChannel": "openmaic-default",
+          "icon": "./assets/icon.png"
+        }
+      ],
+      [
+        "expo-task-manager",
+        { "backgroundMode": "true" }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "OpenMAIC 需要使用相机拍照识别题目。",
+          "microphonePermission": "OpenMAIC 需要使用麦克风进行实时语音对话。"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "OpenMAIC 需要访问相册以选择图片进行多模态提问。",
+          "cameraPermission": "OpenMAIC 需要使用相机拍照识别题目。"
+        }
+      ],
+      "expo-image-manipulator",
+      "expo-battery",
+      "expo-file-system"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "openmaic-expo"
+      }
     }
   }
 }

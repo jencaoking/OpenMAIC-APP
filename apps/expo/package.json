@@ -8,9 +8,18 @@
     "@ronradtke/react-native-markdown-display": "^9.0.3",
     "expo": "~57.0.7",
     "expo-av": "^16.0.8",
+    "expo-background-fetch": "~14.0.0",
+    "expo-battery": "~9.0.0",
+    "expo-camera": "~17.0.0",
+    "expo-constants": "~17.0.0",
+    "expo-file-system": "~19.0.0",
     "expo-haptics": "^57.0.1",
+    "expo-image-manipulator": "~14.0.0",
+    "expo-image-picker": "~17.0.0",
+    "expo-notifications": "~0.31.0",
     "expo-sqlite": "^57.0.1",
     "expo-status-bar": "~57.0.1",
+    "expo-task-manager": "~14.0.0",
     "react": "19.2.3",
     "react-native": "0.86.0",
     "react-native-gesture-handler": "^3.1.0",
@@ -26,7 +35,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit"
   },
   "private": true
 }

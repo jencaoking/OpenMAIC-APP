@@ -35,6 +35,21 @@ const CREATE_TABLES = `
     _version INTEGER NOT NULL DEFAULT 0,
     _status TEXT NOT NULL DEFAULT 'synced'
   );
+  CREATE TABLE IF NOT EXISTS message_attachments (
+    id TEXT PRIMARY KEY,
+    message_id TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    local_uri TEXT NOT NULL,
+    asset_ref TEXT,
+    mime_type TEXT NOT NULL,
+    width INTEGER NOT NULL,
+    height INTEGER NOT NULL,
+    byte_size INTEGER NOT NULL,
+    source TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    _version INTEGER NOT NULL DEFAULT 0,
+    _status TEXT NOT NULL DEFAULT 'synced'
+  );
   CREATE TABLE IF NOT EXISTS quiz_results (
     id TEXT PRIMARY KEY,
     quiz_id TEXT NOT NULL,
@@ -46,6 +61,8 @@ const CREATE_TABLES = `
   );
   CREATE INDEX IF NOT EXISTS idx_messages_session_id ON messages(session_id);
   CREATE INDEX IF NOT EXISTS idx_sessions_stage_learner ON sessions(stage_id, learner_key);
+  CREATE INDEX IF NOT EXISTS idx_attachments_message_id ON message_attachments(message_id);
+  CREATE INDEX IF NOT EXISTS idx_attachments_status ON message_attachments(_status);
 `;
 
 export interface CourseRecord {
@@ -86,6 +103,26 @@ export interface QuizResultRecord {
   answers: string;
   score: number | null;
   submitted_at: string;
+  _version: number;
+  _status: string;
+}
+
+/**
+ * 多模态消息附件记录（Phase 6.2）。
+ * 通过 message_id 与 messages 表关联。
+ */
+export interface MessageAttachmentRecord {
+  id: string;
+  message_id: string;
+  kind: string;
+  local_uri: string;
+  asset_ref: string | null;
+  mime_type: string;
+  width: number;
+  height: number;
+  byte_size: number;
+  source: string;
+  created_at: string;
   _version: number;
   _status: string;
 }
@@ -143,6 +180,62 @@ export async function insertQuizResult(result: Omit<QuizResultRecord, '_version'
   );
 }
 
+/**
+ * 插入一条多模态消息附件记录（Phase 6.2）。
+ * 与 messages 表通过 message_id 关联，一消息可携带多附件。
+ */
+export async function insertMessageAttachment(
+  attachment: Omit<MessageAttachmentRecord, '_version' | '_status'>,
+): Promise<void> {
+  await executeSqlWithResult(
+    'INSERT OR REPLACE INTO message_attachments (id, message_id, kind, local_uri, asset_ref, mime_type, width, height, byte_size, source, created_at, _version, _status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, "new")',
+    [
+      attachment.id,
+      attachment.message_id,
+      attachment.kind,
+      attachment.local_uri,
+      attachment.asset_ref,
+      attachment.mime_type,
+      attachment.width,
+      attachment.height,
+      attachment.byte_size,
+      attachment.source,
+      attachment.created_at,
+    ],
+  );
+}
+
+/**
+ * 查询指定消息下的所有附件。
+ */
+export async function getMessageAttachments(messageId: string): Promise<MessageAttachmentRecord[]> {
+  return await executeSql<MessageAttachmentRecord>(
+    'SELECT * FROM message_attachments WHERE message_id = ? ORDER BY created_at ASC',
+    [messageId],
+  );
+}
+
+/**
+ * 批量查询多消息的附件，避免 N+1 问题。
+ */
+export async function getMessageAttachmentsBatch(
+  messageIds: string[],
+): Promise<Map<string, MessageAttachmentRecord[]>> {
+  const result = new Map<string, MessageAttachmentRecord[]>();
+  if (messageIds.length === 0) return result;
+  const placeholders = messageIds.map(() => '?').join(',');
+  const records = await executeSql<MessageAttachmentRecord>(
+    `SELECT * FROM message_attachments WHERE message_id IN (${placeholders}) ORDER BY created_at ASC`,
+    messageIds,
+  );
+  for (const record of records) {
+    const list = result.get(record.message_id) ?? [];
+    list.push(record);
+    result.set(record.message_id, list);
+  }
+  return result;
+}
+
 export async function getCourses(): Promise<CourseRecord[]> {
   return await executeSql<CourseRecord>('SELECT * FROM courses');
 }
@@ -171,16 +264,18 @@ export async function getRecordsWithStatus(status: string): Promise<{
   courses: CourseRecord[];
   sessions: SessionRecord[];
   messages: MessageRecord[];
+  message_attachments: MessageAttachmentRecord[];
   quiz_results: QuizResultRecord[];
 }> {
-  const [courses, sessions, messages, quiz_results] = await Promise.all([
+  const [courses, sessions, messages, message_attachments, quiz_results] = await Promise.all([
     executeSql<CourseRecord>('SELECT * FROM courses WHERE _status = ?', [status]),
     executeSql<SessionRecord>('SELECT * FROM sessions WHERE _status = ?', [status]),
     executeSql<MessageRecord>('SELECT * FROM messages WHERE _status = ?', [status]),
+    executeSql<MessageAttachmentRecord>('SELECT * FROM message_attachments WHERE _status = ?', [status]),
     executeSql<QuizResultRecord>('SELECT * FROM quiz_results WHERE _status = ?', [status]),
   ]);
 
-  return { courses, sessions, messages, quiz_results };
+  return { courses, sessions, messages, message_attachments, quiz_results };
 }
 
 export async function updateRecordStatus(table: string, id: string, status: string, version: number): Promise<void> {

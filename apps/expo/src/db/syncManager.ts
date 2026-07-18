@@ -10,10 +10,12 @@ import {
   getSessions as dbGetSessions,
   getMessages as dbGetMessages,
   getQuizResults as dbGetQuizResults,
+  getMessageAttachments as dbGetMessageAttachments,
   insertCourse,
   insertSession,
   insertMessage,
   insertQuizResult,
+  insertMessageAttachment,
   getRecordsWithStatus,
   updateRecordStatus,
   getMaxVersion,
@@ -55,6 +57,21 @@ interface SyncChanges {
     session_id: string;
     role: string;
     content: string;
+    created_at: string;
+    _version: number;
+    _status: string;
+  }[];
+  message_attachments: {
+    id: string;
+    message_id: string;
+    kind: string;
+    local_uri: string;
+    asset_ref: string | null;
+    mime_type: string;
+    width: number;
+    height: number;
+    byte_size: number;
+    source: string;
     created_at: string;
     _version: number;
     _status: string;
@@ -174,6 +191,11 @@ class SyncManager {
       for (const message of changes.messages) {
         await upsertMessage(message);
       }
+
+      // Phase 6.2: 拉取附件记录（Append-Only，仅插入未存在的）
+      for (const attachment of changes.message_attachments ?? []) {
+        await insertMessageAttachment(attachment);
+      }
     } catch (error) {
       console.warn('Pull failed, will retry:', error);
     }
@@ -186,6 +208,7 @@ class SyncManager {
       records.courses.length === 0 &&
       records.sessions.length === 0 &&
       records.messages.length === 0 &&
+      records.message_attachments.length === 0 &&
       records.quiz_results.length === 0
     ) {
       return;
@@ -195,6 +218,7 @@ class SyncManager {
       courses: records.courses,
       sessions: records.sessions,
       messages: records.messages,
+      message_attachments: records.message_attachments,
       quiz_results: records.quiz_results,
     };
 
@@ -216,6 +240,9 @@ class SyncManager {
         }
         for (const message of records.messages) {
           await updateRecordStatus('messages', message.id, 'synced', ack.new_version);
+        }
+        for (const attachment of records.message_attachments) {
+          await updateRecordStatus('message_attachments', attachment.id, 'synced', ack.new_version);
         }
         for (const result of records.quiz_results) {
           await updateRecordStatus('quiz_results', result.id, 'synced', ack.new_version);
@@ -260,6 +287,49 @@ class SyncManager {
     if (this.state.isOnline) {
       this.forceSync();
     }
+  }
+
+  /**
+   * 插入消息附件（Phase 6.2）。
+   * 附件与消息一起作为单元提交：调用方应先 insertMessage，再 insertMessageAttachment。
+   */
+  async insertMessageAttachment(attachment: {
+    id: string;
+    message_id: string;
+    kind: string;
+    local_uri: string;
+    asset_ref: string | null;
+    mime_type: string;
+    width: number;
+    height: number;
+    byte_size: number;
+    source: string;
+    created_at: string;
+  }): Promise<void> {
+    await insertMessageAttachment(attachment);
+
+    if (this.state.isOnline) {
+      this.forceSync();
+    }
+  }
+
+  /**
+   * 查询指定消息下的所有附件（Phase 6.2）。
+   */
+  async getMessageAttachments(messageId: string): Promise<{
+    id: string;
+    message_id: string;
+    kind: string;
+    local_uri: string;
+    asset_ref: string | null;
+    mime_type: string;
+    width: number;
+    height: number;
+    byte_size: number;
+    source: string;
+    created_at: string;
+  }[]> {
+    return await dbGetMessageAttachments(messageId);
   }
 
   async insertQuizResult(result: { id: string; quiz_id: string; answers: string; score: number | null; submitted_at: string }): Promise<void> {
