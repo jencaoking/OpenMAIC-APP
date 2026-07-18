@@ -1,0 +1,100 @@
+{
+  "cli": {
+    "version": ">= 5.9.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "gradleCommand": ":app:assembleDebug",
+        "buildType": "apk",
+        "withoutCredentials": true
+      },
+      "ios": {
+        "simulator": true,
+        "developmentClient": true
+      },
+      "env": {
+        "APP_VARIANT": "development"
+      },
+      "channel": "development",
+      "autoIncrement": true,
+      "cache": {
+        "key": "development-v1"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
+      },
+      "ios": {
+        "simulator": false,
+        "enterpriseProvisioning": "adhoc"
+      },
+      "env": {
+        "APP_VARIANT": "preview"
+      },
+      "channel": "preview",
+      "autoIncrement": true,
+      "cache": {
+        "key": "preview-v1"
+      }
+    },
+    "production": {
+      "autoIncrement": {
+        "versionCode": true,
+        "buildNumber": true
+      },
+      "android": {
+        "buildType": "app-bundle",
+        "gradleCommand": ":app:bundleRelease"
+      },
+      "ios": {
+        "simulator": false,
+        "enterpriseProvisioning": "app-store"
+      },
+      "env": {
+        "APP_VARIANT": "production"
+      },
+      "channel": "production",
+      "cache": {
+        "key": "production-v1"
+      },
+      "credentialsSource": "remote"
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "internal",
+        "releaseStatus": "draft"
+      },
+      "ios": {
+        "appleId": "jencaoking@icloud.com",
+        "ascAppId": "dev.openmaic.expo",
+        "appleTeamId": "OPENMAIC",
+        "sku": "openmaic-expo-prod"
+      }
+    },
+    "preview": {
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "internal",
+        "releaseStatus": "draft"
+      },
+      "ios": {
+        "appleId": "jencaoking@icloud.com",
+        "ascAppId": "dev.openmaic.expo",
+        "appleTeamId": "OPENMAIC"
+      }
+    }
+  },
+  "updates": {
+    "url": "https://u.expo.dev/openmaic-expo"
+  }
+}

@@ -9,6 +9,7 @@ import {
   registerBackgroundSyncTask,
 } from '../core/notifications';
 import { widgetBridge, buildUnreadHint } from '../core/notifications';
+import { SplashController } from '../core/perf';
 import type { DeepLinkTarget } from '../types';
 
 interface RootLayoutProps {
@@ -35,8 +36,12 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
   const deepLinkConsumedRef = useRef(true);
 
   useEffect(() => {
+    // Phase 7.1: 阻止 Splash 自动隐藏，等首屏数据就绪后再隐藏
+    void SplashController.preventAutoHide();
+
     const initApp = async () => {
       try {
+        // 数据库初始化（Native 线程，不阻塞 JS Bridge）
         await syncManager.init();
         setIsDbReady(true);
 
@@ -59,6 +64,9 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
         });
       } catch (error) {
         setDbError(error instanceof Error ? error : new Error('Failed to initialize database'));
+      } finally {
+        // 首屏关键数据已就绪，隐藏 Splash（即使出错也隐藏，避免卡死在 Splash）
+        await SplashController.hide();
       }
     };
 

@@ -1,0 +1,100 @@
+{
+  "branches": [
+    "main",
+    {
+      "name": "beta",
+      "prerelease": true,
+      "channel": "preview"
+    },
+    {
+      "name": "alpha",
+      "prerelease": true,
+      "channel": "development"
+    }
+  ],
+  "repositoryUrl": "https://github.com/jencaoking/OpenMAIC-APP.git",
+  "tagFormat": "v${version}",
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          { "type": "feat", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "perf", "release": "patch" },
+          { "type": "refactor", "release": "patch" },
+          { "type": "docs", "release": false },
+          { "type": "style", "release": false },
+          { "type": "test", "release": false },
+          { "type": "build", "release": "patch" },
+          { "type": "ci", "release": false },
+          { "type": "chore", "release": false },
+          { "scope": "breaking", "release": "major" },
+          { "type": "feat", "scope": "breaking", "release": "major" }
+        ],
+        "parserOpts": {
+          "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES", "BREAKING"]
+        }
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            { "type": "feat", "section": "✨ Features", "hidden": false },
+            { "type": "fix", "section": "🐛 Bug Fixes", "hidden": false },
+            { "type": "perf", "section": "⚡ Performance", "hidden": false },
+            { "type": "refactor", "section": "♻️ Refactor", "hidden": false },
+            { "type": "build", "section": "📦 Build", "hidden": false },
+            { "type": "docs", "section": "📝 Documentation", "hidden": false },
+            { "type": "test", "section": "✅ Tests", "hidden": false },
+            { "type": "ci", "section": "🔧 CI/CD", "hidden": true },
+            { "type": "chore", "section": "Housekeeping", "hidden": true }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "apps/expo/CHANGELOG.md",
+        "changelogTitle": "# OpenMAIC Expo Changelog\n\nAll notable changes to OpenMAIC Expo mobile app are documented here.\n"
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "node scripts/bump-app-version.mjs ${nextRelease.version} && pnpm install --frozen-lockfile=false",
+        "publishCmd": "echo 'Released version ${nextRelease.version}'"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "apps/expo/CHANGELOG.md",
+          "apps/expo/app.json",
+          "apps/expo/package.json"
+        ],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "githubRepoUrl": "https://github.com/jencaoking/OpenMAIC-APP.git",
+        "successComment": "🎉 This ${issue ? 'issue' : 'PR'} is included in version ${nextRelease.version}",
+        "failComment": false,
+        "failTitle": false,
+        "labels": false,
+        "releasedLabels": ["released"]
+      }
+    ]
+  ],
+  "dryRun": false,
+  "ci": true,
+  "npmPublish": false
+}

@@ -1,0 +1,154 @@
+# Phase 7.5 Maestro E2E Test Flows
+#
+# 使用方式：
+#   maestro test apps/expo/.maestro/login-flow.yaml
+#   maestro test apps/expo/.maestro/session-chat-flow.yaml
+#   maestro test apps/expo/.maestro/quiz-flow.yaml
+#   maestro test apps/expo/.maestro/offline-sync-flow.yaml
+#
+# 运行所有 flow：
+#   maestro test apps/expo/.maestro/
+
+# ============================================================
+# Flow 1: 启动 App → 查看课程列表
+# ============================================================
+appId: ${MAESTRO_APP_ID} # dev.openmaic.expo (Android) / dev.openmaic.expo (iOS)
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd
+- assertVisible: "OpenMAIC"
+- assertVisible: "今日课程"
+- tapOn: "Session 列表"
+- waitForAnimationToEnd
+- assertVisible: ".*会话.*"
+
+# ============================================================
+# Flow 2: 进入 Session → 发送消息 → 验证 AI 回复
+# ============================================================
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- tapOn: "Session 列表"
+- tapOn:
+    text: ".*测试会话.*"
+    index: 0
+- waitForAnimationToEnd
+- assertVisible: "发送消息"
+- tapOn: "发送消息"
+- inputText: "你好，请帮我解释一下 React Native 的 FlatList 组件"
+- tapOn: "发送"
+- waitForAnimationToEnd
+# 等待 AI 回复出现（最长 30 秒）
+- extendedWaitUntil:
+    visible: "FlatList"
+    timeout: 30000
+- assertVisible: "FlatList"
+
+# ============================================================
+# Flow 3: 开始 Quiz → 答题 → 提交 → 查看结果
+# ============================================================
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- tapOn: ".*Quiz.*"
+- waitForAnimationToEnd
+# 选择第一个选项（单选题）
+- tapOn:
+    point: "50%,35%"
+- tapOn: "下一题"
+- waitForAnimationToEnd
+# 答完所有题目后提交
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          point: "50%,35%"
+      - tapOn: "下一题"
+- tapOn: "提交"
+- waitForAnimationToEnd
+- assertVisible: ".*得分.*"
+- assertVisible: ".*正确率.*"
+
+# ============================================================
+# Flow 4: 离线浏览 → 恢复网络 → 验证同步
+# ============================================================
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+# 模拟离线（adb shell svc data disable / adb shell svc wifi disable）
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - adb shell svc data disable
+      - adb shell svc wifi disable
+- waitForAnimationToEnd
+# 验证 NetworkBanner 显示离线状态
+- assertVisible: ".*离线.*"
+# 在离线状态下浏览 Session
+- tapOn: "Session 列表"
+- tapOn:
+    text: ".*测试会话.*"
+    index: 0
+- waitForAnimationToEnd
+- assertVisible: ".*消息.*"
+# 恢复网络
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - adb shell svc data enable
+      - adb shell svc wifi enable
+- waitForAnimationToEnd
+# 验证 NetworkBanner 显示在线状态
+- assertVisible: ".*在线.*|.*已同步.*"
+
+# ============================================================
+# Flow 5: 语音模式启动（验证权限请求）
+# ============================================================
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd
+- tapOn: "Session 列表"
+- tapOn:
+    text: ".*测试会话.*"
+    index: 0
+- waitForAnimationToEnd
+# 点击语音通话按钮
+- tapOn:
+    id: "voice-call-button"
+# 验证权限弹窗
+- assertVisible: ".*麦克风.*|.*Microphone.*"
+- tapOn: "Allow|允许"
+- waitForAnimationToEnd
+# 验证语音模式 UI
+- assertVisible: ".*聆听.*|.*Listening.*"
+
+# ============================================================
+# Flow 6: 多模态图片上传（验证相机权限）
+# ============================================================
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- tapOn: "Session 列表"
+- tapOn:
+    text: ".*测试会话.*"
+    index: 0
+- waitForAnimationToEnd
+- tapOn:
+    id: "attachment-plus-button"
+- waitForAnimationToEnd
+- tapOn: "拍照"
+- assertVisible: ".*相机.*|.*Camera.*"
+- tapOn: "Allow|允许"
+- waitForAnimationToEnd
+# 模拟拍照（实际测试时需手动操作或使用固定图片）
+- tapOn:
+    id: "shutter-button"

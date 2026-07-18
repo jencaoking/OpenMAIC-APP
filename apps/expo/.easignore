@@ -1,0 +1,61 @@
+# Phase 7.2 — .easignore
+# 控制 EAS Build 上传到 Expo 云端的文件白名单，减小上传体积。
+# 此文件语法与 .gitignore 兼容，匹配的文件不会被打包到 EAS 构建上下文。
+
+# === 测试与文档（构建时不需要）===
+__tests__/
+**/__tests__/**
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+**/*.md
+docs/
+**/docs/**
+
+# === Maestro E2E 流 ===
+.maestro/
+**/.maestro/**
+
+# === CI/CD 配置 ===
+.github/
+**/.github/**
+.releaserc.json
+.easignore
+
+# === 开发工具配置 ===
+.eslintrc*
+.prettierrc*
+.editorconfig
+.vscode/
+.idea/
+**/.vscode/**
+**/.idea/**
+
+# === TypeScript 配置（构建时由 EAS 内部处理）===
+# tsconfig.json 保留，因为 EAS Build 需要 tsc 验证类型
+
+# === 资源源文件（构建时只需要编译后的产物）===
+assets/raw/
+**/assets/raw/**
+
+# === 备份与临时文件 ===
+*.bak
+*.tmp
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Git ===
+.git/
+.gitignore
+.gitattributes
+
+# === Lock 文件（保留 pnpm-lock.yaml 与 yarn.lock 与 package-lock.json 之一）===
+# EAS Build 会根据 package.json 自动生成 lock 文件
+# 注意：如果你的项目使用 monorepo，需保留根目录的 lock 文件
+
+# === 其他子项目（monorepo 场景下，只打包 apps/expo 与所需 packages）===
+# 见根目录的 .easignore 处理 monorepo 隔离
