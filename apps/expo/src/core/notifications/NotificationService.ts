@@ -247,11 +247,15 @@ class NotificationServiceManager {
     }
     // 次选：扁平字段
     if (typeof data.kind === 'string') {
+      const route =
+        typeof data.route === 'object' && data.route !== null && 'screen' in data.route
+          ? (data.route as DeepLinkTarget)
+          : undefined;
       return {
         kind: data.kind as PushNotificationPayload['kind'],
         entityId: typeof data.entityId === 'string' ? data.entityId : undefined,
         summary: typeof data.summary === 'string' ? data.summary : undefined,
-        route: data.route ?? undefined,
+        route,
       };
     }
     return null;

@@ -9,7 +9,8 @@
  *
  * 在 _layout.tsx 中通过 useEffect 注册一次即可。
  */
-import { AppState, AppStateStatus } from 'react-native';
+import { AppState } from 'react-native';
+import type { AppStateStatus } from 'react-native';
 import { syncManager } from '../../db/syncManager';
 
 const BACKGROUND_DISCONNECT_DELAY_MS = 30_000;

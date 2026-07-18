@@ -84,7 +84,6 @@ class AudioSessionManager {
       playThroughEarpieceAndroid: nextConfig.route === 'earpiece',
       interruptionModeIOS: INTERRUPTION_MODE_IOS_DUCK_OTHERS,
       interruptionModeAndroid: INTERRUPTION_MODE_ANDROID_DUCK_OTHERS,
-      shouldPlayInBackground: false,
     });
 
     this.isActive = true;
@@ -106,7 +105,6 @@ class AudioSessionManager {
       playThroughEarpieceAndroid: false,
       interruptionModeIOS: INTERRUPTION_MODE_IOS_DUCK_OTHERS,
       interruptionModeAndroid: INTERRUPTION_MODE_ANDROID_DUCK_OTHERS,
-      shouldPlayInBackground: false,
     });
 
     this.isActive = false;
@@ -133,7 +131,6 @@ class AudioSessionManager {
       playThroughEarpieceAndroid: route === 'earpiece',
       interruptionModeIOS: INTERRUPTION_MODE_IOS_DUCK_OTHERS,
       interruptionModeAndroid: INTERRUPTION_MODE_ANDROID_DUCK_OTHERS,
-      shouldPlayInBackground: false,
     });
     this.routeChangeListeners.forEach((fn) => fn(route));
   }

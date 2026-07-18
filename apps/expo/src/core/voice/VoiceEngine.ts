@@ -176,17 +176,17 @@ export class VoiceEngine {
     await recording.prepareToRecordAsync({
       isMeteringEnabled: true,
       android: {
-        extension: '.pcm',
-        outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_PCM_16BIT,
-        audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_PCM_16BIT,
+        extension: '.m4a',
+        outputFormat: Audio.AndroidOutputFormat.MPEG_4,
+        audioEncoder: Audio.AndroidAudioEncoder.AAC,
         sampleRate: 16000,
         numberOfChannels: 1,
         bitRate: 256000,
       },
       ios: {
         extension: '.pcm',
-        outputFormat: Audio.RECORDING_OPTION_IOS_OUTPUT_FORMAT_LINEARPCM,
-        audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
+        outputFormat: Audio.IOSOutputFormat.LINEARPCM,
+        audioQuality: Audio.IOSAudioQuality.HIGH,
         sampleRate: 16000,
         numberOfChannels: 1,
         bitRate: 256000,

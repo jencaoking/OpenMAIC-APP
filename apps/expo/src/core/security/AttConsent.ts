@@ -39,7 +39,7 @@ declare global {
 
 function getNativeModule(): AttNativeModule | null {
   if (Platform.OS !== 'ios') return null;
-  return global.__OpenMaicAttBridge ?? null;
+  return (globalThis as any).__OpenMaicAttBridge ?? null;
 }
 
 function mapStatus(code: number): AttAuthorizationStatus {

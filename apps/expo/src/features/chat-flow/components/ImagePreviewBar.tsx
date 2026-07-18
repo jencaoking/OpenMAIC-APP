@@ -17,7 +17,7 @@ import {
   Modal,
   Dimensions,
 } from 'react-native';
-import type { ImageAttachment } from '../../types';
+import type { ImageAttachment } from '../../../types';
 
 export interface ImagePreviewBarProps {
   attachments: ImageAttachment[];

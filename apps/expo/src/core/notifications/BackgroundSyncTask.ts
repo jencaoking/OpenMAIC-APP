@@ -74,9 +74,7 @@ export async function registerBackgroundSyncTask(): Promise<boolean> {
   }
 
   const status = await BackgroundFetch.getStatusAsync();
-  const canRegister =
-    status === BackgroundFetch.BackgroundFetchStatus.Available ||
-    status === BackgroundFetch.BackgroundFetchStatus.NoData;
+  const canRegister = status === BackgroundFetch.BackgroundFetchStatus.Available;
 
   if (!canRegister) {
     console.warn('[BackgroundSyncTask] BackgroundFetch not available, status:', status);
@@ -112,7 +110,7 @@ export async function unregisterBackgroundSyncTask(): Promise<void> {
  */
 export async function getBackgroundSyncStatus(): Promise<{
   isRegistered: boolean;
-  backgroundFetchStatus: BackgroundFetch.BackgroundFetchStatus;
+  backgroundFetchStatus: BackgroundFetch.BackgroundFetchStatus | null;
 }> {
   const [status, tasks] = await Promise.all([
     BackgroundFetch.getStatusAsync(),

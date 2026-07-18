@@ -18,6 +18,7 @@ import Animated, {
   interpolate,
   useDerivedValue,
   useAnimatedProps,
+  type SharedValue,
 } from 'react-native-reanimated';
 
 export interface WaveformAnimationProps {
@@ -44,7 +45,7 @@ const PALETTES: Record<WaveformAnimationProps['state'], { core: string; halo: st
 const WaveBar: React.FC<{
   index: number;
   total: number;
-  level: Animated.SharedValue<number>;
+  level: SharedValue<number>;
   color: string;
   baseHeight: number;
 }> = ({ index, total, level, color, baseHeight }) => {

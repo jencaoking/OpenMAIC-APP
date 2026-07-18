@@ -20,8 +20,8 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Camera from 'expo-camera';
-import { ImageCompressor } from '../../core/media';
-import type { ImageAttachment } from '../../types';
+import { ImageCompressor } from '../../../core/media';
+import type { ImageAttachment } from '../../../types';
 
 export interface AttachmentPanelProps {
   visible: boolean;
@@ -46,7 +46,7 @@ export const AttachmentPanel: React.FC<AttachmentPanelProps> = ({
     if (isProcessing) return;
     setIsProcessing(true);
     try {
-      const cameraPermission = await Camera.requestCameraPermissionsAsync();
+      const cameraPermission = await Camera.Camera.requestCameraPermissionsAsync();
       if (!cameraPermission.granted) {
         showPermissionAlert('相机', '请在系统设置中允许 OpenMAIC 访问相机以拍照识题。');
         return;

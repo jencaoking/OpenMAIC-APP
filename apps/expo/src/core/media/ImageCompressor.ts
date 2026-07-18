@@ -86,7 +86,7 @@ export class ImageCompressor {
       localUri: result.uri,
       width: result.width ?? width,
       height: result.height ?? height,
-      byteSize: fileInfo.size ?? 0,
+      byteSize: fileInfo.exists ? fileInfo.size ?? 0 : 0,
       mimeType: 'image/jpeg',
       base64,
       source,
@@ -141,9 +141,8 @@ export class ImageCompressor {
    * 读取本地文件为 base64（无 data: 前缀）。
    */
   private static async readFileAsBase64(uri: string): Promise<string> {
-    const base64 = await FileSystem.readAsStringAsync(uri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
+    const file = new FileSystem.File(uri);
+    const base64 = await file.base64();
     return base64;
   }
 }

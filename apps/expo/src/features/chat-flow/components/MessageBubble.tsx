@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import { DslMarkdown } from './DslMarkdown';
-import type { IMessage, ImageAttachment } from '../../types';
+import type { IMessage, ImageAttachment } from '../../../types';
 
-export type { IMessage as Message } from '../../types';
+export type { IMessage as Message } from '../../../types';
 
 interface MessageBubbleProps {
   message: IMessage;

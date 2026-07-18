@@ -30,37 +30,26 @@ const styles = StyleSheet.create({
  */
 export const LazyQuizScreen = lazy(() =>
   import(/* webpackChunkName: "quiz" */ '../../features/quiz/QuizScreen').then((m) => ({
-    default: m.default ?? m.QuizScreen,
+    default: (m as any).QuizScreen,
   })),
 );
 
-/**
- * 懒加载的语音模式全屏页。
- * 仅当用户首次点击语音通话按钮时才加载 VoiceEngine + expo-av + TTS 模块。
- */
 export const LazyVoiceModeScreen = lazy(() =>
   import(/* webpackChunkName: "voice" */ '../../features/chat-flow/VoiceModeScreen').then((m) => ({
-    default: m.default ?? m.VoiceModeScreen,
+    default: (m as any).VoiceModeScreen,
   })),
 );
 
-/**
- * 懒加载的 DSL 渲染页。
- * 仅当用户首次打开 DSL 内容时才加载 core-engine 渲染器依赖。
- */
 export const LazyDslRenderScreen = lazy(() =>
   import(/* webpackChunkName: "dsl" */ '../../features/dsl/DslRenderScreen').then((m) => ({
-    default: m.default ?? m.DslRenderScreen,
+    default: (m as any).default,
   })),
 );
 
-/**
- * 懒加载的创建会话页（含表单与选择器）。
- */
 export const LazyCreateSessionScreen = lazy(() =>
   import(
     /* webpackChunkName: "create-session" */ '../../features/sessions/CreateSessionScreen'
-  ).then((m) => ({ default: m.default ?? m.CreateSessionScreen })),
+  ).then((m) => ({ default: (m as any).default })),
 );
 
 /** 高阶组件：将任意 Lazy 组件包装在 Suspense 中。 */

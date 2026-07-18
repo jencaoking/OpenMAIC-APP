@@ -56,7 +56,7 @@ export function initSentry(): void {
 
     // 启用 React Native 自动性能追踪
     integrations: [
-      new Sentry.ReactNativeTracing({
+      Sentry.reactNativeTracingIntegration({
         // 追踪 App 启动时间
         tracingOrigins: ['localhost', /^\//, /^https?:\/\/(api\.|staging\.|prod\.)?openmaic\.dev/],
         routingInstrumentation: undefined, // 由 _layout.tsx 注入
