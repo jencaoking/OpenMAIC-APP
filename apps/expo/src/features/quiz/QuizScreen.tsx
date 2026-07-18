@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,19 +6,9 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Animated as RNAnimated,
+  type GestureResponderEvent,
 } from 'react-native';
-import {
-  GestureHandlerRootView,
-  PanGestureHandler,
-  type PanGestureHandlerGestureEvent,
-} from 'react-native-gesture-handler';
-import Animated, {
-  useAnimatedGestureHandler,
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
 export interface Question {
@@ -91,58 +81,84 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showResult, setShowResult] = useState<Record<string, boolean>>({});
 
-  const translateX = useSharedValue(0);
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
-  const shakeOffset = useSharedValue(0);
+  const translateX = useRef(new RNAnimated.Value(0)).current;
+  const scale = useRef(new RNAnimated.Value(1)).current;
+  const opacity = useRef(new RNAnimated.Value(1)).current;
 
   const currentQuestion = questions[currentIndex];
 
   useEffect(() => {
-    translateX.value = 0;
-    scale.value = 1;
-    opacity.value = 1;
-    shakeOffset.value = 0;
-  }, [currentIndex, translateX, scale, opacity, shakeOffset]);
+    RNAnimated.spring(translateX, {
+      toValue: 0,
+      useNativeDriver: true,
+    }).start();
+    RNAnimated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+    RNAnimated.spring(opacity, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  }, [currentIndex]);
 
-  const handlePanGesture = useAnimatedGestureHandler<PanGestureHandlerGestureEvent>({
-    onStart: () => {
-      scale.value = withSpring(0.98);
-    },
-    onActive: (event) => {
-      translateX.value = event.translationX;
-      opacity.value = 1 - Math.abs(event.translationX) / 400;
-    },
-    onEnd: (event) => {
-      scale.value = withSpring(1);
+  const handlePanResponderMove = (e: React.NativeSyntheticEvent, gestureState: RNAnimated.GestureState) => {
+    translateX.setValue(gestureState.dx);
+    opacity.setValue(1 - Math.abs(gestureState.dx) / 400);
+  };
 
-      if (event.translationX > 100 && currentIndex > 0) {
-        translateX.value = withTiming(-300, { duration: 200 });
-        opacity.value = withTiming(0, { duration: 200 });
-        setTimeout(() => {
-          setCurrentIndex((prev) => prev - 1);
-        }, 200);
-      } else if (event.translationX < -100 && currentIndex < questions.length - 1) {
-        translateX.value = withTiming(300, { duration: 200 });
-        opacity.value = withTiming(0, { duration: 200 });
-        setTimeout(() => {
-          setCurrentIndex((prev) => prev + 1);
-        }, 200);
-      } else {
-        translateX.value = withSpring(0);
-        opacity.value = withSpring(1);
-      }
-    },
+  const handlePanResponderRelease = (e: React.NativeSyntheticEvent, gestureState: RNAnimated.GestureState) => {
+    if (gestureState.dx > 100 && currentIndex > 0) {
+      RNAnimated.timing(translateX, {
+        toValue: -300,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setCurrentIndex((prev) => prev - 1);
+      });
+      RNAnimated.timing(opacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    } else if (gestureState.dx < -100 && currentIndex < questions.length - 1) {
+      RNAnimated.timing(translateX, {
+        toValue: 300,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setCurrentIndex((prev) => prev + 1);
+      });
+      RNAnimated.timing(opacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      RNAnimated.spring(translateX, {
+        toValue: 0,
+        useNativeDriver: true,
+      }).start();
+      RNAnimated.spring(opacity, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
+  const panResponder = RNAnimated.createPanResponder({
+    onStartShouldSetPanResponder: () => true,
+    onPanResponderMove: handlePanResponderMove,
+    onPanResponderRelease: handlePanResponderRelease,
   });
 
-  const animatedStyle = useAnimatedStyle(() => ({
+  const animatedStyle = {
     transform: [
-      { translateX: translateX.value },
-      { scale: scale.value },
-      { translateX: shakeOffset.value },
+      { translateX },
+      { scale },
     ],
-    opacity: opacity.value,
-  }));
+    opacity,
+  };
 
   const handleOptionPress = async (optionId: string) => {
     if (submittedAnswers.has(currentQuestion.id)) return;
@@ -190,19 +206,29 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
 
     if (isCorrect) {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      scale.value = withSequence(
-        withSpring(1.05, { duration: 200 }),
-        withSpring(1, { duration: 200 })
-      );
+      RNAnimated.sequence([
+        RNAnimated.timing(scale, {
+          toValue: 1.05,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        RNAnimated.timing(scale, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
     } else {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      const shakeAnimations = [];
       for (let i = 0; i < 3; i++) {
-        shakeOffset.value = withSequence(
-          withTiming(-10, { duration: 50 }),
-          withTiming(10, { duration: 50 }),
-          withTiming(0, { duration: 50 })
+        shakeAnimations.push(
+          RNAnimated.timing(translateX, { toValue: -10, duration: 50, useNativeDriver: true }),
+          RNAnimated.timing(translateX, { toValue: 10, duration: 50, useNativeDriver: true }),
+          RNAnimated.timing(translateX, { toValue: 0, duration: 50, useNativeDriver: true })
         );
       }
+      RNAnimated.sequence(shakeAnimations).start();
     }
 
     setIsSubmitting(false);
@@ -276,8 +302,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
         </View>
       </View>
 
-      <PanGestureHandler onGestureEvent={handlePanGesture}>
-        <Animated.View style={[styles.cardContainer, animatedStyle]}>
+      <RNAnimated.View style={[styles.cardContainer, animatedStyle]} {...panResponder.panHandlers}>
           <View style={styles.card}>
             <View style={styles.questionType}>
               <Text style={styles.questionTypeText}>
@@ -315,7 +340,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
                             : answers[currentQuestion.id] === option.id,
                       }}
                     >
-                      <View style={[styles.optionIndicator, getOptionStyle(option.id)]}>
+                      <View style={[styles.optionIndicator, currentQuestion.type === 'checkbox' ? styles.optionIndicatorCheckbox : styles.optionIndicatorRadio]}>
                         {currentQuestion.type === 'checkbox' ? (
                           <Text style={styles.optionCheckmark}>
                             {(answers[currentQuestion.id] as string[])?.includes(option.id) ? '✓' : ''}
@@ -338,12 +363,11 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
               )}
             </ScrollView>
           </View>
-        </Animated.View>
-      </PanGestureHandler>
+        </RNAnimated.View>
 
       <View style={styles.horizontalIndicator}>
-        <View style={styles.indicatorHint}>← 左滑上一题</View>
-        <View style={styles.indicatorHint}>右滑下一题 →</View>
+        <Text style={styles.indicatorHint}>← 左滑上一题</Text>
+        <Text style={styles.indicatorHint}>右滑下一题 →</Text>
       </View>
 
       <View style={styles.buttonContainer}>
@@ -415,8 +439,6 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#3b82f6',
     borderRadius: 2,
-    transitionProperty: 'width',
-    transitionDuration: '300ms',
   },
   progressText: {
     fontSize: 14,
@@ -513,12 +535,17 @@ const styles = StyleSheet.create({
   optionIndicator: {
     width: 32,
     height: 32,
-    borderRadius: currentQuestion.type === 'checkbox' ? 8 : 16,
     backgroundColor: '#e5e7eb',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
     flexShrink: 0,
+  },
+  optionIndicatorRadio: {
+    borderRadius: 16,
+  },
+  optionIndicatorCheckbox: {
+    borderRadius: 8,
   },
   optionCheckmark: {
     fontSize: 16,

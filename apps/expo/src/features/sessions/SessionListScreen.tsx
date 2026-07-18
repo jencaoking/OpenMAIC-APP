@@ -91,7 +91,7 @@ const SessionListScreen: React.FC<SessionListScreenProps> = ({ onAddSession, onS
   };
 
   const renderItem = ({ item }: { item: RuntimeSession }) => (
-    <SessionItem session={item} />
+    <SessionItem session={item} onPress={() => onStartChat(item.id)} />
   );
 
   if (status === 'error') {
@@ -112,6 +112,9 @@ const SessionListScreen: React.FC<SessionListScreenProps> = ({ onAddSession, onS
         <View style={styles.headerButtons}>
           <Pressable style={styles.dslButton} onPress={onShowDsl}>
             <Text style={styles.dslButtonText}>DSL</Text>
+          </Pressable>
+          <Pressable style={styles.quizButton} onPress={onStartQuiz}>
+            <Text style={styles.quizButtonText}>答题</Text>
           </Pressable>
           <Pressable style={styles.stressButton} onPress={onShowStressTest}>
             <Text style={styles.stressButtonText}>压力测试</Text>
@@ -199,6 +202,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#374151',
+  },
+  quizButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#ecfdf5',
+    borderRadius: 8,
+  },
+  quizButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#10b981',
   },
   stressButton: {
     paddingHorizontal: 12,
@@ -309,6 +323,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#ffffff',
+  },
+  chatButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#3b82f6',
+    marginTop: 8,
+    textAlign: 'right',
   },
 });
 

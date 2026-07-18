@@ -10,6 +10,7 @@ import { ThemeProvider } from '@/lib/hooks/use-theme';
 import { I18nProvider } from '@/lib/hooks/use-i18n';
 import { Toaster } from '@/components/ui/sonner';
 import { ServerProvidersInit } from '@/components/server-providers-init';
+import { RuntimeStorageBootstrap } from '@/components/runtime-storage-bootstrap';
 import { AccessCodeGuard } from '@/components/access-code-guard';
 import { EditModeProvider } from '@/lib/contexts/edit-mode-context';
 import { FloatingToolbar } from '@/components/builder/FloatingToolbar';
@@ -42,6 +43,7 @@ export default function RootLayout({
         <ThemeProvider>
           <I18nProvider>
             <ServerProvidersInit />
+            <RuntimeStorageBootstrap />
             <EditModeProvider>
               <AccessCodeGuard>{children}</AccessCodeGuard>
               <FloatingToolbar />

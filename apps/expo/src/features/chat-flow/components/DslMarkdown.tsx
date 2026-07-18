@@ -193,14 +193,14 @@ export const DslMarkdown: React.FC<DslMarkdownProps> = ({ content }) => {
       rules={customRules}
       style={markdownStyle}
       renderers={{
-        code: ({ content }) => <CodeBlock content={content} />,
-        inlineCode: ({ content }) => <Text style={styles.inlineCode}>{content}</Text>,
-        table: ({ children }) => <Table>{children}</Table>,
-        tableRow: ({ children, isHeader }) => (
-          <TableRow isHeader={isHeader}>{children}</TableRow>
+        code: ({ content }: { content: string }) => <CodeBlock content={content} />,
+        inlineCode: ({ content }: { content: string }) => <Text style={styles.inlineCode}>{content}</Text>,
+        table: ({ children }: { children: React.ReactNode }) => <Table>{children}</Table>,
+        tableRow: ({ children, isHeader }: { children: React.ReactNode; isHeader?: boolean }) => (
+          <TableRow isHeader={isHeader || false}>{children}</TableRow>
         ),
-        tableCell: ({ children, isHeader }) => (
-          <TableCell isHeader={isHeader}>{children}</TableCell>
+        tableCell: ({ children, isHeader }: { children: React.ReactNode; isHeader?: boolean }) => (
+          <TableCell isHeader={isHeader || false}>{children}</TableCell>
         ),
       }}
     >
