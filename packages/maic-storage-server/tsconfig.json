@@ -11,10 +11,11 @@
     "rootDir": "./src",
     "verbatimModuleSyntax": true,
     "paths": {
-      "@openmaic/storage": ["../@openmaic/storage/src/index.ts"],
-      "@openmaic/dsl": ["../@openmaic/dsl/src/index.ts"],
+      "@openmaic/storage": ["../@openmaic/storage/dist/index.js"],
+      "@openmaic/dsl": ["../@openmaic/dsl/dist/index.js"],
       "@openmaic/storage-types": ["../@openmaic/storage-types/src/index.ts"]
-    }
+    },
+    "baseUrl": "."
   },
   "include": ["src/**/*"]
 }
