@@ -9,10 +9,11 @@ module.exports = {
   
   testEnvironment: 'node',
 
-  roots: ['<rootDir>/src', '<rootDir>/__tests__'],
+  roots: ['<rootDir>'],
   testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx'],
 
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  moduleDirectories: ['node_modules', '<rootDir>/src'],
   moduleNameMapper: {
     ...reactNativePreset.moduleNameMapper,
     '^@/(.*)$': '<rootDir>/src/$1',
