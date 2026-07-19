@@ -26,7 +26,7 @@ describe('DeepLinkRouter', () => {
       const target = DeepLinkRouter.parse('openmaic://dsl/content-789');
       expect(target).toEqual({
         screen: 'dsl',
-        params: { dslId: 'content-789' },
+        params: { stageId: 'content-789' },
       });
     });
 
@@ -34,7 +34,6 @@ describe('DeepLinkRouter', () => {
       const target = DeepLinkRouter.parse('openmaic://home');
       expect(target).toEqual({
         screen: 'list',
-        params: {},
       });
     });
 
@@ -52,8 +51,8 @@ describe('DeepLinkRouter', () => {
   describe('fromPayload(payload)', () => {
     it('should extract route from payload.route', () => {
       const target = DeepLinkRouter.fromPayload({
-        route: 'session',
-        sessionId: 'abc-123',
+        kind: 'session-opened',
+        route: { screen: 'chat', params: { sessionId: 'abc-123' } },
       });
       expect(target).toEqual({
         screen: 'chat',
@@ -63,8 +62,8 @@ describe('DeepLinkRouter', () => {
 
     it('should infer route from kind when route is missing', () => {
       const target = DeepLinkRouter.fromPayload({
-        kind: 'quiz',
-        id: 'quiz-456',
+        kind: 'quiz-graded',
+        entityId: 'quiz-456',
       });
       expect(target).toEqual({
         screen: 'quiz',
@@ -73,7 +72,7 @@ describe('DeepLinkRouter', () => {
     });
 
     it('should return null for unrecognized payload', () => {
-      expect(DeepLinkRouter.fromPayload({})).toBeNull();
+      expect(DeepLinkRouter.fromPayload({ kind: 'reminder' } as any)).toBeNull();
     });
   });
 });

@@ -17,7 +17,7 @@ Object.defineProperties(global, {
   cancelAnimationFrame: {
     configurable: true,
     enumerable: true,
-    value(id) {
+    value(id: number) {
       return clearTimeout(id);
     },
     writable: true,
@@ -33,7 +33,7 @@ Object.defineProperties(global, {
   requestAnimationFrame: {
     configurable: true,
     enumerable: true,
-    value(callback) {
+    value(callback: (timestamp: number) => void) {
       return setTimeout(() => callback(jest.now()), 0);
     },
     writable: true,
@@ -108,13 +108,59 @@ jest.mock('@sentry/react-native', () => ({
   reactNativeTracingIntegration: jest.fn().mockImplementation(() => ({})),
 }));
 
-jest.mock('react-native', () => {
-  const RN = jest.requireActual('react-native');
-  RN.Platform.OS = 'ios';
-  RN.Platform.Version = '17.0';
-  RN.AppState = {
+jest.mock('react-native', () => ({
+  Platform: {
+    OS: 'ios',
+    Version: '17.0',
+    select: jest.fn((obj: Record<string, unknown>) => obj.ios || obj.default),
+  },
+  AppState: {
     currentState: 'active',
     addEventListener: jest.fn(() => ({ remove: jest.fn() })),
-  };
-  return RN;
-});
+  },
+  NativeModules: {},
+  processColor: jest.fn((color: string) => color),
+  StyleSheet: {
+    create: jest.fn((styles: Record<string, unknown>) => styles),
+  },
+  View: jest.fn(),
+  Text: jest.fn(),
+  ActivityIndicator: jest.fn(),
+  TouchableOpacity: jest.fn(),
+  TouchableHighlight: jest.fn(),
+  ScrollView: jest.fn(),
+  Image: jest.fn(),
+  TextInput: jest.fn(),
+  Linking: {
+    openURL: jest.fn().mockResolvedValue(true),
+    getInitialURL: jest.fn().mockResolvedValue(null),
+    addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+  },
+  Dimensions: {
+    get: jest.fn(() => ({ width: 375, height: 812 })),
+  },
+  PixelRatio: {
+    get: jest.fn(() => 2),
+    getFontScale: jest.fn(() => 1),
+  },
+  NativeEventEmitter: jest.fn(),
+  EmitterSubscription: jest.fn(),
+  BackHandler: {
+    addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+  },
+  Clipboard: {
+    setString: jest.fn().mockResolvedValue(undefined),
+    getString: jest.fn().mockResolvedValue(''),
+  },
+  ToastAndroid: {
+    show: jest.fn(),
+    showWithGravity: jest.fn(),
+    showWithGravityAndOffset: jest.fn(),
+  },
+  Alert: {
+    alert: jest.fn(),
+  },
+  Vibration: {
+    vibrate: jest.fn(),
+  },
+}));
