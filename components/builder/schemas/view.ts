@@ -47,7 +47,14 @@ export const ViewPropertySchema: PropertySchema = {
       type: 'string',
       label: '分布方式',
       control: 'select',
-      options: ['flex-start', 'flex-end', 'center', 'space-between', 'space-around', 'space-evenly'],
+      options: [
+        'flex-start',
+        'flex-end',
+        'center',
+        'space-between',
+        'space-around',
+        'space-evenly',
+      ],
     },
     borderWidth: {
       type: 'number',

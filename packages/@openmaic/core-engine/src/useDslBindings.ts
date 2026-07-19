@@ -4,7 +4,7 @@ import { resolveBindingsInSchema } from './binding';
 
 export function useDslBindings(
   dslTree: IDslNode | IDslNode[],
-  context: DslContext
+  context: DslContext,
 ): IDslNode | IDslNode[] {
   return useMemo(() => {
     return resolveBindingsInSchema(dslTree, context);

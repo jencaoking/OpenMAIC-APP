@@ -30,7 +30,10 @@ async function proxyRequest(request: NextRequest): Promise<NextResponse> {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Storage server unavailable', message: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Storage server unavailable',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 503 },
     );
   }

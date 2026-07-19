@@ -70,7 +70,12 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const hasText = message.content && message.content.length > 0;
 
   return (
-    <View style={[styles.messageContainer, isUser ? styles.userMessageContainer : styles.assistantMessageContainer]}>
+    <View
+      style={[
+        styles.messageContainer,
+        isUser ? styles.userMessageContainer : styles.assistantMessageContainer,
+      ]}
+    >
       <View style={[styles.bubble, isUser ? styles.userBubble : styles.assistantBubble]}>
         {hasAttachments && (
           <View style={styles.attachmentsWrap}>
@@ -83,9 +88,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           ) : (
             <DslMarkdown content={message.content} />
           ))}
-        {message.streaming && (
-          <Text style={styles.cursor}>▌</Text>
-        )}
+        {message.streaming && <Text style={styles.cursor}>▌</Text>}
       </View>
       {message.timestamp && (
         <Text style={[styles.timestamp, isUser ? styles.userTimestamp : styles.assistantTimestamp]}>

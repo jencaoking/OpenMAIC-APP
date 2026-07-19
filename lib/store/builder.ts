@@ -55,7 +55,14 @@ const defaultDslTree: DslSchema = [
           {
             type: 'Button',
             id: 'primary-btn',
-            props: { style: { padding: '12px 24px', backgroundColor: '#722ed1', color: 'white', borderRadius: 8 } },
+            props: {
+              style: {
+                padding: '12px 24px',
+                backgroundColor: '#722ed1',
+                color: 'white',
+                borderRadius: 8,
+              },
+            },
             children: ['Get Started'],
             actions: {
               onPress: { type: 'NAVIGATE', payload: { path: '/dashboard' } },
@@ -64,7 +71,14 @@ const defaultDslTree: DslSchema = [
           {
             type: 'Button',
             id: 'secondary-btn',
-            props: { style: { padding: '12px 24px', backgroundColor: '#e2e8f0', color: '#334155', borderRadius: 8 } },
+            props: {
+              style: {
+                padding: '12px 24px',
+                backgroundColor: '#e2e8f0',
+                color: '#334155',
+                borderRadius: 8,
+              },
+            },
             children: ['Learn More'],
           },
         ],
@@ -118,7 +132,10 @@ function removeNodeById(
       }
     }
     if (removed) {
-      return { node: { ...node, children: newChildren.length > 0 ? newChildren : undefined }, removed: true };
+      return {
+        node: { ...node, children: newChildren.length > 0 ? newChildren : undefined },
+        removed: true,
+      };
     }
   }
   return { node, removed: false };
@@ -241,7 +258,11 @@ const useBuilderStoreBase = create<BuilderState>()((set, get) => ({
   },
 
   updateNodeProps: (nodeId, path, value) => {
-    const updatePropsRecursive = (props: Record<string, unknown>, currentPath: string[], currentValue: unknown): Record<string, unknown> => {
+    const updatePropsRecursive = (
+      props: Record<string, unknown>,
+      currentPath: string[],
+      currentValue: unknown,
+    ): Record<string, unknown> => {
       if (currentPath.length === 1) {
         return { ...props, [currentPath[0]]: currentValue };
       }
@@ -250,11 +271,7 @@ const useBuilderStoreBase = create<BuilderState>()((set, get) => ({
       const existingValue = props[key];
       const newValue =
         existingValue && typeof existingValue === 'object'
-          ? updatePropsRecursive(
-              existingValue as Record<string, unknown>,
-              rest,
-              currentValue
-            )
+          ? updatePropsRecursive(existingValue as Record<string, unknown>, rest, currentValue)
           : {};
 
       return { ...props, [key]: newValue };

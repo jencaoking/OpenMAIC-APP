@@ -12,12 +12,15 @@ interface DslCanvasProps {
   className?: string;
 }
 
-const componentMap: Record<DslComponentType, React.ComponentType<{
-  children?: React.ReactNode;
-  style?: Record<string, unknown>;
-  onClick?: () => void;
-  [key: string]: unknown;
-}>> = {
+const componentMap: Record<
+  DslComponentType,
+  React.ComponentType<{
+    children?: React.ReactNode;
+    style?: Record<string, unknown>;
+    onClick?: () => void;
+    [key: string]: unknown;
+  }>
+> = {
   View: ({ children, style, onClick, ...props }) => (
     <div
       style={style as React.CSSProperties}
@@ -43,17 +46,12 @@ const componentMap: Record<DslComponentType, React.ComponentType<{
       {children}
     </button>
   ),
-  Image: ({ style, ...props }) => (
-    <img style={style as React.CSSProperties} {...props} />
-  ),
+  Image: ({ style, ...props }) => <img style={style as React.CSSProperties} {...props} />,
   TextInput: ({ style, ...props }) => (
     <input type="text" style={style as React.CSSProperties} {...props} />
   ),
   ScrollView: ({ children, style, ...props }) => (
-    <div
-      style={{ ...(style as React.CSSProperties), overflow: 'auto' }}
-      {...props}
-    >
+    <div style={{ ...(style as React.CSSProperties), overflow: 'auto' }} {...props}>
       {children}
     </div>
   ),
@@ -123,7 +121,7 @@ function DslNodeRenderer({
     setShowMenu(false);
   };
 
-  const nodeStyle = node.props?.style as React.CSSProperties || {};
+  const nodeStyle = (node.props?.style as React.CSSProperties) || {};
 
   const isContainer = node.type === 'View' || node.type === 'ScrollView';
   const hasChildren = node.children && Array.isArray(node.children) && node.children.length > 0;
@@ -138,7 +136,9 @@ function DslNodeRenderer({
       onClick={handleClick}
       onContextMenu={handleContextMenu}
       className={`relative group transition-all duration-200 ${
-        isSelected ? 'ring-2 ring-primary ring-offset-2 rounded-lg' : 'hover:ring-2 hover:ring-border hover:ring-offset-1 rounded-lg'
+        isSelected
+          ? 'ring-2 ring-primary ring-offset-2 rounded-lg'
+          : 'hover:ring-2 hover:ring-border hover:ring-offset-1 rounded-lg'
       } ${isContainer && hasChildren ? 'drag-over-container' : ''}`}
       style={{ cursor: isEditMode ? 'move' : 'pointer', ...nodeStyle }}
     >
@@ -185,7 +185,9 @@ function DslNodeRenderer({
         )}
       </AnimatePresence>
 
-      <div className={`absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity ${isSelected ? 'opacity-100' : ''}`}>
+      <div
+        className={`absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity ${isSelected ? 'opacity-100' : ''}`}
+      >
         <div className="flex flex-col gap-1">
           <div className="w-2 h-2 rounded-full bg-primary" />
         </div>
@@ -233,7 +235,7 @@ function DslNodeRenderer({
                   dragOverIndex={dragOverIndex}
                 />
               </div>
-            )
+            ),
           )}
           {isContainer && (
             <div
@@ -309,7 +311,7 @@ export function DslCanvas({ className = '' }: DslCanvasProps) {
     }
 
     const isContainer = targetNode.type === 'View' || targetNode.type === 'ScrollView';
-    const newParentId = isContainer ? (targetNode.id || null) : null;
+    const newParentId = isContainer ? targetNode.id || null : null;
     const dropIndex = dragOverIndex ?? 0;
 
     moveNode(nodeId, newParentId, dropIndex);
@@ -325,10 +327,23 @@ export function DslCanvas({ className = '' }: DslCanvasProps) {
     return (
       <div className={`${className}`}>
         {Array.isArray(dslTree) ? (
-        dslTree.map((node) => (
+          dslTree.map((node) => (
+            <DslNodeRenderer
+              key={node.id}
+              node={node}
+              isSelected={false}
+              isEditMode={false}
+              onSelect={() => {}}
+              onDragStart={() => {}}
+              onDragOver={() => {}}
+              onDragLeave={() => {}}
+              onDrop={() => {}}
+              dragOverIndex={null}
+            />
+          ))
+        ) : (
           <DslNodeRenderer
-            key={node.id}
-            node={node}
+            node={dslTree}
             isSelected={false}
             isEditMode={false}
             onSelect={() => {}}
@@ -338,20 +353,7 @@ export function DslCanvas({ className = '' }: DslCanvasProps) {
             onDrop={() => {}}
             dragOverIndex={null}
           />
-        ))
-      ) : (
-        <DslNodeRenderer
-          node={dslTree}
-          isSelected={false}
-          isEditMode={false}
-          onSelect={() => {}}
-          onDragStart={() => {}}
-          onDragOver={() => {}}
-          onDragLeave={() => {}}
-          onDrop={() => {}}
-          dragOverIndex={null}
-        />
-      )}
+        )}
       </div>
     );
   }

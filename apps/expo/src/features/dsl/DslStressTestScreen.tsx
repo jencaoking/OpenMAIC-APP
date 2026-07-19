@@ -1,26 +1,45 @@
 import React, { useState, useCallback, useRef, useMemo, useLayoutEffect } from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { renderDsl, createDslRenderer, type IDslNode, type ComponentMap, type DslAction, type DslContext } from '@openmaic/core-engine';
+import {
+  renderDsl,
+  createDslRenderer,
+  type IDslNode,
+  type ComponentMap,
+  type DslAction,
+  type DslContext,
+} from '@openmaic/core-engine';
 
-const DslView: React.FC<{ style?: Record<string, unknown>; children?: React.ReactNode; [key: string]: unknown }> = ({ style, children, ...rest }) => (
+const DslView: React.FC<{
+  style?: Record<string, unknown>;
+  children?: React.ReactNode;
+  [key: string]: unknown;
+}> = ({ style, children, ...rest }) => (
   <View style={style as any} {...rest}>
     {children}
   </View>
 );
 
-const DslText: React.FC<{ style?: Record<string, unknown>; children?: React.ReactNode; [key: string]: unknown }> = ({ style, children, ...rest }) => (
+const DslText: React.FC<{
+  style?: Record<string, unknown>;
+  children?: React.ReactNode;
+  [key: string]: unknown;
+}> = ({ style, children, ...rest }) => (
   <Text style={style as any} {...rest}>
     {children}
   </Text>
 );
 
-const DslButton: React.FC<{ style?: Record<string, unknown>; children?: string; disabled?: boolean; [key: string]: unknown }> = ({
-  style,
-  children,
-  disabled,
-  ...rest
-}) => (
-  <Pressable style={[styles.dslButton, style as any, disabled && styles.dslButtonDisabled]} disabled={disabled} {...rest}>
+const DslButton: React.FC<{
+  style?: Record<string, unknown>;
+  children?: string;
+  disabled?: boolean;
+  [key: string]: unknown;
+}> = ({ style, children, disabled, ...rest }) => (
+  <Pressable
+    style={[styles.dslButton, style as any, disabled && styles.dslButtonDisabled]}
+    disabled={disabled}
+    {...rest}
+  >
     <Text style={styles.dslButtonText}>{children}</Text>
   </Pressable>
 );
@@ -36,7 +55,7 @@ const rnComponentMap: ComponentMap = {
 
 function generateStressTestDsl(nodeCount: number): IDslNode[] {
   const nodes: IDslNode[] = [];
-  
+
   for (let i = 0; i < nodeCount; i++) {
     nodes.push({
       type: 'View',
@@ -269,18 +288,21 @@ const DslStressTestScreen: React.FC<DslStressTestScreenProps> = ({ onBack }) => 
     }
   }, []);
 
-  const dslContext = useMemo(() => ({
-    dynamic: {
-      counter: `Counter: ${counter}`,
-    },
-    stats: {
-      renderTime: renderTime,
-      updateCount: updateCount,
-    },
-  }), [counter, renderTime, updateCount]);
+  const dslContext = useMemo(
+    () => ({
+      dynamic: {
+        counter: `Counter: ${counter}`,
+      },
+      stats: {
+        renderTime: renderTime,
+        updateCount: updateCount,
+      },
+    }),
+    [counter, renderTime, updateCount],
+  );
 
   const renderer = useMemo(() => createDslRenderer(rnComponentMap), []);
-  
+
   const renderedContent = renderer.render(dslSchema, {
     context: dslContext,
     onAction: handleAction,

@@ -74,7 +74,7 @@ function DslNodeRendererInternal<TContext extends DslContext = DslContext>({
 
 function arePropsEqual<TContext extends DslContext = DslContext>(
   prevProps: DslNodeRendererProps<TContext>,
-  nextProps: DslNodeRendererProps<TContext>
+  nextProps: DslNodeRendererProps<TContext>,
 ): boolean {
   if (prevProps.node !== nextProps.node) {
     return false;
@@ -91,6 +91,8 @@ function arePropsEqual<TContext extends DslContext = DslContext>(
   return true;
 }
 
-export const DslNodeRenderer = React.memo(DslNodeRendererInternal, arePropsEqual) as <TContext extends DslContext = DslContext>(
-  props: DslNodeRendererProps<TContext>
+export const DslNodeRenderer = React.memo(DslNodeRendererInternal, arePropsEqual) as <
+  TContext extends DslContext = DslContext,
+>(
+  props: DslNodeRendererProps<TContext>,
 ) => React.ReactElement;

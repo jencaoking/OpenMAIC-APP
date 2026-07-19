@@ -7,7 +7,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
 
-import { migrateIndexedDbToHttp, clearLocalRuntimeDb, type MigrationReport } from '@/lib/runtime/migrate-to-http';
+import {
+  migrateIndexedDbToHttp,
+  clearLocalRuntimeDb,
+  type MigrationReport,
+} from '@/lib/runtime/migrate-to-http';
 import { getLearnerKey } from '@/lib/runtime/learner-key';
 
 /**
@@ -34,7 +38,9 @@ export default function MigratePage() {
       setReport(result);
 
       if (result.status === 'success') {
-        toast.success(`迁移完成：${result.migratedSessions} 个会话，${result.migratedRecords} 条记录`);
+        toast.success(
+          `迁移完成：${result.migratedSessions} 个会话，${result.migratedRecords} 条记录`,
+        );
       } else if (result.status === 'partial') {
         toast.warning(`部分迁移：成功 ${result.migratedSessions}，失败 ${result.failedSessions}`);
       } else {
@@ -89,12 +95,7 @@ export default function MigratePage() {
                 迁移失败时可安全重试。
               </p>
             </div>
-            <Button
-              onClick={handleMigrate}
-              disabled={migrating}
-              className="w-full"
-              size="lg"
-            >
+            <Button onClick={handleMigrate} disabled={migrating} className="w-full" size="lg">
               {migrating ? '迁移中...' : '开始迁移'}
             </Button>
           </CardContent>
@@ -132,12 +133,15 @@ export default function MigratePage() {
                       {report.errors.slice(0, 20).map((err, idx) => (
                         <li key={idx} className="font-mono">
                           <span className="font-semibold">{err.sessionId}</span>
-                          {err.stageId && <span className="text-gray-500"> ({err.stageId})</span>}
-                          : {err.error}
+                          {err.stageId && (
+                            <span className="text-gray-500"> ({err.stageId})</span>
+                          )}: {err.error}
                         </li>
                       ))}
                       {report.errors.length > 20 && (
-                        <li className="text-gray-500">...还有 {report.errors.length - 20} 条错误</li>
+                        <li className="text-gray-500">
+                          ...还有 {report.errors.length - 20} 条错误
+                        </li>
                       )}
                     </ul>
                   </AlertDescription>
@@ -149,7 +153,8 @@ export default function MigratePage() {
                   <AlertTitle>迁移成功</AlertTitle>
                   <AlertDescription>
                     <p className="mb-3">
-                      本地数据已成功迁移至服务端。建议在确认 Web/Mobile 数据同步正常后，再清理本地数据。
+                      本地数据已成功迁移至服务端。建议在确认 Web/Mobile
+                      数据同步正常后，再清理本地数据。
                     </p>
                     <Button
                       onClick={handleClearLocal}
@@ -171,9 +176,7 @@ export default function MigratePage() {
             <CardTitle>多端同步验证</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-600 mb-3">
-              迁移完成后，可执行以下验证步骤：
-            </p>
+            <p className="text-sm text-gray-600 mb-3">迁移完成后，可执行以下验证步骤：</p>
             <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
               <li>在 Web 端创建新的学习会话，确认数据写入服务端</li>
               <li>在 Expo 端登录相同账号（learnerKey），确认会话列表同步</li>
@@ -181,7 +184,8 @@ export default function MigratePage() {
               <li>多端并发写入同一会话，确认 seq 严格递增无冲突</li>
             </ol>
             <p className="text-xs text-gray-500 mt-3">
-              验证脚本位于：<code className="bg-gray-100 px-1 rounded">scripts/verify-multi-device-sync.ts</code>
+              验证脚本位于：
+              <code className="bg-gray-100 px-1 rounded">scripts/verify-multi-device-sync.ts</code>
             </p>
           </CardContent>
         </Card>

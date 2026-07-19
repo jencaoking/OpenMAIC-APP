@@ -27,7 +27,10 @@ export function resolveTemplate(template: string, context: DslContext): string {
   });
 }
 
-export function resolveBindingsInProps(props: Record<string, unknown> | undefined, context: DslContext): Record<string, unknown> {
+export function resolveBindingsInProps(
+  props: Record<string, unknown> | undefined,
+  context: DslContext,
+): Record<string, unknown> {
   if (!props) {
     return {};
   }
@@ -107,7 +110,10 @@ export function resolveBindingsInNode(node: IDslNode, context: DslContext): IDsl
   };
 }
 
-export function resolveBindingsInSchema(schema: IDslNode | IDslNode[], context: DslContext): IDslNode | IDslNode[] {
+export function resolveBindingsInSchema(
+  schema: IDslNode | IDslNode[],
+  context: DslContext,
+): IDslNode | IDslNode[] {
   if (Array.isArray(schema)) {
     let arrayChanged = false;
     const resolvedArray = schema.map((node) => {

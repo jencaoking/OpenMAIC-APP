@@ -36,7 +36,11 @@ export const ImagePreviewBar: React.FC<ImagePreviewBarProps> = ({ attachments, o
 
   return (
     <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+      >
         {attachments.map((attachment) => (
           <View key={attachment.id} style={styles.thumbWrap}>
             <TouchableOpacity
@@ -63,7 +67,12 @@ export const ImagePreviewBar: React.FC<ImagePreviewBarProps> = ({ attachments, o
         ))}
       </ScrollView>
 
-      <Modal visible={previewUri !== null} transparent animationType="fade" onRequestClose={() => setPreviewUri(null)}>
+      <Modal
+        visible={previewUri !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPreviewUri(null)}
+      >
         <View style={styles.previewOverlay}>
           <TouchableOpacity
             style={styles.previewCloseArea}

@@ -3,20 +3,20 @@
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
 export interface AgentTurnSummary {
-    agentId: string;
-    turnNumber: number;
-    summary: string;
+  agentId: string;
+  turnNumber: number;
+  summary: string;
 }
 /**
  * Record of a whiteboard action for the director ledger.
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
 export interface WhiteboardActionRecord {
-    actionId: string;
-    sceneId?: string;
-    actionIndex?: number;
-    timestamp: string;
-    data: Record<string, unknown>;
+  actionId: string;
+  sceneId?: string;
+  actionIndex?: number;
+  timestamp: string;
+  data: Record<string, unknown>;
 }
 /**
  * Accumulated director state passed between per-agent requests.
@@ -24,8 +24,8 @@ export interface WhiteboardActionRecord {
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
 export interface DirectorState {
-    turnCount: number;
-    agentResponses: AgentTurnSummary[];
-    whiteboardLedger: WhiteboardActionRecord[];
+  turnCount: number;
+  agentResponses: AgentTurnSummary[];
+  whiteboardLedger: WhiteboardActionRecord[];
 }
 //# sourceMappingURL=director.d.ts.map

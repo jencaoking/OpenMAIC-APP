@@ -98,7 +98,7 @@ const CreateSessionScreen: React.FC<CreateSessionScreenProps> = ({ onBack }) => 
         setErrors((prev) => ({ ...prev, [key]: undefined }));
       }
     },
-    [errors]
+    [errors],
   );
 
   return (

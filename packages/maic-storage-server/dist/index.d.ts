@@ -23,7 +23,11 @@
  * - CORS_ORIGINS（逗号分隔的允许来源）
  */
 import { type Server } from 'node:http';
-import type { RuntimeHttpAuthenticate, RuntimeHttpAuthorizeAdmin, RuntimeHttpAuthorizeMerge } from '@openmaic/storage/server';
+import type {
+  RuntimeHttpAuthenticate,
+  RuntimeHttpAuthorizeAdmin,
+  RuntimeHttpAuthorizeMerge,
+} from '@openmaic/storage/server';
 import type { Queryable, WithTransaction } from '@openmaic/storage/runtime/pg';
 import { type ConnectableQueryable } from '@openmaic/storage/server/reference';
 /**

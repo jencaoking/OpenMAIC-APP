@@ -191,7 +191,9 @@ async function serverListRecords(
     const records = (await response.json()) as RuntimeRecord[];
     return new Set(records.map((r) => r.seq));
   } catch (error) {
-    throw new Error(`listRecords failed: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `listRecords failed: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 

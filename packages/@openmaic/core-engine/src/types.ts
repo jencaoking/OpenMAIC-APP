@@ -46,7 +46,10 @@ export interface ScrollViewProps {
 export type DslAction =
   | { type: 'NAVIGATE'; payload: { path: string } }
   | { type: 'UPDATE_STATE'; payload: { key: string; value: unknown } }
-  | { type: 'FETCH_DATA'; payload: { endpoint: string; method?: string; body?: Record<string, unknown> } }
+  | {
+      type: 'FETCH_DATA';
+      payload: { endpoint: string; method?: string; body?: Record<string, unknown> };
+    }
   | { type: 'SET_VALUE'; payload: { target: string; value: string } }
   | { type: 'CUSTOM'; name: string; payload?: Record<string, unknown> };
 
@@ -66,7 +69,7 @@ export type DslContext = Record<string, unknown>;
 
 export type ActionHandler<TContext extends DslContext = DslContext> = (
   action: DslAction,
-  context: TContext
+  context: TContext,
 ) => void;
 
 export type DslRenderOptions<TContext extends DslContext = DslContext> = {

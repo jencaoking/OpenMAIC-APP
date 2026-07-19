@@ -11,9 +11,7 @@ export default function BuilderPage() {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-lg text-muted-foreground">
-            Please enter edit mode to use the builder
-          </p>
+          <p className="text-lg text-muted-foreground">Please enter edit mode to use the builder</p>
         </div>
       </div>
     );

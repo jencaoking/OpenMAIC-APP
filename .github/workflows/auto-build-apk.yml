@@ -1,0 +1,164 @@
+name: Auto Build APK
+
+on:
+  push:
+    tags:
+      - 'v*.*.*-beta*'
+      - 'v*.*.*-rc*'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/expo/**'
+      - 'packages/@openmaic/**'
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Build profile'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - development
+          - preview
+      version_bump:
+        description: 'Auto increment version'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+  packages: read
+
+concurrency:
+  group: auto-build-apk-${{ github.ref }}-${{ github.event.inputs.profile || 'preview' }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10'
+  EAS_VERSION: latest
+  EXPO_DIR: apps/expo
+  BUILD_PROFILE: ${{ github.event.inputs.profile || 'preview' }}
+
+jobs:
+  quality:
+    name: Lint & TypeCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript Type Check (Expo)
+        working-directory: ${{ env.EXPO_DIR }}
+        run: pnpm run typecheck
+
+      - name: ESLint
+        run: pnpm run lint
+
+  build-apk:
+    name: Build Android APK (${{ env.BUILD_PROFILE }})
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: ${{ env.EAS_VERSION }}
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Configure Sentry
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        run: |
+          echo "SENTRY_CONFIGURED=true" >> $GITHUB_ENV
+        continue-on-error: true
+
+      - name: EAS Build Android APK
+        id: eas-build
+        working-directory: ${{ env.EXPO_DIR }}
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          BUILD_OUTPUT=$(eas build --profile ${{ env.BUILD_PROFILE }} --platform android --non-interactive --wait)
+          echo "$BUILD_OUTPUT"
+          echo "BUILD_LOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$BUILD_OUTPUT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Download APK artifact
+        working-directory: ${{ env.EXPO_DIR }}
+        run: |
+          eas build:download --platform android --latest --output build
+          ls -la build/
+
+      - name: Upload APK to GitHub Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: openmaic-apk-${{ env.BUILD_PROFILE }}
+          path: ${{ env.EXPO_DIR }}/build/*.apk
+          retention-days: 30
+
+      - name: Create GitHub Release (tag only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            📱 Android APK Build
+            - Profile: ${{ env.BUILD_PROFILE }}
+            - Commit: ${{ github.sha }}
+            - Branch: ${{ github.ref_name }}
+          files: ${{ env.EXPO_DIR }}/build/*.apk
+
+      - name: Notify on Discord
+        if: success()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: |
+            🚀 OpenMAIC APK Build Completed!
+            - Profile: ${{ env.BUILD_PROFILE }}
+            - Tag: ${{ github.ref_name }}
+            - Commit: ${{ github.sha }}
+            - Download: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
+        continue-on-error: true

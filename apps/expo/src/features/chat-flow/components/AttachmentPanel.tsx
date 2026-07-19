@@ -59,11 +59,10 @@ export const AttachmentPanel: React.FC<AttachmentPanelProps> = ({
       });
       if (result.canceled || result.assets.length === 0) return;
 
-      const attachment = await ImageCompressor.compress(
-        result.assets[0].uri,
-        'camera',
-        { maxDimension: 1080, quality: 0.8 },
-      );
+      const attachment = await ImageCompressor.compress(result.assets[0].uri, 'camera', {
+        maxDimension: 1080,
+        quality: 0.8,
+      });
       onAttachmentsSelected([attachment]);
       onClose();
     } catch (error) {
@@ -139,9 +138,7 @@ export const AttachmentPanel: React.FC<AttachmentPanelProps> = ({
                   <Text style={styles.optionLabel}>相册</Text>
                 </TouchableOpacity>
               </View>
-              {isProcessing && (
-                <Text style={styles.processingHint}>正在压缩图像…</Text>
-              )}
+              {isProcessing && <Text style={styles.processingHint}>正在压缩图像…</Text>}
             </View>
           </TouchableWithoutFeedback>
         </View>
@@ -154,14 +151,10 @@ export const AttachmentPanel: React.FC<AttachmentPanelProps> = ({
  * 权限被拒绝时的引导弹窗。
  */
 function showPermissionAlert(feature: string, message: string): void {
-  Alert.alert(
-    `${feature}权限被拒绝`,
-    message,
-    [
-      { text: '稍后', style: 'cancel' },
-      { text: '去设置', onPress: () => Linking.openSettings() },
-    ],
-  );
+  Alert.alert(`${feature}权限被拒绝`, message, [
+    { text: '稍后', style: 'cancel' },
+    { text: '去设置', onPress: () => Linking.openSettings() },
+  ]);
 }
 
 const styles = StyleSheet.create({

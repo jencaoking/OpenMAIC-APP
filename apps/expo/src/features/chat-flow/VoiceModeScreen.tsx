@@ -124,7 +124,10 @@ const VoiceModeContent: React.FC<{
       </View>
 
       <View style={styles.transcriptWrap}>
-        <ScrollView style={styles.transcriptScroll} contentContainerStyle={styles.transcriptContent}>
+        <ScrollView
+          style={styles.transcriptScroll}
+          contentContainerStyle={styles.transcriptContent}
+        >
           {snapshot.interimTranscript ? (
             <Text style={styles.interimText}>{snapshot.interimTranscript}…</Text>
           ) : null}

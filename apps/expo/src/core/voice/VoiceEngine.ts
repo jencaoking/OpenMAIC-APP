@@ -226,7 +226,10 @@ export class VoiceEngine {
   }
 
   private openSttWebSocket(): WebSocket {
-    const ws = new WebSocket(this.config.sttWsUrl, this.config.authToken ? ['bearer', this.config.authToken] : undefined);
+    const ws = new WebSocket(
+      this.config.sttWsUrl,
+      this.config.authToken ? ['bearer', this.config.authToken] : undefined,
+    );
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data as string) as SttEvent;

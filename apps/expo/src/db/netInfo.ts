@@ -12,7 +12,10 @@ export async function checkNetwork(): Promise<boolean> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
-    const response = await fetch('https://www.google.com', { method: 'HEAD', signal: controller.signal });
+    const response = await fetch('https://www.google.com', {
+      method: 'HEAD',
+      signal: controller.signal,
+    });
     clearTimeout(timeout);
     return response.ok;
   } catch {

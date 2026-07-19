@@ -5,4 +5,8 @@
 export { ImageCompressor } from './ImageCompressor';
 export type { CompressOptions } from './ImageCompressor';
 export { VisionMessageBuilder } from './VisionMessageBuilder';
-export type { VisionMessageFormat, VisionRequestPayload, VisionMessageBuilderConfig } from './VisionMessageBuilder';
+export type {
+  VisionMessageFormat,
+  VisionRequestPayload,
+  VisionMessageBuilderConfig,
+} from './VisionMessageBuilder';

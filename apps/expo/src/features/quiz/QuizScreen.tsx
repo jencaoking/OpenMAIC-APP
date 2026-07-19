@@ -36,7 +36,8 @@ const sampleQuestions: Question[] = [
       { id: 'D', text: 'Function' },
     ],
     correctAnswer: 'C',
-    explanation: 'String 是 JavaScript 的基本数据类型之一。Array、Object 和 Function 都是引用类型。',
+    explanation:
+      'String 是 JavaScript 的基本数据类型之一。Array、Object 和 Function 都是引用类型。',
   },
   {
     id: '2',
@@ -49,7 +50,8 @@ const sampleQuestions: Question[] = [
       { id: 'D', text: 'useContext' },
     ],
     correctAnswer: ['A', 'B', 'D'],
-    explanation: 'useState、useEffect 和 useContext 都是 React Hooks。componentDidMount 是类组件的生命周期方法。',
+    explanation:
+      'useState、useEffect 和 useContext 都是 React Hooks。componentDidMount 是类组件的生命周期方法。',
   },
   {
     id: '3',
@@ -153,10 +155,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
   });
 
   const animatedStyle = {
-    transform: [
-      { translateX },
-      { scale },
-    ],
+    transform: [{ translateX }, { scale }],
     opacity,
   };
 
@@ -225,7 +224,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
         shakeAnimations.push(
           RNAnimated.timing(translateX, { toValue: -10, duration: 50, useNativeDriver: true }),
           RNAnimated.timing(translateX, { toValue: 10, duration: 50, useNativeDriver: true }),
-          RNAnimated.timing(translateX, { toValue: 0, duration: 50, useNativeDriver: true })
+          RNAnimated.timing(translateX, { toValue: 0, duration: 50, useNativeDriver: true }),
         );
       }
       RNAnimated.sequence(shakeAnimations).start();
@@ -280,7 +279,10 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
       <View style={styles.header}>
         <View style={styles.progressContainer}>
           <View
-            style={[styles.progressBar, { width: `${((currentIndex + 1) / questions.length) * 100}%` }]}
+            style={[
+              styles.progressBar,
+              { width: `${((currentIndex + 1) / questions.length) * 100}%` },
+            ]}
           />
         </View>
         <Text style={styles.progressText}>
@@ -294,7 +296,9 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
           <Text style={styles.statLabel}>已答</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={[styles.statValue, correctCount === answeredCount && styles.statValueCorrect]}>
+          <Text
+            style={[styles.statValue, correctCount === answeredCount && styles.statValueCorrect]}
+          >
             {correctCount}
           </Text>
           <Text style={styles.statLabel}>正确</Text>
@@ -302,67 +306,80 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ quizId }) => {
       </View>
 
       <RNAnimated.View style={[styles.cardContainer, animatedStyle]} {...panResponder.panHandlers}>
-          <View style={styles.card}>
-            <View style={styles.questionType}>
-              <Text style={styles.questionTypeText}>
-                {currentQuestion.type === 'radio' ? '单选题' : currentQuestion.type === 'checkbox' ? '多选题' : '填空题'}
-              </Text>
-            </View>
-
-            <ScrollView style={styles.questionScroll} showsVerticalScrollIndicator={false}>
-              <Text style={styles.questionText}>{currentQuestion.question}</Text>
-
-              {currentQuestion.type === 'text' ? (
-                <View style={styles.textInputContainer}>
-                  <TextInput
-                    style={styles.textInput}
-                    value={(answers[currentQuestion.id] as string) || ''}
-                    onChangeText={handleTextChange}
-                    placeholder="输入答案..."
-                    placeholderTextColor="#9ca3af"
-                    editable={!submittedAnswers.has(currentQuestion.id)}
-                  />
-                </View>
-              ) : (
-                <View style={styles.optionsContainer}>
-                  {currentQuestion.options?.map((option) => (
-                    <TouchableOpacity
-                      key={option.id}
-                      style={getOptionStyle(option.id)}
-                      onPress={() => handleOptionPress(option.id)}
-                      disabled={submittedAnswers.has(currentQuestion.id)}
-                      accessibilityRole={currentQuestion.type === 'checkbox' ? 'checkbox' : 'radio'}
-                      accessibilityState={{
-                        selected:
-                          currentQuestion.type === 'checkbox'
-                            ? (answers[currentQuestion.id] as string[])?.includes(option.id)
-                            : answers[currentQuestion.id] === option.id,
-                      }}
-                    >
-                      <View style={[styles.optionIndicator, currentQuestion.type === 'checkbox' ? styles.optionIndicatorCheckbox : styles.optionIndicatorRadio]}>
-                        {currentQuestion.type === 'checkbox' ? (
-                          <Text style={styles.optionCheckmark}>
-                            {(answers[currentQuestion.id] as string[])?.includes(option.id) ? '✓' : ''}
-                          </Text>
-                        ) : (
-                          <Text style={styles.optionLetter}>{option.id}</Text>
-                        )}
-                      </View>
-                      <Text style={styles.optionText}>{option.text}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-
-              {submittedAnswers.has(currentQuestion.id) && currentQuestion.explanation && (
-                <View style={styles.explanationContainer}>
-                  <Text style={styles.explanationTitle}>解析</Text>
-                  <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
-                </View>
-              )}
-            </ScrollView>
+        <View style={styles.card}>
+          <View style={styles.questionType}>
+            <Text style={styles.questionTypeText}>
+              {currentQuestion.type === 'radio'
+                ? '单选题'
+                : currentQuestion.type === 'checkbox'
+                  ? '多选题'
+                  : '填空题'}
+            </Text>
           </View>
-        </RNAnimated.View>
+
+          <ScrollView style={styles.questionScroll} showsVerticalScrollIndicator={false}>
+            <Text style={styles.questionText}>{currentQuestion.question}</Text>
+
+            {currentQuestion.type === 'text' ? (
+              <View style={styles.textInputContainer}>
+                <TextInput
+                  style={styles.textInput}
+                  value={(answers[currentQuestion.id] as string) || ''}
+                  onChangeText={handleTextChange}
+                  placeholder="输入答案..."
+                  placeholderTextColor="#9ca3af"
+                  editable={!submittedAnswers.has(currentQuestion.id)}
+                />
+              </View>
+            ) : (
+              <View style={styles.optionsContainer}>
+                {currentQuestion.options?.map((option) => (
+                  <TouchableOpacity
+                    key={option.id}
+                    style={getOptionStyle(option.id)}
+                    onPress={() => handleOptionPress(option.id)}
+                    disabled={submittedAnswers.has(currentQuestion.id)}
+                    accessibilityRole={currentQuestion.type === 'checkbox' ? 'checkbox' : 'radio'}
+                    accessibilityState={{
+                      selected:
+                        currentQuestion.type === 'checkbox'
+                          ? (answers[currentQuestion.id] as string[])?.includes(option.id)
+                          : answers[currentQuestion.id] === option.id,
+                    }}
+                  >
+                    <View
+                      style={[
+                        styles.optionIndicator,
+                        currentQuestion.type === 'checkbox'
+                          ? styles.optionIndicatorCheckbox
+                          : styles.optionIndicatorRadio,
+                      ]}
+                    >
+                      {currentQuestion.type === 'checkbox' ? (
+                        <Text style={styles.optionCheckmark}>
+                          {(answers[currentQuestion.id] as string[])?.includes(option.id)
+                            ? '✓'
+                            : ''}
+                        </Text>
+                      ) : (
+                        <Text style={styles.optionLetter}>{option.id}</Text>
+                      )}
+                    </View>
+                    <Text style={styles.optionText}>{option.text}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            {submittedAnswers.has(currentQuestion.id) && currentQuestion.explanation && (
+              <View style={styles.explanationContainer}>
+                <Text style={styles.explanationTitle}>解析</Text>
+                <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
+              </View>
+            )}
+          </ScrollView>
+        </View>
+      </RNAnimated.View>
 
       <View style={styles.horizontalIndicator}>
         <Text style={styles.indicatorHint}>← 左滑上一题</Text>

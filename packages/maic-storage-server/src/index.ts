@@ -48,11 +48,10 @@ import {
 // ============================================================
 
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY ?? 'admin_secret_key';
-const ALLOWED_ORIGINS =
-  process.env.CORS_ORIGINS?.split(',').map((o) => o.trim()) ?? [
-    'http://localhost:3000',
-    'http://localhost:8081',
-  ];
+const ALLOWED_ORIGINS = process.env.CORS_ORIGINS?.split(',').map((o) => o.trim()) ?? [
+  'http://localhost:3000',
+  'http://localhost:8081',
+];
 
 // ============================================================
 // 鉴权钩子（PLAN.MD 6. 核心协议契约规范）
@@ -115,9 +114,7 @@ const authorizeAdmin: RuntimeHttpAuthorizeAdmin = async (
  * @param pool PostgreSQL 连接池（node-postgres Pool）
  * @returns 已创建但未监听的 HTTP Server
  */
-export async function createStorageServer(
-  pool: ConnectableQueryable,
-): Promise<Server> {
+export async function createStorageServer(pool: ConnectableQueryable): Promise<Server> {
   // 1. 初始化数据库 schema（幂等）
   await ensureSchema(pool);
 

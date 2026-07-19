@@ -10,7 +10,7 @@ export type AssetRef = string;
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
 export interface AssetMeta {
-    contentType?: string;
-    [key: string]: unknown;
+  contentType?: string;
+  [key: string]: unknown;
 }
 //# sourceMappingURL=types.d.ts.map

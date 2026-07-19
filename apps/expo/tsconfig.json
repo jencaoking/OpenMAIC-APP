@@ -5,24 +5,13 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@openmaic/storage-types": [
-        "../../packages/storage-types/src/index.ts"
-      ],
-      "@/*": [
-        "./src/*"
-      ]
+      "@openmaic/storage-types": ["../../packages/storage-types/src/index.ts"],
+      "@/*": ["./src/*"]
     },
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "ignoreDeprecations": "6.0"
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "**/__tests__/**",
-    "**/*.test.ts",
-    "**/*.test.tsx"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["**/__tests__/**", "**/*.test.ts", "**/*.test.tsx"]
 }

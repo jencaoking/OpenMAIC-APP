@@ -12,27 +12,33 @@ export type ChatSessionType = 'qa' | 'discussion' | 'lecture';
  * Chat session status lifecycle.
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
-export type ChatSessionStatus = 'idle' | 'active' | 'soft-closing' | 'interrupted' | 'completed' | 'error';
+export type ChatSessionStatus =
+  | 'idle'
+  | 'active'
+  | 'soft-closing'
+  | 'interrupted'
+  | 'completed'
+  | 'error';
 /**
  * A chat session representing a conversation with one or more agents.
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
 export interface ChatSession {
-    id: string;
-    type: ChatSessionType;
-    title: string;
-    status: ChatSessionStatus;
-    messages: ChatMessage<ChatMessageMetadata>[];
-    config: SessionConfig;
-    toolCalls: ToolCallRecord[];
-    pendingToolCalls: ToolCallRequest[];
-    createdAt: ISO8601;
-    updatedAt: ISO8601;
-    sceneId?: string;
-    lastActionIndex?: number;
-    endReason?: string;
-    softCloseDeadline?: ISO8601;
-    directorState?: DirectorState;
+  id: string;
+  type: ChatSessionType;
+  title: string;
+  status: ChatSessionStatus;
+  messages: ChatMessage<ChatMessageMetadata>[];
+  config: SessionConfig;
+  toolCalls: ToolCallRecord[];
+  pendingToolCalls: ToolCallRequest[];
+  createdAt: ISO8601;
+  updatedAt: ISO8601;
+  sceneId?: string;
+  lastActionIndex?: number;
+  endReason?: string;
+  softCloseDeadline?: ISO8601;
+  directorState?: DirectorState;
 }
 /**
  * Payload for creating a new chat session.
@@ -46,18 +52,18 @@ export type ChatSessionCreate = Omit<ChatSession, 'id' | 'createdAt' | 'updatedA
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
 export type ChatSessionUpdate = {
-    id: string;
-    status?: ChatSessionStatus;
-    title?: string;
-    messages?: ChatMessage<ChatMessageMetadata>[];
-    toolCalls?: ToolCallRecord[];
-    pendingToolCalls?: ToolCallRequest[];
-    sceneId?: string;
-    lastActionIndex?: number;
-    endReason?: string;
-    softCloseDeadline?: ISO8601;
-    directorState?: DirectorState;
-    updatedAt: ISO8601;
+  id: string;
+  status?: ChatSessionStatus;
+  title?: string;
+  messages?: ChatMessage<ChatMessageMetadata>[];
+  toolCalls?: ToolCallRecord[];
+  pendingToolCalls?: ToolCallRequest[];
+  sceneId?: string;
+  lastActionIndex?: number;
+  endReason?: string;
+  softCloseDeadline?: ISO8601;
+  directorState?: DirectorState;
+  updatedAt: ISO8601;
 };
 /**
  * Session list item (without full messages for efficiency).
@@ -65,13 +71,13 @@ export type ChatSessionUpdate = {
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
 export interface ChatSessionListItem {
-    id: string;
-    type: ChatSessionType;
-    title: string;
-    status: ChatSessionStatus;
-    messageCount: number;
-    toolCallCount: number;
-    createdAt: ISO8601;
-    updatedAt: ISO8601;
+  id: string;
+  type: ChatSessionType;
+  title: string;
+  status: ChatSessionStatus;
+  messageCount: number;
+  toolCallCount: number;
+  createdAt: ISO8601;
+  updatedAt: ISO8601;
 }
 //# sourceMappingURL=session.d.ts.map

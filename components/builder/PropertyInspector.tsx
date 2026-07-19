@@ -23,7 +23,7 @@ export function PropertyInspector() {
     const updatePropsRecursive = (
       props: Record<string, unknown>,
       currentPath: string[],
-      currentValue: unknown
+      currentValue: unknown,
     ): Record<string, unknown> => {
       if (currentPath.length === 1) {
         return { ...props, [currentPath[0]]: currentValue };
@@ -33,11 +33,7 @@ export function PropertyInspector() {
       const existingValue = props[key];
       const newValue =
         existingValue && typeof existingValue === 'object'
-          ? updatePropsRecursive(
-              existingValue as Record<string, unknown>,
-              rest,
-              currentValue
-            )
+          ? updatePropsRecursive(existingValue as Record<string, unknown>, rest, currentValue)
           : {};
 
       return { ...props, [key]: newValue };

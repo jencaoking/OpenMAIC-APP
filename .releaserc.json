@@ -74,11 +74,7 @@
     [
       "@semantic-release/git",
       {
-        "assets": [
-          "apps/expo/CHANGELOG.md",
-          "apps/expo/app.json",
-          "apps/expo/package.json"
-        ],
+        "assets": ["apps/expo/CHANGELOG.md", "apps/expo/app.json", "apps/expo/package.json"],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ],

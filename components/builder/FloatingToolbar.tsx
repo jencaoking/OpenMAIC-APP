@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Edit3,
-  Eye,
-  Undo,
-  Redo,
-  Save,
-  PanelLeftOpen,
-  Download,
-  Copy,
-  Trash2,
-} from 'lucide-react';
+import { Edit3, Eye, Undo, Redo, Save, PanelLeftOpen, Download, Copy, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useEditMode } from '@/lib/contexts/edit-mode-context';
@@ -79,9 +69,7 @@ export function FloatingToolbar() {
               {isEditMode ? <Eye className="h-4 w-4" /> : <Edit3 className="h-4 w-4" />}
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            {isEditMode ? 'Exit Edit Mode' : 'Enter Edit Mode'}
-          </TooltipContent>
+          <TooltipContent>{isEditMode ? 'Exit Edit Mode' : 'Enter Edit Mode'}</TooltipContent>
         </Tooltip>
 
         <div className="h-6 w-px bg-border" />
@@ -156,12 +144,7 @@ export function FloatingToolbar() {
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCopyJson}
-              className="rounded-full"
-            >
+            <Button variant="ghost" size="icon" onClick={handleCopyJson} className="rounded-full">
               <Copy className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
@@ -170,12 +153,7 @@ export function FloatingToolbar() {
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSaveJson}
-              className="rounded-full"
-            >
+            <Button variant="ghost" size="icon" onClick={handleSaveJson} className="rounded-full">
               <Download className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
@@ -184,12 +162,7 @@ export function FloatingToolbar() {
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSaveJson}
-              className="rounded-full"
-            >
+            <Button variant="ghost" size="icon" onClick={handleSaveJson} className="rounded-full">
               <Save className="h-4 w-4" />
             </Button>
           </TooltipTrigger>

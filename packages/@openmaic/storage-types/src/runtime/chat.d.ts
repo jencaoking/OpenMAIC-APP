@@ -9,7 +9,7 @@ export type ChatRuntimeRole = 'user' | 'assistant' | 'system';
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
 export interface ChatMessageSkeleton {
-    role: ChatRuntimeRole;
-    content: string;
+  role: ChatRuntimeRole;
+  content: string;
 }
 //# sourceMappingURL=chat.d.ts.map

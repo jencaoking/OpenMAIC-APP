@@ -4,7 +4,7 @@ import { DslNodeRenderer } from './DslNodeRenderer';
 
 export function renderDsl<TContext extends DslContext = DslContext>(
   schema: DslSchema,
-  options: DslRenderOptions<TContext>
+  options: DslRenderOptions<TContext>,
 ): React.ReactElement | React.ReactElement[] | null {
   const { componentMap, context = {} as TContext, onAction } = options;
 
@@ -40,7 +40,9 @@ export function renderDsl<TContext extends DslContext = DslContext>(
   );
 }
 
-export function createDslRenderer<TContext extends DslContext = DslContext>(componentMap: ComponentMap) {
+export function createDslRenderer<TContext extends DslContext = DslContext>(
+  componentMap: ComponentMap,
+) {
   return {
     render: (schema: DslSchema, options?: Omit<DslRenderOptions<TContext>, 'componentMap'>) => {
       return renderDsl(schema, {

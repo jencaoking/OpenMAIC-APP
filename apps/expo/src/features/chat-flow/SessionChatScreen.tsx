@@ -51,14 +51,17 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
 
   const flatListRef = useRef<FlatList>(null);
   const keyboardOffsetRef = useRef(0);
-  const visionBuilderRef = useRef<VisionMessageBuilder>(new VisionMessageBuilder({ format: 'openmaic' }));
+  const visionBuilderRef = useRef<VisionMessageBuilder>(
+    new VisionMessageBuilder({ format: 'openmaic' }),
+  );
 
   const maxInputHeight = 44 * 4;
 
   useEffect(() => {
     const welcomeMessage: IMessage = {
       id: '1',
-      content: '欢迎来到 OpenMAIC！我是你的 AI 学习助手。请开始提问，我会为你提供详细的解答。\n\n**支持的功能：**\n- 📝 代码高亮展示\n- 📊 表格渲染\n- 📋 一键复制代码\n- 🎯 互动答题\n- 📷 拍照识题（点击 + 按钮）\n- 🎙️ 语音对话（点击右下角麦克风）',
+      content:
+        '欢迎来到 OpenMAIC！我是你的 AI 学习助手。请开始提问，我会为你提供详细的解答。\n\n**支持的功能：**\n- 📝 代码高亮展示\n- 📊 表格渲染\n- 📋 一键复制代码\n- 🎯 互动答题\n- 📷 拍照识题（点击 + 按钮）\n- 🎙️ 语音对话（点击右下角麦克风）',
       role: 'assistant',
       timestamp: new Date(),
     };
@@ -126,7 +129,13 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
     ];
 
     const response = hasAttachments
-      ? '我已经收到你上传的图片，让我仔细分析一下…\n\n**图片识别结果：**\n- 检测到内容：' + (userMessage.attachments?.[0]?.source === 'camera' ? '相机拍摄' : '相册图片') + '\n- 分辨率：' + (userMessage.attachments?.[0]?.width + 'x' + userMessage.attachments?.[0]?.height) + '\n- 大小：' + (userMessage.attachments?.[0]?.byteSize + ' bytes') + '\n\n请在后端接入 Vision 模型后获得真实解析结果。'
+      ? '我已经收到你上传的图片，让我仔细分析一下…\n\n**图片识别结果：**\n- 检测到内容：' +
+        (userMessage.attachments?.[0]?.source === 'camera' ? '相机拍摄' : '相册图片') +
+        '\n- 分辨率：' +
+        (userMessage.attachments?.[0]?.width + 'x' + userMessage.attachments?.[0]?.height) +
+        '\n- 大小：' +
+        (userMessage.attachments?.[0]?.byteSize + ' bytes') +
+        '\n\n请在后端接入 Vision 模型后获得真实解析结果。'
       : sampleResponses[Math.floor(Math.random() * sampleResponses.length)];
 
     let index = 0;
@@ -169,9 +178,7 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
     setPendingAttachments((prev) => prev.filter((a) => a.id !== id));
   };
 
-  const renderMessageItem = ({ item }: { item: IMessage }) => (
-    <MessageBubble message={item} />
-  );
+  const renderMessageItem = ({ item }: { item: IMessage }) => <MessageBubble message={item} />;
 
   return (
     <View style={styles.container}>

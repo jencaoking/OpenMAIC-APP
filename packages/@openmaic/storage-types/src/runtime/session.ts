@@ -46,7 +46,10 @@ export type RuntimeSessionInit = Omit<RuntimeSession, 'runtimeDslVersion'>;
  * Omits all server-generated fields (id, runtimeDslVersion, createdAt, updatedAt).
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
-export type RuntimeSessionCreate = Omit<RuntimeSession, 'id' | 'runtimeDslVersion' | 'createdAt' | 'updatedAt'>;
+export type RuntimeSessionCreate = Omit<
+  RuntimeSession,
+  'id' | 'runtimeDslVersion' | 'createdAt' | 'updatedAt'
+>;
 
 /**
  * Payload for updating a runtime session.

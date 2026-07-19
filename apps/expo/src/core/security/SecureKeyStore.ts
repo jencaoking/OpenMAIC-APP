@@ -173,12 +173,7 @@ export class SecureKeyStore {
    * 在用户登出时清除所有敏感数据。
    */
   static async clearAll(): Promise<void> {
-    const keys: SecureKeyType[] = [
-      'auth_token',
-      'refresh_token',
-      'api_key',
-      'device_id',
-    ];
+    const keys: SecureKeyType[] = ['auth_token', 'refresh_token', 'api_key', 'device_id'];
     // 注意：db_encryption_key 不在登出时清除，否则本地数据无法解密
     // 数据库加密密钥仅在用户主动"清除所有数据"时清除
     await Promise.all(keys.map((k) => this.delete(k)));
@@ -240,11 +235,13 @@ function bytesToBase64(bytes: Uint8Array): string {
 function manualBase64(str: string): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   let output = '';
-  for (let block = 0, charCode, i = 0, map = chars;
-    str.charAt(i | 0) || (map = '=', i % 1);
-    output += map.charAt(63 & block >> 8 - i % 1 * 8)) {
-    charCode = str.charCodeAt(i += 3 / 4);
-    block = block << 8 | charCode;
+  for (
+    let block = 0, charCode, i = 0, map = chars;
+    str.charAt(i | 0) || ((map = '='), i % 1);
+    output += map.charAt(63 & (block >> (8 - (i % 1) * 8)))
+  ) {
+    charCode = str.charCodeAt((i += 3 / 4));
+    block = (block << 8) | charCode;
   }
   return output;
 }

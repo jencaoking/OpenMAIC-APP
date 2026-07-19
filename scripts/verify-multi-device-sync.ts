@@ -225,8 +225,7 @@ export async function verifyMultiDeviceSync(
     const records = (await response.json()) as RuntimeRecord[];
     const sortedBySeq = [...records].sort((a, b) => a.seq - b.seq);
     const isConsistent =
-      records.length === recordCount &&
-      sortedBySeq.every((r, idx) => r.seq === idx);
+      records.length === recordCount && sortedBySeq.every((r, idx) => r.seq === idx);
 
     result.checks.push({
       name: '查询 Records 一致性（Web/Mobile 读取相同）',
@@ -245,16 +244,13 @@ export async function verifyMultiDeviceSync(
   // ===== Check 7: 跨租户隔离（验证多租户安全）=====
   try {
     const otherLearnerKey = 'other-learner-should-fail';
-    const response = await fetch(
-      `${baseUrl}/runtime/sessions/${encodeURIComponent(sessionId)}`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${otherLearnerKey}`,
-          'Content-Type': 'application/json',
-        },
+    const response = await fetch(`${baseUrl}/runtime/sessions/${encodeURIComponent(sessionId)}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${otherLearnerKey}`,
+        'Content-Type': 'application/json',
       },
-    );
+    });
 
     // 应返回 403 FORBIDDEN_LEARNER（跨租户访问被拒绝）
     result.checks.push({

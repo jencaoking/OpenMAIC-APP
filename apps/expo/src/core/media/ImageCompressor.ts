@@ -86,7 +86,7 @@ export class ImageCompressor {
       localUri: result.uri,
       width: result.width ?? width,
       height: result.height ?? height,
-      byteSize: fileInfo.exists ? fileInfo.size ?? 0 : 0,
+      byteSize: fileInfo.exists ? (fileInfo.size ?? 0) : 0,
       mimeType: 'image/jpeg',
       base64,
       source,
@@ -120,14 +120,20 @@ export class ImageCompressor {
    * 使用 ImageManipulator 的 0 操作调用获取，避免引入额外依赖。
    */
   private static async getImageSize(uri: string): Promise<{ width: number; height: number }> {
-    const result = await ImageManipulator.manipulateAsync(uri, [], { format: ImageManipulator.SaveFormat.JPEG });
+    const result = await ImageManipulator.manipulateAsync(uri, [], {
+      format: ImageManipulator.SaveFormat.JPEG,
+    });
     return { width: result.width ?? 1080, height: result.height ?? 1080 };
   }
 
   /**
    * 按最大边长等比缩放。
    */
-  private static scaleToFit(width: number, height: number, maxDimension: number): { width: number; height: number } {
+  private static scaleToFit(
+    width: number,
+    height: number,
+    maxDimension: number,
+  ): { width: number; height: number } {
     const longest = Math.max(width, height);
     if (longest <= maxDimension) return { width, height };
     const ratio = maxDimension / longest;

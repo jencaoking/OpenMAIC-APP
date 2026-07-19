@@ -1,5 +1,13 @@
 import React, { useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, RefreshControl, StyleSheet, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
+  StyleSheet,
+  Pressable,
+} from 'react-native';
 import type { RuntimeSession } from '@openmaic/storage-types';
 import { useSessionStore } from '../../core/store/sessionStore';
 
@@ -78,7 +86,13 @@ function SessionItem({ session, onPress }: SessionItemProps) {
   );
 }
 
-const SessionListScreen: React.FC<SessionListScreenProps> = ({ onAddSession, onShowDsl, onShowStressTest, onStartChat, onStartQuiz }) => {
+const SessionListScreen: React.FC<SessionListScreenProps> = ({
+  onAddSession,
+  onShowDsl,
+  onShowStressTest,
+  onStartChat,
+  onStartQuiz,
+}) => {
   const { state, fetchSessions } = useSessionStore();
   const { sessions, status, error } = state;
 

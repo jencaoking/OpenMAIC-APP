@@ -177,7 +177,9 @@ class SyncManager {
     const sinceVersion = await getMaxVersion();
 
     try {
-      const response = await fetch(`http://localhost:3000/api/sync/pull?since_version=${sinceVersion}`);
+      const response = await fetch(
+        `http://localhost:3000/api/sync/pull?since_version=${sinceVersion}`,
+      );
       const changes: SyncChanges = await response.json();
 
       for (const course of changes.courses) {
@@ -253,19 +255,44 @@ class SyncManager {
     }
   }
 
-  async getCourses(): Promise<{ id: string; title: string; description: string; updated_at: string }[]> {
+  async getCourses(): Promise<
+    { id: string; title: string; description: string; updated_at: string }[]
+  > {
     return await dbGetCourses();
   }
 
-  async getSessions(stageId?: string, learnerKey?: string): Promise<{ id: string; course_id: string | null; stage_id: string; learner_key: string; kind: string; status: string; last_message_at: string | null; updated_at: string }[]> {
+  async getSessions(
+    stageId?: string,
+    learnerKey?: string,
+  ): Promise<
+    {
+      id: string;
+      course_id: string | null;
+      stage_id: string;
+      learner_key: string;
+      kind: string;
+      status: string;
+      last_message_at: string | null;
+      updated_at: string;
+    }[]
+  > {
     return await dbGetSessions(stageId, learnerKey);
   }
 
-  async getMessages(sessionId: string): Promise<{ id: string; session_id: string; role: string; content: string; created_at: string }[]> {
+  async getMessages(
+    sessionId: string,
+  ): Promise<
+    { id: string; session_id: string; role: string; content: string; created_at: string }[]
+  > {
     return await dbGetMessages(sessionId);
   }
 
-  async insertCourse(course: { id: string; title: string; description: string; updated_at: string }): Promise<void> {
+  async insertCourse(course: {
+    id: string;
+    title: string;
+    description: string;
+    updated_at: string;
+  }): Promise<void> {
     await insertCourse(course);
 
     if (this.state.isOnline) {
@@ -273,7 +300,16 @@ class SyncManager {
     }
   }
 
-  async insertSession(session: { id: string; course_id: string | null; stage_id: string; learner_key: string; kind: string; status: string; last_message_at: string | null; updated_at: string }): Promise<void> {
+  async insertSession(session: {
+    id: string;
+    course_id: string | null;
+    stage_id: string;
+    learner_key: string;
+    kind: string;
+    status: string;
+    last_message_at: string | null;
+    updated_at: string;
+  }): Promise<void> {
     await insertSession(session);
 
     if (this.state.isOnline) {
@@ -281,7 +317,13 @@ class SyncManager {
     }
   }
 
-  async insertMessage(message: { id: string; session_id: string; role: string; content: string; created_at: string }): Promise<void> {
+  async insertMessage(message: {
+    id: string;
+    session_id: string;
+    role: string;
+    content: string;
+    created_at: string;
+  }): Promise<void> {
     await insertMessage(message);
 
     if (this.state.isOnline) {
@@ -316,23 +358,31 @@ class SyncManager {
   /**
    * 查询指定消息下的所有附件（Phase 6.2）。
    */
-  async getMessageAttachments(messageId: string): Promise<{
-    id: string;
-    message_id: string;
-    kind: string;
-    local_uri: string;
-    asset_ref: string | null;
-    mime_type: string;
-    width: number;
-    height: number;
-    byte_size: number;
-    source: string;
-    created_at: string;
-  }[]> {
+  async getMessageAttachments(messageId: string): Promise<
+    {
+      id: string;
+      message_id: string;
+      kind: string;
+      local_uri: string;
+      asset_ref: string | null;
+      mime_type: string;
+      width: number;
+      height: number;
+      byte_size: number;
+      source: string;
+      created_at: string;
+    }[]
+  > {
     return await dbGetMessageAttachments(messageId);
   }
 
-  async insertQuizResult(result: { id: string; quiz_id: string; answers: string; score: number | null; submitted_at: string }): Promise<void> {
+  async insertQuizResult(result: {
+    id: string;
+    quiz_id: string;
+    answers: string;
+    score: number | null;
+    submitted_at: string;
+  }): Promise<void> {
     await insertQuizResult(result);
 
     if (this.state.isOnline) {

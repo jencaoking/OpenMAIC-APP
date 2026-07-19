@@ -132,7 +132,9 @@ export class DbEncryption {
       await tempDb.execAsync(`PRAGMA key = '${encryptionKey}';`);
 
       // 使用 sqlcipher_export 导出数据
-      await sourceDb.execAsync(`ATTACH DATABASE '${tempDbName}' AS encrypted KEY '${encryptionKey}';`);
+      await sourceDb.execAsync(
+        `ATTACH DATABASE '${tempDbName}' AS encrypted KEY '${encryptionKey}';`,
+      );
       await sourceDb.execAsync('SELECT sqlcipher_export("encrypted");');
       await sourceDb.execAsync('DETACH DATABASE encrypted;');
       await tempDb.closeAsync();
@@ -140,10 +142,14 @@ export class DbEncryption {
 
       // 在生产环境中，此处应通过 expo-file-system 替换文件
       // 由于 expo-sqlite 不直接暴露文件路径操作，需配合 FileSystem 调用
-      console.log('[DbEncryption] Migration completed. Please replace original DB file with encrypted version.');
+      console.log(
+        '[DbEncryption] Migration completed. Please replace original DB file with encrypted version.',
+      );
     } catch (e) {
       await sourceDb.closeAsync();
-      throw new Error(`[DbEncryption] Migration failed: ${e instanceof Error ? e.message : String(e)}`);
+      throw new Error(
+        `[DbEncryption] Migration failed: ${e instanceof Error ? e.message : String(e)}`,
+      );
     }
   }
 
@@ -153,6 +159,8 @@ export class DbEncryption {
   static async wipeDatabase(dbName: string): Promise<void> {
     await SecureKeyStore.delete('db_encryption_key');
     // 数据库文件删除由调用方通过 expo-file-system 完成
-    console.log(`[DbEncryption] Encryption key wiped. Please delete ${dbName} file via FileSystem.`);
+    console.log(
+      `[DbEncryption] Encryption key wiped. Please delete ${dbName} file via FileSystem.`,
+    );
   }
 }

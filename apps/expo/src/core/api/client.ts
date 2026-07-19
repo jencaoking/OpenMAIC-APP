@@ -1,4 +1,14 @@
-import type { RuntimeSession, RuntimeSessionCreate, RuntimeSessionUpdate, RuntimeRecord, RuntimeRecordCreate, ChatSession, ChatSessionCreate, ChatSessionUpdate, ChatMessage } from '@openmaic/storage-types';
+import type {
+  RuntimeSession,
+  RuntimeSessionCreate,
+  RuntimeSessionUpdate,
+  RuntimeRecord,
+  RuntimeRecordCreate,
+  ChatSession,
+  ChatSessionCreate,
+  ChatSessionUpdate,
+  ChatMessage,
+} from '@openmaic/storage-types';
 
 export type ApiResponseType =
   | RuntimeSession
@@ -46,7 +56,11 @@ export function getAuthToken(): string | null {
   return authToken;
 }
 
-async function fetchWithTimeout(input: RequestInfo, init?: RequestInit, timeout: number = DEFAULT_TIMEOUT): Promise<Response> {
+async function fetchWithTimeout(
+  input: RequestInfo,
+  init?: RequestInit,
+  timeout: number = DEFAULT_TIMEOUT,
+): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -109,7 +123,10 @@ export async function apiGet<T extends ApiResponseType>(endpoint: string): Promi
   return handleResponse<T>(response);
 }
 
-export async function apiPost<T extends ApiResponseType, P extends ApiPayloadType>(endpoint: string, payload: P): Promise<T> {
+export async function apiPost<T extends ApiResponseType, P extends ApiPayloadType>(
+  endpoint: string,
+  payload: P,
+): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
   const response = await fetchWithTimeout(url, {
     method: 'POST',
@@ -119,7 +136,10 @@ export async function apiPost<T extends ApiResponseType, P extends ApiPayloadTyp
   return handleResponse<T>(response);
 }
 
-export async function apiPatch<T extends ApiResponseType, P extends ApiPayloadType>(endpoint: string, payload: P): Promise<T> {
+export async function apiPatch<T extends ApiResponseType, P extends ApiPayloadType>(
+  endpoint: string,
+  payload: P,
+): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
   const response = await fetchWithTimeout(url, {
     method: 'PATCH',

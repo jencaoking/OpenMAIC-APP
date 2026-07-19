@@ -16,8 +16,10 @@ import * as Sentry from '@sentry/react-native';
 import { Platform } from 'react-native';
 
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN ?? '';
-const SENTRY_ENVIRONMENT =
-  (process.env.APP_VARIANT ?? 'development') as 'development' | 'preview' | 'production';
+const SENTRY_ENVIRONMENT = (process.env.APP_VARIANT ?? 'development') as
+  | 'development'
+  | 'preview'
+  | 'production';
 const SENTRY_RELEASE = process.env.EXPO_PUBLIC_SENTRY_RELEASE ?? 'dev-local';
 
 /**
@@ -58,9 +60,11 @@ export function initSentry(): void {
     integrations: [
       Sentry.reactNativeTracingIntegration({
         shouldCreateSpanForRequest: (url) => {
-          return url.startsWith('http://localhost') ||
+          return (
+            url.startsWith('http://localhost') ||
             url.startsWith('/') ||
-            /^https?:\/\/(api\.|staging\.|prod\.)?openmaic\.dev/.test(url);
+            /^https?:\/\/(api\.|staging\.|prod\.)?openmaic\.dev/.test(url)
+          );
         },
       }),
     ],

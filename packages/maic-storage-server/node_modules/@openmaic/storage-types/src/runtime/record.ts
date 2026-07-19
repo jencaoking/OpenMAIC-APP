@@ -38,4 +38,5 @@ export type RuntimeRecordInit<TPayload extends RuntimePayload = RuntimePayload> 
  * @deprecated Use RuntimeRecordInit instead.
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
-export type RuntimeRecordCreate<TPayload extends RuntimePayload = RuntimePayload> = RuntimeRecordInit<TPayload>;
+export type RuntimeRecordCreate<TPayload extends RuntimePayload = RuntimePayload> =
+  RuntimeRecordInit<TPayload>;

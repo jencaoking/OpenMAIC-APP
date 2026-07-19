@@ -541,4 +541,6 @@ export interface HttpRuntimeHeadersContext {
 /**
  * HTTP 请求头钩子。
  */
-export type HttpRuntimeHeadersHook = (context: HttpRuntimeHeadersContext) => HeadersInit | Promise<HeadersInit>;
+export type HttpRuntimeHeadersHook = (
+  context: HttpRuntimeHeadersContext,
+) => HeadersInit | Promise<HeadersInit>;

@@ -9,7 +9,7 @@ export type QuizAttemptPhase = 'draft' | 'submitted' | 'reviewed';
  * @remarks This is a pure type contract. Zero runtime dependencies. Safe for Expo/Metro bundler.
  */
 export interface QuizAttemptSkeleton {
-    phase: QuizAttemptPhase;
-    answers: Record<string, unknown>;
+  phase: QuizAttemptPhase;
+  answers: Record<string, unknown>;
 }
 //# sourceMappingURL=quiz.d.ts.map

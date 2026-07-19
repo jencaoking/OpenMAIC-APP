@@ -67,7 +67,10 @@ export class TtsQueue {
   private isPlaying = false;
   private isInterrupted = false;
 
-  constructor(config: Partial<TtsQueueConfig> & { ttsUrl: string }, callbacks: TtsQueueCallbacks = {}) {
+  constructor(
+    config: Partial<TtsQueueConfig> & { ttsUrl: string },
+    callbacks: TtsQueueCallbacks = {},
+  ) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.callbacks = callbacks;
   }
@@ -248,11 +251,7 @@ export class TtsQueue {
       this.callbacks.onChunkStart?.(chunk.index, chunk.text);
 
       sound.setOnPlaybackStatusUpdate((status) => {
-        if (
-          status.isLoaded &&
-          'didJustFinish' in status &&
-          status.didJustFinish
-        ) {
+        if (status.isLoaded && 'didJustFinish' in status && status.didJustFinish) {
           void this.handleChunkFinished(chunk);
         }
       });

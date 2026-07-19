@@ -24,4 +24,9 @@ export {
   ScrollViewPropertySchema,
 };
 
-export type { PropertySchema, PropertyField, PropertySection, ComponentPropertySchemas } from './types';
+export type {
+  PropertySchema,
+  PropertyField,
+  PropertySection,
+  ComponentPropertySchemas,
+} from './types';

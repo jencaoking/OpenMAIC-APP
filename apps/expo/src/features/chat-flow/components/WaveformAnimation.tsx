@@ -30,7 +30,10 @@ export interface WaveformAnimationProps {
   size?: number;
 }
 
-const PALETTES: Record<WaveformAnimationProps['state'], { core: string; halo: string; bars: string }> = {
+const PALETTES: Record<
+  WaveformAnimationProps['state'],
+  { core: string; halo: string; bars: string }
+> = {
   listening: { core: '#3b82f6', halo: '#60a5fa', bars: '#93c5fd' },
   thinking: { core: '#8b5cf6', halo: '#a78bfa', bars: '#c4b5fd' },
   speaking: { core: '#10b981', halo: '#34d399', bars: '#6ee7b7' },
@@ -140,13 +143,35 @@ export const WaveformAnimation: React.FC<WaveformAnimationProps> = ({
     <View style={[styles.container, { width: size, height: size }]}>
       {/* 三层光晕 */}
       <Animated.View
-        style={[styles.halo, halo3Style, { width: size, height: size, borderRadius: size / 2, backgroundColor: palette.halo }]}
+        style={[
+          styles.halo,
+          halo3Style,
+          { width: size, height: size, borderRadius: size / 2, backgroundColor: palette.halo },
+        ]}
       />
       <Animated.View
-        style={[styles.halo, halo2Style, { width: size * 0.8, height: size * 0.8, borderRadius: size * 0.4, backgroundColor: palette.halo }]}
+        style={[
+          styles.halo,
+          halo2Style,
+          {
+            width: size * 0.8,
+            height: size * 0.8,
+            borderRadius: size * 0.4,
+            backgroundColor: palette.halo,
+          },
+        ]}
       />
       <Animated.View
-        style={[styles.halo, halo1Style, { width: size * 0.6, height: size * 0.6, borderRadius: size * 0.3, backgroundColor: palette.halo }]}
+        style={[
+          styles.halo,
+          halo1Style,
+          {
+            width: size * 0.6,
+            height: size * 0.6,
+            borderRadius: size * 0.3,
+            backgroundColor: palette.halo,
+          },
+        ]}
       />
 
       {/* 中心圆 */}
@@ -154,7 +179,12 @@ export const WaveformAnimation: React.FC<WaveformAnimationProps> = ({
         style={[
           styles.core,
           coreStyle,
-          { width: size * 0.35, height: size * 0.35, borderRadius: size * 0.175, backgroundColor: palette.core },
+          {
+            width: size * 0.35,
+            height: size * 0.35,
+            borderRadius: size * 0.175,
+            backgroundColor: palette.core,
+          },
         ]}
       />
 

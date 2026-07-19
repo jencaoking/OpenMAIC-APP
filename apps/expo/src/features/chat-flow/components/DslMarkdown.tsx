@@ -25,19 +25,15 @@ function CodeBlock({ content }: { content: string }) {
     <View style={styles.codeContainer}>
       <View style={styles.codeHeader}>
         <Text style={styles.codeLabel}>代码</Text>
-        <TouchableOpacity 
-          style={styles.copyButton} 
+        <TouchableOpacity
+          style={styles.copyButton}
           onPress={handleCopy}
           accessibilityLabel={copied ? '已复制' : '复制代码'}
         >
           <Text style={styles.copyButtonText}>{copied ? '✓ 已复制' : '复制'}</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView 
-        horizontal 
-        style={styles.codeScroll}
-        showsHorizontalScrollIndicator={false}
-      >
+      <ScrollView horizontal style={styles.codeScroll} showsHorizontalScrollIndicator={false}>
         <Text style={styles.codeText}>{content}</Text>
       </ScrollView>
     </View>
@@ -152,11 +148,7 @@ export const DslMarkdown: React.FC<DslMarkdownProps> = ({ content }) => {
     return null;
   };
 
-  return (
-    <Markdown style={markdownStyle}>
-      {content}
-    </Markdown>
-  );
+  return <Markdown style={markdownStyle}>{content}</Markdown>;
 };
 
 const styles = StyleSheet.create({

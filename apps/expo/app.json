@@ -18,12 +18,7 @@
         "NSPhotoLibraryAddUsageDescription": "OpenMAIC 需要将拍摄的图片保存到相册。",
         "NSSupportsLiveActivities": true,
         "NSSupportsLiveActivitiesFrequentUpdates": true,
-        "UIBackgroundModes": [
-          "audio",
-          "fetch",
-          "processing",
-          "remote-notification"
-        ],
+        "UIBackgroundModes": ["audio", "fetch", "processing", "remote-notification"],
         "FirebaseAppDelegateProxyEnabled": false,
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": false,
@@ -90,10 +85,7 @@
           "icon": "./assets/icon.png"
         }
       ],
-      [
-        "expo-task-manager",
-        { "backgroundMode": "true" }
-      ],
+      ["expo-task-manager", { "backgroundMode": "true" }],
       [
         "expo-camera",
         {

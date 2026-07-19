@@ -68,10 +68,7 @@ export class VadDetector {
   private isSpeaking = false;
   private isRunning = false;
 
-  constructor(
-    config: Partial<VadDetectorConfig> = {},
-    callbacks: VadDetectorCallbacks = {},
-  ) {
+  constructor(config: Partial<VadDetectorConfig> = {}, callbacks: VadDetectorCallbacks = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.callbacks = callbacks;
   }

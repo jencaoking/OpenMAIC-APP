@@ -1,15 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'motion/react';
-import {
-  Layout,
-  Type,
-  CircleDot,
-  Image,
-  FileText,
-  Scroll,
-  ChevronRight,
-} from 'lucide-react';
+import { Layout, Type, CircleDot, Image, FileText, Scroll, ChevronRight } from 'lucide-react';
 import { useBuilderStore } from '@/lib/store/builder';
 import { useEditMode } from '@/lib/contexts/edit-mode-context';
 import type { DslComponentType, IDslNode } from '@openmaic/core-engine';
@@ -29,7 +21,9 @@ const materials: MaterialItem[] = [
     icon: <Layout className="h-5 w-5" />,
     label: 'View',
     description: 'Container for layout',
-    defaultProps: { style: { padding: 16, backgroundColor: '#fff', borderRadius: 8, border: '1px solid #e2e8f0' } },
+    defaultProps: {
+      style: { padding: 16, backgroundColor: '#fff', borderRadius: 8, border: '1px solid #e2e8f0' },
+    },
   },
   {
     type: 'Text',
@@ -43,33 +37,50 @@ const materials: MaterialItem[] = [
     icon: <CircleDot className="h-5 w-5" />,
     label: 'Button',
     description: 'Interactive button',
-    defaultProps: { style: { padding: '10px 20px', backgroundColor: '#722ed1', color: 'white', borderRadius: 6 }, children: ['Button'] },
+    defaultProps: {
+      style: { padding: '10px 20px', backgroundColor: '#722ed1', color: 'white', borderRadius: 6 },
+      children: ['Button'],
+    },
   },
   {
     type: 'Image',
     icon: <Image className="h-5 w-5" />,
     label: 'Image',
     description: 'Display image',
-    defaultProps: { style: { width: 200, height: 150, backgroundColor: '#f1f5f9', borderRadius: 8 } },
+    defaultProps: {
+      style: { width: 200, height: 150, backgroundColor: '#f1f5f9', borderRadius: 8 },
+    },
   },
   {
     type: 'TextInput',
     icon: <FileText className="h-5 w-5" />,
     label: 'Text Input',
     description: 'User text input',
-    defaultProps: { style: { padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, width: '100%' }, placeholder: 'Enter text...' },
+    defaultProps: {
+      style: { padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, width: '100%' },
+      placeholder: 'Enter text...',
+    },
   },
   {
     type: 'ScrollView',
     icon: <Scroll className="h-5 w-5" />,
     label: 'Scroll View',
     description: 'Scrollable container',
-    defaultProps: { style: { height: 200, overflow: 'auto', backgroundColor: '#f8fafc', borderRadius: 8, padding: 16 } },
+    defaultProps: {
+      style: {
+        height: 200,
+        overflow: 'auto',
+        backgroundColor: '#f8fafc',
+        borderRadius: 8,
+        padding: 16,
+      },
+    },
   },
 ];
 
 export function MaterialPanel() {
-  const { isMaterialPanelOpen, setMaterialPanelOpen, addNode, selectedNodeId, getNodeById } = useBuilderStore();
+  const { isMaterialPanelOpen, setMaterialPanelOpen, addNode, selectedNodeId, getNodeById } =
+    useBuilderStore();
   const { isEditMode } = useEditMode();
 
   const handleAddMaterial = (material: MaterialItem) => {
@@ -81,7 +92,8 @@ export function MaterialPanel() {
     };
 
     const parentId = selectedNodeId
-      ? (getNodeById(selectedNodeId)?.type === 'View' || getNodeById(selectedNodeId)?.type === 'ScrollView')
+      ? getNodeById(selectedNodeId)?.type === 'View' ||
+        getNodeById(selectedNodeId)?.type === 'ScrollView'
         ? selectedNodeId
         : null
       : null;
@@ -132,7 +144,9 @@ export function MaterialPanel() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-foreground truncate">{material.label}</div>
-                      <div className="text-xs text-muted-foreground truncate">{material.description}</div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {material.description}
+                      </div>
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </motion.div>

@@ -82,8 +82,8 @@ class NotificationServiceManager {
 
     this.permissionGranted =
       settings.granted ||
-      (settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL) ||
-      (settings.ios?.status === Notifications.IosAuthorizationStatus.AUTHORIZED);
+      settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL ||
+      settings.ios?.status === Notifications.IosAuthorizationStatus.AUTHORIZED;
 
     if (this.permissionGranted && !this.expoPushToken) {
       await this.registerForPushNotifications();
