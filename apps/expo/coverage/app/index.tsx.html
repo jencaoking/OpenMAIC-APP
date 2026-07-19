@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>0/23</span>
             </div>
         
             
@@ -262,15 +262,15 @@ const HomePage: React.FC&lt;HomePageProps&gt; = <span class="cstat-no" title="st
   const [selectedSessionId, setSelectedSessionId] = <span class="cstat-no" title="statement not covered" >useState&lt;string&gt;('');</span>
   const [selectedQuizId, setSelectedQuizId] = <span class="cstat-no" title="statement not covered" >useState&lt;string&gt;('1');</span>
 &nbsp;
-  const handleAddSession = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('create');</span></span>
-  const handleBack = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('list');</span></span>
-  const handleShowDsl = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('dsl');</span></span>
-  const handleShowStressTest = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('stress');</span></span>
+  const handleAddSession = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('create');</span></span>
+  const handleBack = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('list');</span></span>
+  const handleShowDsl = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('dsl');</span></span>
+  const handleShowStressTest = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('stress');</span></span>
   const handleStartChat = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>essionId: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setSelectedSessionId(sessionId);</span>
 <span class="cstat-no" title="statement not covered" >    setCurrentScreen('chat');</span>
   };
-  const handleStartQuiz = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
+  const handleStartQuiz = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setSelectedQuizId('1');</span>
 <span class="cstat-no" title="statement not covered" >    setCurrentScreen('quiz');</span>
   };
@@ -279,18 +279,18 @@ const HomePage: React.FC&lt;HomePageProps&gt; = <span class="cstat-no" title="st
    * 消费 Deep Link 跳转目标。
    * 优先级：推送通知 &gt; 初始 URL。
    */
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!pendingDeepLink) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (!pendingDeepLink) <span class="cstat-no" title="statement not covered" >return;</span></span>
     const { screen, params } = <span class="cstat-no" title="statement not covered" >pendingDeepLink;</span>
 <span class="cstat-no" title="statement not covered" >    switch (screen) {</span>
       case 'chat':
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (params?.sessionId) {</span>
+<span class="cstat-no" title="statement not covered" >        if (params?.sessionId) {</span>
 <span class="cstat-no" title="statement not covered" >          setSelectedSessionId(params.sessionId);</span>
 <span class="cstat-no" title="statement not covered" >          setCurrentScreen('chat');</span>
         }
 <span class="cstat-no" title="statement not covered" >        break;</span>
       case 'quiz':
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (params?.quizId) {</span>
+<span class="cstat-no" title="statement not covered" >        if (params?.quizId) {</span>
 <span class="cstat-no" title="statement not covered" >          setSelectedQuizId(params.quizId);</span>
         }
 <span class="cstat-no" title="statement not covered" >        setCurrentScreen('quiz');</span>
@@ -334,7 +334,7 @@ export default HomePage;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T03:49:32.093Z
+                at 2026-07-19T03:58:37.811Z
             </div>
         <script src="../prettify.js"></script>
         <script>

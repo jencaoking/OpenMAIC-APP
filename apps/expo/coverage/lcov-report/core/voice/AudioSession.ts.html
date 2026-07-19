@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/9</span>
+                <span class='fraction'>0/13</span>
             </div>
         
             
@@ -497,7 +497,7 @@ class AudioSessionManager {
   /**
    * 激活音频会话。重复调用幂等，仅当配置变化时才重新申请。
    */
-<span class="fstat-no" title="function not covered" >  async </span>activate(config: Partial&lt;AudioSessionConfig&gt; = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span>: Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync activate(config: Partial&lt;AudioSessionConfig&gt; = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span>: Promise&lt;void&gt; {
     const nextConfig: AudioSessionConfig = <span class="cstat-no" title="statement not covered" >{ ...DEFAULT_CONFIG, ...this.currentConfig, ...config };</span>
 <span class="cstat-no" title="statement not covered" >    this.currentConfig = nextConfig;</span>
 &nbsp;
@@ -519,8 +519,8 @@ class AudioSessionManager {
    * 释放音频会话，恢复系统默认状态。
    * 在退出语音模式时必须调用，避免长期占用麦克风硬件。
    */
-<span class="fstat-no" title="function not covered" >  async </span>deactivate(): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.isActive) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="fstat-no" title="function not covered" >  as</span>ync deactivate(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    if (!this.isActive) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    await Audio.setAudioModeAsync({</span>
       allowsRecordingIOS: false,
@@ -533,7 +533,7 @@ class AudioSessionManager {
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    this.isActive = false;</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.subscription) {</span>
+<span class="cstat-no" title="statement not covered" >    if (this.subscription) {</span>
 <span class="cstat-no" title="statement not covered" >      this.subscription.remove();</span>
 <span class="cstat-no" title="statement not covered" >      this.subscription = null;</span>
     }
@@ -542,8 +542,8 @@ class AudioSessionManager {
   /**
    * 动态切换扬声器/听筒路由，无需重新激活会话。
    */
-<span class="fstat-no" title="function not covered" >  async </span>switchRoute(route: AudioRouteStrategy): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.isActive) {</span>
+<span class="fstat-no" title="function not covered" >  as</span>ync switchRoute(route: AudioRouteStrategy): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    if (!this.isActive) {</span>
 <span class="cstat-no" title="statement not covered" >      await this.activate({ route });</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
     }
@@ -563,31 +563,31 @@ class AudioSessionManager {
   /**
    * 订阅音频中断事件（来电、闹钟等）。
    */
-<span class="fstat-no" title="function not covered" >  onInterrupt(</span>listener: (interrupted: boolean) =&gt; void): () =&gt; void {
+<span class="fstat-no" title="function not covered" >  on</span>Interrupt(listener: (interrupted: boolean) =&gt; void): () =&gt; void {
 <span class="cstat-no" title="statement not covered" >    this.interruptListeners.add(listener);</span>
-<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >this.interruptListeners.delete(listener);</span></span>
+<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >this.interruptListeners.delete(listener);</span></span>
   }
 &nbsp;
   /**
    * 订阅路由变化（耳机插拔、蓝牙连接）。
    */
-<span class="fstat-no" title="function not covered" >  onRouteChange(</span>listener: (route: AudioRouteStrategy) =&gt; void): () =&gt; void {
+<span class="fstat-no" title="function not covered" >  on</span>RouteChange(listener: (route: AudioRouteStrategy) =&gt; void): () =&gt; void {
 <span class="cstat-no" title="statement not covered" >    this.routeChangeListeners.add(listener);</span>
-<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >this.routeChangeListeners.delete(listener);</span></span>
+<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >this.routeChangeListeners.delete(listener);</span></span>
   }
 &nbsp;
   /** 当前是否处于激活态。 */
-<span class="fstat-no" title="function not covered" >  isActivated(</span>): boolean {
+<span class="fstat-no" title="function not covered" >  is</span>Activated(): boolean {
 <span class="cstat-no" title="statement not covered" >    return this.isActive;</span>
   }
 &nbsp;
   /** 当前配置快照。 */
-<span class="fstat-no" title="function not covered" >  getConfig(</span>): AudioSessionConfig {
+<span class="fstat-no" title="function not covered" >  ge</span>tConfig(): AudioSessionConfig {
 <span class="cstat-no" title="statement not covered" >    return { ...this.currentConfig };</span>
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >subscribeAudioInterruption(</span>): void {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.subscription) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="fstat-no" title="function not covered" >  pr</span>ivate subscribeAudioInterruption(): void {
+<span class="cstat-no" title="statement not covered" >    if (this.subscription) <span class="cstat-no" title="statement not covered" >return;</span></span>
     // expo-av 暴露 Audio.setAudioModeAsync 即可处理 iOS AVAudioSession
     // 中断监听需通过原生事件桥接，这里使用定时器模拟（生产环境可换为 NativeEventEmitter）
     // 注：保持简单，避免引入原生模块依赖
@@ -596,7 +596,7 @@ class AudioSessionManager {
   /**
    * 内部触发中断事件，供原生模块回调使用。
    */
-<span class="fstat-no" title="function not covered" >  notifyInterrupted(</span>interrupted: boolean): void {
+<span class="fstat-no" title="function not covered" >  no</span>tifyInterrupted(interrupted: boolean): void {
 <span class="cstat-no" title="statement not covered" >    this.interruptListeners.forEach(<span class="fstat-no" title="function not covered" >(f</span>n) =&gt; <span class="cstat-no" title="statement not covered" >fn(interrupted))</span>;</span>
   }
 }
@@ -610,7 +610,7 @@ export const audioSession = <span class="cstat-no" title="statement not covered"
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T03:49:31.896Z
+                at 2026-07-19T03:58:37.641Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

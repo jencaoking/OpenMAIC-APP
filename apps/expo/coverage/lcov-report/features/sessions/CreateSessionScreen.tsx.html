@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/33</span>
+                <span class='fraction'>0/41</span>
             </div>
         
             
@@ -745,12 +745,12 @@ const CreateSessionScreen: React.FC&lt;CreateSessionScreenProps&gt; = <span clas
   const [isSubmitting, setIsSubmitting] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
   const [submitCount, setSubmitCount] = <span class="cstat-no" title="statement not covered" >useState(0);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (createStatus === 'success') {</span>
+<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (createStatus === 'success') {</span>
 <span class="cstat-no" title="statement not covered" >      Alert.alert('成功', '会话创建成功！', [</span>
         {
           text: '确定',
-          onPress: <span class="fstat-no" title="function not covered" >() =</span>&gt; {
+          onPress: <span class="fstat-no" title="function not covered" >()</span> =&gt; {
 <span class="cstat-no" title="statement not covered" >            resetCreateStatus();</span>
 <span class="cstat-no" title="statement not covered" >            onBack();</span>
           },
@@ -758,24 +758,24 @@ const CreateSessionScreen: React.FC&lt;CreateSessionScreenProps&gt; = <span clas
       ]);
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (createStatus === 'error' &amp;&amp; createError) {</span>
+<span class="cstat-no" title="statement not covered" >    if (createStatus === 'error' &amp;&amp; createError) {</span>
 <span class="cstat-no" title="statement not covered" >      Alert.alert('错误', createError);</span>
 <span class="cstat-no" title="statement not covered" >      resetCreateStatus();</span>
     }
   }, [createStatus, createError, resetCreateStatus, onBack]);
 &nbsp;
-  const validateForm = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >(): boolean =</span>&gt; {</span>
+  const validateForm = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >()</span>: boolean =&gt; {</span>
     const newErrors: Partial&lt;Record&lt;keyof RuntimeSessionCreate, string&gt;&gt; = <span class="cstat-no" title="statement not covered" >{};</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!formData.kind.trim()) {</span>
+<span class="cstat-no" title="statement not covered" >    if (!formData.kind.trim()) {</span>
 <span class="cstat-no" title="statement not covered" >      newErrors.kind = '类型不能为空';</span>
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!formData.stageId.trim()) {</span>
+<span class="cstat-no" title="statement not covered" >    if (!formData.stageId.trim()) {</span>
 <span class="cstat-no" title="statement not covered" >      newErrors.stageId = '阶段ID不能为空';</span>
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!formData.learnerKey.trim()) {</span>
+<span class="cstat-no" title="statement not covered" >    if (!formData.learnerKey.trim()) {</span>
 <span class="cstat-no" title="statement not covered" >      newErrors.learnerKey = '学习者标识不能为空';</span>
     }
 &nbsp;
@@ -783,10 +783,10 @@ const CreateSessionScreen: React.FC&lt;CreateSessionScreenProps&gt; = <span clas
 <span class="cstat-no" title="statement not covered" >    return Object.keys(newErrors).length === 0;</span>
   }, [formData]);
 &nbsp;
-  const handleSubmit = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (isSubmitting) <span class="cstat-no" title="statement not covered" >return;</span></span>
+  const handleSubmit = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (isSubmitting) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!validateForm()) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >    if (!validateForm()) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    setIsSubmitting(true);</span>
 <span class="cstat-no" title="statement not covered" >    setSubmitCount(<span class="fstat-no" title="function not covered" >(p</span>rev) =&gt; <span class="cstat-no" title="statement not covered" >prev + 1)</span>;</span>
@@ -799,9 +799,9 @@ const CreateSessionScreen: React.FC&lt;CreateSessionScreenProps&gt; = <span clas
   }, [validateForm, createSession, formData, isSubmitting]);
 &nbsp;
   const handleInputChange = <span class="cstat-no" title="statement not covered" >useCallback(</span>
-<span class="fstat-no" title="function not covered" >    &lt;K extends keyof RuntimeSessionCreate&gt;(k</span>ey: K, value: RuntimeSessionCreate[K]) =&gt; {
+<span class="fstat-no" title="function not covered" >    &lt;K</span> extends keyof RuntimeSessionCreate&gt;(key: K, value: RuntimeSessionCreate[K]) =&gt; {
 <span class="cstat-no" title="statement not covered" >      setFormData(<span class="fstat-no" title="function not covered" >(p</span>rev) =&gt; (<span class="cstat-no" title="statement not covered" >{ ...prev, [key]: value })</span>);</span>
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (errors[key]) {</span>
+<span class="cstat-no" title="statement not covered" >      if (errors[key]) {</span>
 <span class="cstat-no" title="statement not covered" >        setErrors(<span class="fstat-no" title="function not covered" >(p</span>rev) =&gt; (<span class="cstat-no" title="statement not covered" >{ ...prev, [key]: undefined })</span>);</span>
       }
     },
@@ -868,7 +868,7 @@ const CreateSessionScreen: React.FC&lt;CreateSessionScreenProps&gt; = <span clas
                     styles.statusButton,
                     formData.status === option.value &amp;&amp; styles.statusButtonActive,
                   ]}
-                  onPress={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >handleInputChange('status', option.value)}</span>
+                  onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >handleInputChange('status', option.value)}</span>
                 &gt;
                   &lt;Text
                     style={[
@@ -1033,7 +1033,7 @@ export default CreateSessionScreen;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T03:49:31.896Z
+                at 2026-07-19T03:58:37.641Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

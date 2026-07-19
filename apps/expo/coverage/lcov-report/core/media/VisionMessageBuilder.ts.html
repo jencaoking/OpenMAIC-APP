@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>0/25</span>
             </div>
         
             
@@ -551,7 +551,7 @@ const DEFAULT_CONFIG: VisionMessageBuilderConfig = <span class="cstat-no" title=
 export class VisionMessageBuilder {
   private config: VisionMessageBuilderConfig;
 &nbsp;
-<span class="fstat-no" title="function not covered" >  constructor(c</span>onfig: Partial&lt;VisionMessageBuilderConfig&gt; = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(config: Partial&lt;VisionMessageBuilderConfig&gt; = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
 <span class="cstat-no" title="statement not covered" >    this.config = { ...DEFAULT_CONFIG, ...config };</span>
   }
 &nbsp;
@@ -561,7 +561,7 @@ export class VisionMessageBuilder {
    * @param attachments 图像附件列表
    * @param sessionId 会话 ID
    */
-<span class="fstat-no" title="function not covered" >  buildRequest(</span>
+<span class="fstat-no" title="function not covered" >  bu</span>ildRequest(
     text: string,
     attachments: ImageAttachment[],
     sessionId?: string,
@@ -570,12 +570,12 @@ export class VisionMessageBuilder {
     const hasText = <span class="cstat-no" title="statement not covered" >trimmed.length &gt; 0;</span>
     const hasImages = <span class="cstat-no" title="statement not covered" >attachments.length &gt; 0;</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!hasText &amp;&amp; !hasImages) {</span>
+<span class="cstat-no" title="statement not covered" >    if (!hasText &amp;&amp; !hasImages) {</span>
 <span class="cstat-no" title="statement not covered" >      throw new Error('Cannot build vision request: both text and attachments are empty');</span>
     }
 &nbsp;
     // 纯文本场景：使用简洁的字符串 content，节省序列化开销
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!hasImages) {</span>
+<span class="cstat-no" title="statement not covered" >    if (!hasImages) {</span>
 <span class="cstat-no" title="statement not covered" >      return {</span>
         sessionId,
         message: { role: 'user', content: trimmed },
@@ -604,7 +604,7 @@ export class VisionMessageBuilder {
   /**
    * 构造本地 IMessage，用于立即在 UI 显示用户消息。
    */
-<span class="fstat-no" title="function not covered" >  buildLocalMessage(</span>text: string, attachments: ImageAttachment[]): IMessage {
+<span class="fstat-no" title="function not covered" >  bu</span>ildLocalMessage(text: string, attachments: ImageAttachment[]): IMessage {
 <span class="cstat-no" title="statement not covered" >    return {</span>
       id: `local-${Date.now()}`,
       content: text,
@@ -617,7 +617,7 @@ export class VisionMessageBuilder {
   /**
    * 构造 content parts 数组。
    */
-  private <span class="fstat-no" title="function not covered" >buildContentParts(</span>
+<span class="fstat-no" title="function not covered" >  pr</span>ivate buildContentParts(
     text: string,
     attachments: ImageAttachment[],
   ): OpenAIContentPart[] | QwenVlContentPart[] | string {
@@ -633,9 +633,9 @@ export class VisionMessageBuilder {
     }
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >buildOpenAIContent(</span>text: string, attachments: ImageAttachment[]): OpenAIContentPart[] {
+<span class="fstat-no" title="function not covered" >  pr</span>ivate buildOpenAIContent(text: string, attachments: ImageAttachment[]): OpenAIContentPart[] {
     const parts: OpenAIContentPart[] = <span class="cstat-no" title="statement not covered" >[];</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (text) {</span>
+<span class="cstat-no" title="statement not covered" >    if (text) {</span>
 <span class="cstat-no" title="statement not covered" >      parts.push({ type: 'text', text });</span>
     }
 <span class="cstat-no" title="statement not covered" >    for (const img of attachments) {</span>
@@ -648,13 +648,13 @@ export class VisionMessageBuilder {
 <span class="cstat-no" title="statement not covered" >    return parts;</span>
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >buildQwenVlContent(</span>text: string, attachments: ImageAttachment[]): QwenVlContentPart[] {
+<span class="fstat-no" title="function not covered" >  pr</span>ivate buildQwenVlContent(text: string, attachments: ImageAttachment[]): QwenVlContentPart[] {
     const parts: QwenVlContentPart[] = <span class="cstat-no" title="statement not covered" >[];</span>
     // Qwen-VL 协议要求 image 在 text 之前
 <span class="cstat-no" title="statement not covered" >    for (const img of attachments) {</span>
 <span class="cstat-no" title="statement not covered" >      parts.push({ type: 'image', image: this.resolveImageUrl(img) });</span>
     }
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (text) {</span>
+<span class="cstat-no" title="statement not covered" >    if (text) {</span>
 <span class="cstat-no" title="statement not covered" >      parts.push({ type: 'text', text });</span>
     }
 <span class="cstat-no" title="statement not covered" >    return parts;</span>
@@ -666,11 +666,11 @@ export class VisionMessageBuilder {
    * 2. 若体积超过阈值，标记为需上传，返回占位符（由调用方先上传再替换）
    * 3. 否则使用 data:image/jpeg;base64,... 内联
    */
-  private <span class="fstat-no" title="function not covered" >resolveImageUrl(</span>attachment: ImageAttachment): string {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (attachment.remoteAssetRef) {</span>
+<span class="fstat-no" title="function not covered" >  pr</span>ivate resolveImageUrl(attachment: ImageAttachment): string {
+<span class="cstat-no" title="statement not covered" >    if (attachment.remoteAssetRef) {</span>
 <span class="cstat-no" title="statement not covered" >      return `asset://${attachment.remoteAssetRef}`;</span>
     }
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (attachment.byteSize &gt; this.config.base64MaxBytes) {</span>
+<span class="cstat-no" title="statement not covered" >    if (attachment.byteSize &gt; this.config.base64MaxBytes) {</span>
       // 超大图返回占位符，调用方应在发送前先调用 Asset API 上传
 <span class="cstat-no" title="statement not covered" >      return `asset://pending/${attachment.id}`;</span>
     }
@@ -685,7 +685,7 @@ export class VisionMessageBuilder {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T03:49:31.896Z
+                at 2026-07-19T03:58:37.641Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

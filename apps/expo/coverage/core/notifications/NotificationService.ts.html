@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/34</span>
+                <span class='fraction'>0/43</span>
             </div>
         
             
@@ -619,14 +619,14 @@ import type { DeepLinkTarget, PushNotificationPayload } from '../../types';
  */
 export function <span class="fstat-no" title="function not covered" >configureNotifications(</span>): void {
 <span class="cstat-no" title="statement not covered" >  Notifications.setNotificationHandler({</span>
-    handleNotification: <span class="fstat-no" title="function not covered" >async </span>() =&gt; (<span class="cstat-no" title="statement not covered" >{</span>
+    handleNotification: <span class="fstat-no" title="function not covered" >as</span>ync () =&gt; (<span class="cstat-no" title="statement not covered" >{</span>
       shouldShowAlert: true,
       shouldPlaySound: true,
       shouldSetBadge: true,
       shouldShowBanner: true,
       shouldShowList: true,
     }),
-    handleSuccess: <span class="fstat-no" title="function not covered" >() =</span>&gt; {
+    handleSuccess: <span class="fstat-no" title="function not covered" >()</span> =&gt; {
       // 通知成功展示后的钩子，可用于埋点
     },
     handleError: <span class="fstat-no" title="function not covered" >(n</span>otification, error) =&gt; {
@@ -656,7 +656,7 @@ class NotificationServiceManager {
   /**
    * 初始化服务。在 _layout.tsx 启动时调用一次。
    */
-<span class="fstat-no" title="function not covered" >  async </span>init(config: NotificationServiceConfig = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span>: Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync init(config: NotificationServiceConfig = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span>: Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    this.config = config;</span>
 <span class="cstat-no" title="statement not covered" >    configureNotifications();</span>
 <span class="cstat-no" title="statement not covered" >    this.subscribeListeners();</span>
@@ -667,8 +667,8 @@ class NotificationServiceManager {
    * 仅在用户触发相关功能时调用，遵守隐私合规原则。
    * @returns 是否授予权限。
    */
-<span class="fstat-no" title="function not covered" >  async </span>requestPermission(): Promise&lt;boolean&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.permissionGranted) <span class="cstat-no" title="statement not covered" >return true;</span></span>
+<span class="fstat-no" title="function not covered" >  as</span>ync requestPermission(): Promise&lt;boolean&gt; {
+<span class="cstat-no" title="statement not covered" >    if (this.permissionGranted) <span class="cstat-no" title="statement not covered" >return true;</span></span>
 &nbsp;
     const settings = <span class="cstat-no" title="statement not covered" >await Notifications.requestPermissionsAsync({</span>
       android: {
@@ -682,7 +682,7 @@ class NotificationServiceManager {
       (settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL) ||
       (settings.ios?.status === Notifications.IosAuthorizationStatus.AUTHORIZED);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.permissionGranted &amp;&amp; !this.expoPushToken) {</span>
+<span class="cstat-no" title="statement not covered" >    if (this.permissionGranted &amp;&amp; !this.expoPushToken) {</span>
 <span class="cstat-no" title="statement not covered" >      await this.registerForPushNotifications();</span>
     }
 &nbsp;
@@ -692,14 +692,14 @@ class NotificationServiceManager {
   /**
    * 注册并上报 push token。
    */
-<span class="fstat-no" title="function not covered" >  async </span>registerForPushNotifications(): Promise&lt;string | null&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync registerForPushNotifications(): Promise&lt;string | null&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const tokenResponse = <span class="cstat-no" title="statement not covered" >await Notifications.getExpoPushTokenAsync({</span>
         projectId: process.env.EXPO_PUBLIC_PROJECT_ID,
       });
 <span class="cstat-no" title="statement not covered" >      this.expoPushToken = tokenResponse.data;</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (this.config.tokenRegisterUrl &amp;&amp; this.expoPushToken) {</span>
+<span class="cstat-no" title="statement not covered" >      if (this.config.tokenRegisterUrl &amp;&amp; this.expoPushToken) {</span>
 <span class="cstat-no" title="statement not covered" >        await fetch(this.config.tokenRegisterUrl, {</span>
           method: 'POST',
           headers: {
@@ -723,15 +723,15 @@ class NotificationServiceManager {
    * 订阅 Deep Link 跳转事件。
    * 当用户点击通知时触发。
    */
-<span class="fstat-no" title="function not covered" >  onDeepLink(</span>listener: (target: DeepLinkTarget) =&gt; void): () =&gt; void {
+<span class="fstat-no" title="function not covered" >  on</span>DeepLink(listener: (target: DeepLinkTarget) =&gt; void): () =&gt; void {
 <span class="cstat-no" title="statement not covered" >    this.deepLinkListeners.add(listener);</span>
-<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >this.deepLinkListeners.delete(listener);</span></span>
+<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >this.deepLinkListeners.delete(listener);</span></span>
   }
 &nbsp;
   /**
    * 调度本地通知（如 Quiz 倒计时提醒）。
    */
-<span class="fstat-no" title="function not covered" >  async </span>scheduleLocalNotification(
+<span class="fstat-no" title="function not covered" >  as</span>ync scheduleLocalNotification(
     title: string,
     body: string,
     trigger: Notifications.NotificationTriggerInput,
@@ -751,14 +751,14 @@ class NotificationServiceManager {
   /**
    * 取消指定的本地通知。
    */
-<span class="fstat-no" title="function not covered" >  async </span>cancelScheduledNotification(identifier: string): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync cancelScheduledNotification(identifier: string): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await Notifications.cancelScheduledNotificationAsync(identifier);</span>
   }
 &nbsp;
   /**
    * 取消所有本地通知。
    */
-<span class="fstat-no" title="function not covered" >  async </span>cancelAllScheduledNotifications(): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync cancelAllScheduledNotifications(): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await Notifications.cancelAllScheduledNotificationsAsync();</span>
   }
 &nbsp;
@@ -766,8 +766,8 @@ class NotificationServiceManager {
    * 设置 Android 通知渠道。
    * 必须在 Android 8.0+ 上调用，否则通知不显示。
    */
-<span class="fstat-no" title="function not covered" >  async </span>setupAndroidChannel(): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (Platform.OS !== 'android') <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="fstat-no" title="function not covered" >  as</span>ync setupAndroidChannel(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    if (Platform.OS !== 'android') <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    await Notifications.setNotificationChannelAsync('openmaic-default', {</span>
       name: 'OpenMAIC 默认',
       importance: Notifications.AndroidImportance.HIGH,
@@ -787,40 +787,40 @@ class NotificationServiceManager {
   /**
    * 释放监听器。App 退出时调用。
    */
-<span class="fstat-no" title="function not covered" >  dispose(</span>): void {
+<span class="fstat-no" title="function not covered" >  di</span>spose(): void {
 <span class="cstat-no" title="statement not covered" >    this.foreignListenerCleanup();</span>
 <span class="cstat-no" title="statement not covered" >    this.deepLinkListeners.clear();</span>
   }
 &nbsp;
   /** 当前 push token。 */
-<span class="fstat-no" title="function not covered" >  getPushToken(</span>): string | null {
+<span class="fstat-no" title="function not covered" >  ge</span>tPushToken(): string | null {
 <span class="cstat-no" title="statement not covered" >    return this.expoPushToken;</span>
   }
 &nbsp;
   /** 当前是否已授权。 */
-<span class="fstat-no" title="function not covered" >  isPermissionGranted(</span>): boolean {
+<span class="fstat-no" title="function not covered" >  is</span>PermissionGranted(): boolean {
 <span class="cstat-no" title="statement not covered" >    return this.permissionGranted;</span>
   }
 &nbsp;
   // ───────────────────────── 私有方法 ─────────────────────────
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >subscribeListeners(</span>): void {
+<span class="fstat-no" title="function not covered" >  pr</span>ivate subscribeListeners(): void {
     // 前台通知展示由 setNotificationHandler 处理，这里仅监听点击响应
 <span class="cstat-no" title="statement not covered" >    this.responseListener = Notifications.addNotificationResponseReceivedListener(<span class="fstat-no" title="function not covered" >(r</span>esponse) =&gt; {</span>
       const payload = <span class="cstat-no" title="statement not covered" >this.extractPayload(response);</span>
       const target = <span class="cstat-no" title="statement not covered" >payload ? DeepLinkRouter.fromPayload(payload) : null;</span>
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (target) {</span>
+<span class="cstat-no" title="statement not covered" >      if (target) {</span>
 <span class="cstat-no" title="statement not covered" >        this.deepLinkListeners.forEach(<span class="fstat-no" title="function not covered" >(f</span>n) =&gt; <span class="cstat-no" title="statement not covered" >fn(target))</span>;</span>
       }
     });
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >foreignListenerCleanup(</span>): void {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.foregroundListener) {</span>
+<span class="fstat-no" title="function not covered" >  pr</span>ivate foreignListenerCleanup(): void {
+<span class="cstat-no" title="statement not covered" >    if (this.foregroundListener) {</span>
 <span class="cstat-no" title="statement not covered" >      this.foregroundListener.remove();</span>
 <span class="cstat-no" title="statement not covered" >      this.foregroundListener = null;</span>
     }
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.responseListener) {</span>
+<span class="cstat-no" title="statement not covered" >    if (this.responseListener) {</span>
 <span class="cstat-no" title="statement not covered" >      this.responseListener.remove();</span>
 <span class="cstat-no" title="statement not covered" >      this.responseListener = null;</span>
     }
@@ -830,12 +830,12 @@ class NotificationServiceManager {
    * 从通知响应中提取 PushNotificationPayload。
    * 兼容 APNs / FCM / 本地通知三种来源的 payload 结构。
    */
-  private <span class="fstat-no" title="function not covered" >extractPayload(</span>
+<span class="fstat-no" title="function not covered" >  pr</span>ivate extractPayload(
     response: Notifications.NotificationResponse,
   ): PushNotificationPayload | null {
     const data = <span class="cstat-no" title="statement not covered" >response.notification.request.content.data ?? {};</span>
     // 优先：直接 payload 字段
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof data.payload === 'string') {</span>
+<span class="cstat-no" title="statement not covered" >    if (typeof data.payload === 'string') {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
 <span class="cstat-no" title="statement not covered" >        return JSON.parse(data.payload) as PushNotificationPayload;</span>
       } catch {
@@ -843,7 +843,7 @@ class NotificationServiceManager {
       }
     }
     // 次选：扁平字段
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof data.kind === 'string') {</span>
+<span class="cstat-no" title="statement not covered" >    if (typeof data.kind === 'string') {</span>
       const route =
 <span class="cstat-no" title="statement not covered" >        typeof data.route === 'object' &amp;&amp; data.route !== null &amp;&amp; 'screen' in data.route</span>
           ? (data.route as DeepLinkTarget)
@@ -868,7 +868,7 @@ export const notificationService = <span class="cstat-no" title="statement not c
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T03:49:32.093Z
+                at 2026-07-19T03:58:37.811Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

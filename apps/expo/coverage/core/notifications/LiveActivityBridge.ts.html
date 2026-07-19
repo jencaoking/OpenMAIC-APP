@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
@@ -473,9 +473,9 @@ const NATIVE_MODULE_NAME = <span class="cstat-no" title="statement not covered" 
  * 检测原生模块是否已注册。
  */
 function <span class="fstat-no" title="function not covered" >getNativeModule(</span>): NativeLiveActivityModule | null {
-<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (Platform.OS !== 'ios') <span class="cstat-no" title="statement not covered" >return null;</span></span>
+<span class="cstat-no" title="statement not covered" >  if (Platform.OS !== 'ios') <span class="cstat-no" title="statement not covered" >return null;</span></span>
   const mod = <span class="cstat-no" title="statement not covered" >NativeModules[NATIVE_MODULE_NAME];</span>
-<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (!mod) <span class="cstat-no" title="statement not covered" >return null;</span></span>
+<span class="cstat-no" title="statement not covered" >  if (!mod) <span class="cstat-no" title="statement not covered" >return null;</span></span>
 <span class="cstat-no" title="statement not covered" >  return mod as NativeLiveActivityModule;</span>
 }
 &nbsp;
@@ -489,9 +489,9 @@ class LiveActivityBridge {
   private native: NativeLiveActivityModule | null;
   private activeHandles: Map&lt;string, LiveActivityHandle&gt; = <span class="cstat-no" title="statement not covered" >new Map();</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >  constructor() {</span>
+<span class="fstat-no" title="function not covered" >  co</span>nstructor() {
 <span class="cstat-no" title="statement not covered" >    this.native = getNativeModule();</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.native &amp;&amp; Platform.OS === 'ios') {</span>
+<span class="cstat-no" title="statement not covered" >    if (!this.native &amp;&amp; Platform.OS === 'ios') {</span>
 <span class="cstat-no" title="statement not covered" >      console.warn(</span>
         '[LiveActivityBridge] Native module not registered. Live Activity will be no-op. ' +
           'Please add the iOS ActivityKit widget extension via config plugin.',
@@ -502,7 +502,7 @@ class LiveActivityBridge {
   /**
    * 当前桥接器是否可用（iOS + 原生模块已注册）。
    */
-<span class="fstat-no" title="function not covered" >  isAvailable(</span>): boolean {
+<span class="fstat-no" title="function not covered" >  is</span>Available(): boolean {
 <span class="cstat-no" title="statement not covered" >    return this.native !== null;</span>
   }
 &nbsp;
@@ -510,8 +510,8 @@ class LiveActivityBridge {
    * 启动一个 Live Activity。
    * @returns 活动实例 ID；不可用时返回空字符串。
    */
-<span class="fstat-no" title="function not covered" >  async </span>start(attributes: LiveActivityAttributes): Promise&lt;string&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.native) <span class="cstat-no" title="statement not covered" >return '';</span></span>
+<span class="fstat-no" title="function not covered" >  as</span>ync start(attributes: LiveActivityAttributes): Promise&lt;string&gt; {
+<span class="cstat-no" title="statement not covered" >    if (!this.native) <span class="cstat-no" title="statement not covered" >return '';</span></span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const id = <span class="cstat-no" title="statement not covered" >await this.native.startActivity(attributes);</span>
 <span class="cstat-no" title="statement not covered" >      this.activeHandles.set(id, { id, status: 'active' });</span>
@@ -525,8 +525,8 @@ class LiveActivityBridge {
   /**
    * 更新已存在的 Live Activity 内容。
    */
-<span class="fstat-no" title="function not covered" >  async </span>update(id: string, attributes: Partial&lt;LiveActivityAttributes&gt;): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.native || !id) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="fstat-no" title="function not covered" >  as</span>ync update(id: string, attributes: Partial&lt;LiveActivityAttributes&gt;): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    if (!this.native || !id) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await this.native.updateActivity(id, attributes);</span>
     } catch (error) {
@@ -537,8 +537,8 @@ class LiveActivityBridge {
   /**
    * 结束 Live Activity。
    */
-<span class="fstat-no" title="function not covered" >  async </span>end(id: string): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.native || !id) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="fstat-no" title="function not covered" >  as</span>ync end(id: string): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    if (!this.native || !id) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await this.native.endActivity(id);</span>
 <span class="cstat-no" title="statement not covered" >      this.activeHandles.delete(id);</span>
@@ -551,8 +551,8 @@ class LiveActivityBridge {
    * 获取当前活跃的 Live Activity 列表。
    * 用于 App 启动时恢复状态（如用户在 Quiz 进行中切到后台又回来）。
    */
-<span class="fstat-no" title="function not covered" >  async </span>getActive(): Promise&lt;LiveActivityHandle[]&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.native) <span class="cstat-no" title="statement not covered" >return [];</span></span>
+<span class="fstat-no" title="function not covered" >  as</span>ync getActive(): Promise&lt;LiveActivityHandle[]&gt; {
+<span class="cstat-no" title="statement not covered" >    if (!this.native) <span class="cstat-no" title="statement not covered" >return [];</span></span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      return await this.native.getActiveActivities();</span>
     } catch {
@@ -564,7 +564,7 @@ class LiveActivityBridge {
    * 结束所有当前活跃的 Live Activity。
    * 在 App 退出登录或用户主动结束时调用。
    */
-<span class="fstat-no" title="function not covered" >  async </span>endAll(): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync endAll(): Promise&lt;void&gt; {
     const handles = <span class="cstat-no" title="statement not covered" >await this.getActive();</span>
 <span class="cstat-no" title="statement not covered" >    await Promise.all(handles.map(<span class="fstat-no" title="function not covered" >(h</span>) =&gt; <span class="cstat-no" title="statement not covered" >this.end(h.id))</span>);</span>
 <span class="cstat-no" title="statement not covered" >    this.activeHandles.clear();</span>
@@ -580,7 +580,7 @@ export const liveActivityBridge = <span class="cstat-no" title="statement not co
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T03:49:32.093Z
+                at 2026-07-19T03:58:37.811Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

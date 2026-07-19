@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/36</span>
+                <span class='fraction'>0/50</span>
             </div>
         
             
@@ -706,7 +706,7 @@ export class TtsQueue {
   private isPlaying = <span class="cstat-no" title="statement not covered" >false;</span>
   private isInterrupted = <span class="cstat-no" title="statement not covered" >false;</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >  constructor(c</span>onfig: Partial&lt;TtsQueueConfig&gt; &amp; { ttsUrl: string }, callbacks: TtsQueueCallbacks = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(config: Partial&lt;TtsQueueConfig&gt; &amp; { ttsUrl: string }, callbacks: TtsQueueCallbacks = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
 <span class="cstat-no" title="statement not covered" >    this.config = { ...DEFAULT_CONFIG, ...config };</span>
 <span class="cstat-no" title="statement not covered" >    this.callbacks = callbacks;</span>
   }
@@ -714,7 +714,7 @@ export class TtsQueue {
   /**
    * 更新回调。
    */
-<span class="fstat-no" title="function not covered" >  setCallbacks(</span>callbacks: TtsQueueCallbacks): void {
+<span class="fstat-no" title="function not covered" >  se</span>tCallbacks(callbacks: TtsQueueCallbacks): void {
 <span class="cstat-no" title="statement not covered" >    this.callbacks = callbacks;</span>
   }
 &nbsp;
@@ -722,7 +722,7 @@ export class TtsQueue {
    * 将 LLM 流式追加的文本切片入队。
    * @param fullText 当前累计的完整 AI 回复文本。
    */
-<span class="fstat-no" title="function not covered" >  enqueueFromStream(</span>fullText: string): void {
+<span class="fstat-no" title="function not covered" >  en</span>queueFromStream(fullText: string): void {
     const segments = <span class="cstat-no" title="statement not covered" >this.splitText(fullText);</span>
     // 与已有 chunks 比对，追加新增的段
     const existingCount = <span class="cstat-no" title="statement not covered" >this.chunks.length;</span>
@@ -740,8 +740,8 @@ export class TtsQueue {
   /**
    * 开始播放队列。若已有播放进行中，则忽略。
    */
-<span class="fstat-no" title="function not covered" >  async </span>start(): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.isPlaying) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="fstat-no" title="function not covered" >  as</span>ync start(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    if (this.isPlaying) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    this.isPlaying = true;</span>
 <span class="cstat-no" title="statement not covered" >    this.isInterrupted = false;</span>
 <span class="cstat-no" title="statement not covered" >    await this.playFrom(this.currentIndex);</span>
@@ -750,10 +750,10 @@ export class TtsQueue {
   /**
    * 立即中断播放，清空队列（Barge-in）。
    */
-<span class="fstat-no" title="function not covered" >  async </span>interrupt(): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync interrupt(): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    this.isInterrupted = true;</span>
 <span class="cstat-no" title="statement not covered" >    this.isPlaying = false;</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.currentSound) {</span>
+<span class="cstat-no" title="statement not covered" >    if (this.currentSound) {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
 <span class="cstat-no" title="statement not covered" >        await this.currentSound.stopAsync();</span>
 <span class="cstat-no" title="statement not covered" >        await this.currentSound.unloadAsync();</span>
@@ -770,24 +770,24 @@ export class TtsQueue {
   /**
    * 释放所有资源。组件卸载时必须调用。
    */
-<span class="fstat-no" title="function not covered" >  async </span>dispose(): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync dispose(): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await this.interrupt();</span>
   }
 &nbsp;
   /**
    * 将文本按句号/问号/感叹号/换行切分，每段不超过 `maxChars`。
    */
-  private <span class="fstat-no" title="function not covered" >splitText(</span>text: string): string[] {
+<span class="fstat-no" title="function not covered" >  pr</span>ivate splitText(text: string): string[] {
     const result: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const regex = <span class="cstat-no" title="statement not covered" >/[^。？！\n.?!]+[。？！\n.?!]*/g;</span>
     const matches = <span class="cstat-no" title="statement not covered" >text.match(regex) ?? [text];</span>
 <span class="cstat-no" title="statement not covered" >    for (const m of matches) {</span>
       const trimmed = <span class="cstat-no" title="statement not covered" >m.trim();</span>
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!trimmed) <span class="cstat-no" title="statement not covered" >continue;</span></span>
+<span class="cstat-no" title="statement not covered" >      if (!trimmed) <span class="cstat-no" title="statement not covered" >continue;</span></span>
       // 长段再按 maxChars 硬切
 <span class="cstat-no" title="statement not covered" >      for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; trimmed.length; i += this.config.maxChars) {</span>
         const slice = <span class="cstat-no" title="statement not covered" >trimmed.slice(i, i + this.config.maxChars).trim();</span>
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (slice) <span class="cstat-no" title="statement not covered" >result.push(slice);</span></span>
+<span class="cstat-no" title="statement not covered" >        if (slice) <span class="cstat-no" title="statement not covered" >result.push(slice);</span></span>
       }
     }
 <span class="cstat-no" title="statement not covered" >    return result;</span>
@@ -796,13 +796,13 @@ export class TtsQueue {
   /**
    * 预加载当前 + 之后 N 个 pending 片段。
    */
-  private <span class="fstat-no" title="function not covered" >async </span>prefetch(): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  pr</span>ivate async prefetch(): Promise&lt;void&gt; {
     const tasks: Promise&lt;void&gt;[] = <span class="cstat-no" title="statement not covered" >[];</span>
 <span class="cstat-no" title="statement not covered" >    for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; this.config.prefetchCount; i++) {</span>
       const idx = <span class="cstat-no" title="statement not covered" >this.currentIndex + i;</span>
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (idx &gt;= this.chunks.length) <span class="cstat-no" title="statement not covered" >break;</span></span>
+<span class="cstat-no" title="statement not covered" >      if (idx &gt;= this.chunks.length) <span class="cstat-no" title="statement not covered" >break;</span></span>
       const chunk = <span class="cstat-no" title="statement not covered" >this.chunks[idx];</span>
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (chunk.status === 'pending') {</span>
+<span class="cstat-no" title="statement not covered" >      if (chunk.status === 'pending') {</span>
 <span class="cstat-no" title="statement not covered" >        chunk.status = 'loading';</span>
 <span class="cstat-no" title="statement not covered" >        tasks.push(this.loadChunk(chunk));</span>
       }
@@ -810,10 +810,10 @@ export class TtsQueue {
 <span class="cstat-no" title="statement not covered" >    await Promise.all(tasks);</span>
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >async </span>loadChunk(chunk: TtsChunk): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  pr</span>ivate async loadChunk(chunk: TtsChunk): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const controller = <span class="cstat-no" title="statement not covered" >new AbortController();</span>
-      const timer = <span class="cstat-no" title="statement not covered" >setTimeout(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >controller.abort(),</span> this.config.requestTimeoutMs);</span>
+      const timer = <span class="cstat-no" title="statement not covered" >setTimeout(<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >controller.abort(),</span> this.config.requestTimeoutMs);</span>
       const response = <span class="cstat-no" title="statement not covered" >await fetch(this.config.ttsUrl, {</span>
         method: 'POST',
         headers: {
@@ -825,15 +825,15 @@ export class TtsQueue {
       });
 <span class="cstat-no" title="statement not covered" >      clearTimeout(timer);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!response.ok) {</span>
+<span class="cstat-no" title="statement not covered" >      if (!response.ok) {</span>
 <span class="cstat-no" title="statement not covered" >        throw new Error(`TTS HTTP ${response.status}`);</span>
       }
       // 优先解析 data URI；若后端返回二进制，则前端转 base64
       const contentType = <span class="cstat-no" title="statement not covered" >response.headers.get('content-type') ?? 'audio/mpeg';</span>
 <span class="cstat-no" title="statement not covered" >      if (contentType.startsWith('application/json')) {</span>
-        const body = (<span class="cstat-no" title="statement not covered" >await response.json())</span> as { dataUri?: string; audio?: string };
+        const body = <span class="cstat-no" title="statement not covered" >(await response.json()) as { dataUri?: string; audio?: string };</span>
         const uri = <span class="cstat-no" title="statement not covered" >body.dataUri ?? body.audio;</span>
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!uri) <span class="cstat-no" title="statement not covered" >throw new Error('TTS response missing audio field');</span></span>
+<span class="cstat-no" title="statement not covered" >        if (!uri) <span class="cstat-no" title="statement not covered" >throw new Error('TTS response missing audio field');</span></span>
 <span class="cstat-no" title="statement not covered" >        chunk.audioDataUri = uri;</span>
       } else {
         const blob = <span class="cstat-no" title="statement not covered" >await response.blob();</span>
@@ -846,11 +846,11 @@ export class TtsQueue {
     }
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >blobToDataUri(</span>blob: Blob, mimeType: string): Promise&lt;string&gt; {
+<span class="fstat-no" title="function not covered" >  pr</span>ivate blobToDataUri(blob: Blob, mimeType: string): Promise&lt;string&gt; {
 <span class="cstat-no" title="statement not covered" >    return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
       const reader = <span class="cstat-no" title="statement not covered" >new FileReader();</span>
-<span class="cstat-no" title="statement not covered" >      reader.onload = <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >resolve(reader.result as string);</span></span>
-<span class="cstat-no" title="statement not covered" >      reader.onerror = <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >reject(reader.error);</span></span>
+<span class="cstat-no" title="statement not covered" >      reader.onload = <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >resolve(reader.result as string);</span></span>
+<span class="cstat-no" title="statement not covered" >      reader.onerror = <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >reject(reader.error);</span></span>
 <span class="cstat-no" title="statement not covered" >      reader.readAsDataURL(blob);</span>
     });
   }
@@ -858,21 +858,21 @@ export class TtsQueue {
   /**
    * 从指定 index 开始顺序播放。
    */
-  private <span class="fstat-no" title="function not covered" >async </span>playFrom(index: number): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.isInterrupted || !this.isPlaying) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="fstat-no" title="function not covered" >  pr</span>ivate async playFrom(index: number): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    if (this.isInterrupted || !this.isPlaying) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (index &gt;= this.chunks.length) {</span>
+<span class="cstat-no" title="statement not covered" >    if (index &gt;= this.chunks.length) {</span>
 <span class="cstat-no" title="statement not covered" >      this.isPlaying = false;</span>
 <span class="cstat-no" title="statement not covered" >      this.callbacks.onAllComplete?.();</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
     }
 &nbsp;
     const chunk = <span class="cstat-no" title="statement not covered" >this.chunks[index];</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (chunk.status === 'pending' || chunk.status === 'loading') {</span>
+<span class="cstat-no" title="statement not covered" >    if (chunk.status === 'pending' || chunk.status === 'loading') {</span>
       // 等待预加载完成
 <span class="cstat-no" title="statement not covered" >      await this.loadChunk(chunk);</span>
     }
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (chunk.status === 'error') {</span>
+<span class="cstat-no" title="statement not covered" >    if (chunk.status === 'error') {</span>
       // 跳过错误片段，继续下一片段
 <span class="cstat-no" title="statement not covered" >      this.currentIndex = index + 1;</span>
 <span class="cstat-no" title="statement not covered" >      await this.playFrom(this.currentIndex);</span>
@@ -887,7 +887,7 @@ export class TtsQueue {
 <span class="cstat-no" title="statement not covered" >      this.callbacks.onChunkStart?.(chunk.index, chunk.text);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      sound.setOnPlaybackStatusUpdate(<span class="fstat-no" title="function not covered" >(s</span>tatus) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (</span>
+<span class="cstat-no" title="statement not covered" >        if (</span>
           status.isLoaded &amp;&amp;
           'didJustFinish' in status &amp;&amp;
           status.didJustFinish
@@ -905,8 +905,8 @@ export class TtsQueue {
     }
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >async </span>handleChunkFinished(chunk: TtsChunk): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.currentSound) {</span>
+<span class="fstat-no" title="function not covered" >  pr</span>ivate async handleChunkFinished(chunk: TtsChunk): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    if (this.currentSound) {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
 <span class="cstat-no" title="statement not covered" >        await this.currentSound.unloadAsync();</span>
       } catch {
@@ -931,7 +931,7 @@ export class TtsQueue {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T03:49:32.093Z
+                at 2026-07-19T03:58:37.811Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

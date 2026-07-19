@@ -4,7 +4,48 @@
  * Mock 所有 React Native 原生模块，确保测试在 Node 环境可运行。
  */
 
-// Mock expo-secure-store
+global.IS_REACT_ACT_ENVIRONMENT = true;
+global.IS_REACT_NATIVE_TEST_ENVIRONMENT = true;
+
+Object.defineProperties(global, {
+  __DEV__: {
+    configurable: true,
+    enumerable: true,
+    value: true,
+    writable: true,
+  },
+  cancelAnimationFrame: {
+    configurable: true,
+    enumerable: true,
+    value(id) {
+      return clearTimeout(id);
+    },
+    writable: true,
+  },
+  performance: {
+    configurable: true,
+    enumerable: true,
+    value: {
+      now: jest.fn(Date.now),
+    },
+    writable: true,
+  },
+  requestAnimationFrame: {
+    configurable: true,
+    enumerable: true,
+    value(callback) {
+      return setTimeout(() => callback(jest.now()), 0);
+    },
+    writable: true,
+  },
+  window: {
+    configurable: true,
+    enumerable: true,
+    value: global,
+    writable: true,
+  },
+});
+
 jest.mock('expo-secure-store', () => ({
   setItemAsync: jest.fn().mockResolvedValue(undefined),
   getItemAsync: jest.fn().mockResolvedValue(null),
@@ -12,7 +53,6 @@ jest.mock('expo-secure-store', () => ({
   WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'WHEN_UNLOCKED_THIS_DEVICE_ONLY',
 }));
 
-// Mock expo-sqlite
 jest.mock('expo-sqlite', () => ({
   openDatabaseAsync: jest.fn().mockResolvedValue({
     execAsync: jest.fn().mockResolvedValue(undefined),
@@ -22,7 +62,6 @@ jest.mock('expo-sqlite', () => ({
   }),
 }));
 
-// Mock expo-av
 jest.mock('expo-av', () => ({
   Audio: {
     setAudioModeAsync: jest.fn().mockResolvedValue(undefined),
@@ -45,24 +84,30 @@ jest.mock('expo-av', () => ({
       unloadAsync: jest.fn().mockResolvedValue(undefined),
       setOnPlaybackStatusUpdate: jest.fn(),
     })),
-    RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_PCM_16BIT: 1,
-    RECORDING_OPTION_ANDROID_AUDIO_ENCODER_PCM_16BIT: 1,
-    RECORDING_OPTION_IOS_OUTPUT_FORMAT_LINEARPCM: 1,
-    RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH: 1,
+    AndroidOutputFormat: {
+      MPEG_4: 2,
+    },
+    AndroidAudioEncoder: {
+      AAC: 3,
+    },
+    IOSOutputFormat: {
+      LINEARPCM: 1,
+    },
+    IOSAudioQuality: {
+      HIGH: 1,
+    },
   },
 }));
 
-// Mock @sentry/react-native
 jest.mock('@sentry/react-native', () => ({
   init: jest.fn(),
   captureException: jest.fn(),
   setUser: jest.fn(),
   addBreadcrumb: jest.fn(),
   withScope: jest.fn((cb) => cb({ setExtra: jest.fn() })),
-  ReactNativeTracing: jest.fn().mockImplementation(() => ({})),
+  reactNativeTracingIntegration: jest.fn().mockImplementation(() => ({})),
 }));
 
-// Mock react-native
 jest.mock('react-native', () => {
   const RN = jest.requireActual('react-native');
   RN.Platform.OS = 'ios';

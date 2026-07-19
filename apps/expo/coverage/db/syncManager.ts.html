@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/26</span>
+                <span class='fraction'>0/37</span>
             </div>
         
             
@@ -871,7 +871,7 @@ class SyncManager {
   private syncInterval: ReturnType&lt;typeof setInterval&gt; | null = <span class="cstat-no" title="statement not covered" >null;</span>
   private retryDelay = <span class="cstat-no" title="statement not covered" >1000;</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>init(): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync init(): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await initDatabase();</span>
 <span class="cstat-no" title="statement not covered" >    this.state.isOnline = await checkNetwork();</span>
 <span class="cstat-no" title="statement not covered" >    await startNetworkMonitoring();</span>
@@ -879,11 +879,11 @@ class SyncManager {
 <span class="cstat-no" title="statement not covered" >    this.startPeriodicSync();</span>
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >setupNetworkListener(</span>): void {
+<span class="fstat-no" title="function not covered" >  pr</span>ivate setupNetworkListener(): void {
 <span class="cstat-no" title="statement not covered" >    addNetworkListener(<span class="fstat-no" title="function not covered" >(i</span>sOnline) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      this.state.isOnline = isOnline;</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (isOnline &amp;&amp; this.state.status === 'idle') {</span>
+<span class="cstat-no" title="statement not covered" >      if (isOnline &amp;&amp; this.state.status === 'idle') {</span>
 <span class="cstat-no" title="statement not covered" >        this.forceSync();</span>
       }
 &nbsp;
@@ -891,32 +891,32 @@ class SyncManager {
     });
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >startPeriodicSync(</span>): void {
-<span class="cstat-no" title="statement not covered" >    this.syncInterval = setInterval(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (this.state.isOnline &amp;&amp; this.state.status === 'idle') {</span>
+<span class="fstat-no" title="function not covered" >  pr</span>ivate startPeriodicSync(): void {
+<span class="cstat-no" title="statement not covered" >    this.syncInterval = setInterval(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      if (this.state.isOnline &amp;&amp; this.state.status === 'idle') {</span>
 <span class="cstat-no" title="statement not covered" >        this.forceSync();</span>
       }
     }, 60000);
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  addListener(</span>listener: (state: SyncState) =&gt; void): void {
+<span class="fstat-no" title="function not covered" >  ad</span>dListener(listener: (state: SyncState) =&gt; void): void {
 <span class="cstat-no" title="statement not covered" >    this.listeners.add(listener);</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  removeListener(</span>listener: (state: SyncState) =&gt; void): void {
+<span class="fstat-no" title="function not covered" >  re</span>moveListener(listener: (state: SyncState) =&gt; void): void {
 <span class="cstat-no" title="statement not covered" >    this.listeners.delete(listener);</span>
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >notifyListeners(</span>): void {
+<span class="fstat-no" title="function not covered" >  pr</span>ivate notifyListeners(): void {
 <span class="cstat-no" title="statement not covered" >    this.listeners.forEach(<span class="fstat-no" title="function not covered" >(l</span>istener) =&gt; <span class="cstat-no" title="statement not covered" >listener({ ...this.state }))</span>;</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  getState(</span>): SyncState {
+<span class="fstat-no" title="function not covered" >  ge</span>tState(): SyncState {
 <span class="cstat-no" title="statement not covered" >    return { ...this.state };</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>forceSync(): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.state.status === 'syncing') <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="fstat-no" title="function not covered" >  as</span>ync forceSync(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    if (this.state.status === 'syncing') <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    this.state.status = 'syncing';</span>
 <span class="cstat-no" title="statement not covered" >    this.state.error = null;</span>
@@ -934,13 +934,13 @@ class SyncManager {
 <span class="cstat-no" title="statement not covered" >      this.state.status = 'error';</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      this.retryDelay = Math.min(this.retryDelay * 2, 30000);</span>
-<span class="cstat-no" title="statement not covered" >      setTimeout(<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >this.forceSync(),</span> this.retryDelay);</span>
+<span class="cstat-no" title="statement not covered" >      setTimeout(<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >this.forceSync(),</span> this.retryDelay);</span>
     } finally {
 <span class="cstat-no" title="statement not covered" >      this.notifyListeners();</span>
     }
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >async </span>pullChanges(): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  pr</span>ivate async pullChanges(): Promise&lt;void&gt; {
     const sinceVersion = <span class="cstat-no" title="statement not covered" >await getMaxVersion();</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
@@ -968,10 +968,10 @@ class SyncManager {
     }
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >async </span>pushChanges(): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  pr</span>ivate async pushChanges(): Promise&lt;void&gt; {
     const records = <span class="cstat-no" title="statement not covered" >await getRecordsWithStatus('new');</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (</span>
+<span class="cstat-no" title="statement not covered" >    if (</span>
       records.courses.length === 0 &amp;&amp;
       records.sessions.length === 0 &amp;&amp;
       records.messages.length === 0 &amp;&amp;
@@ -998,7 +998,7 @@ class SyncManager {
 &nbsp;
       const ack: SyncAck = <span class="cstat-no" title="statement not covered" >await response.json();</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (ack.success) {</span>
+<span class="cstat-no" title="statement not covered" >      if (ack.success) {</span>
 <span class="cstat-no" title="statement not covered" >        for (const course of records.courses) {</span>
 <span class="cstat-no" title="statement not covered" >          await updateRecordStatus('courses', course.id, 'synced', ack.new_version);</span>
         }
@@ -1020,38 +1020,38 @@ class SyncManager {
     }
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>getCourses(): Promise&lt;{ id: string; title: string; description: string; updated_at: string }[]&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync getCourses(): Promise&lt;{ id: string; title: string; description: string; updated_at: string }[]&gt; {
 <span class="cstat-no" title="statement not covered" >    return await dbGetCourses();</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>getSessions(stageId?: string, learnerKey?: string): Promise&lt;{ id: string; course_id: string | null; stage_id: string; learner_key: string; kind: string; status: string; last_message_at: string | null; updated_at: string }[]&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync getSessions(stageId?: string, learnerKey?: string): Promise&lt;{ id: string; course_id: string | null; stage_id: string; learner_key: string; kind: string; status: string; last_message_at: string | null; updated_at: string }[]&gt; {
 <span class="cstat-no" title="statement not covered" >    return await dbGetSessions(stageId, learnerKey);</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>getMessages(sessionId: string): Promise&lt;{ id: string; session_id: string; role: string; content: string; created_at: string }[]&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync getMessages(sessionId: string): Promise&lt;{ id: string; session_id: string; role: string; content: string; created_at: string }[]&gt; {
 <span class="cstat-no" title="statement not covered" >    return await dbGetMessages(sessionId);</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>insertCourse(course: { id: string; title: string; description: string; updated_at: string }): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync insertCourse(course: { id: string; title: string; description: string; updated_at: string }): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await insertCourse(course);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.state.isOnline) {</span>
+<span class="cstat-no" title="statement not covered" >    if (this.state.isOnline) {</span>
 <span class="cstat-no" title="statement not covered" >      this.forceSync();</span>
     }
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>insertSession(session: { id: string; course_id: string | null; stage_id: string; learner_key: string; kind: string; status: string; last_message_at: string | null; updated_at: string }): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync insertSession(session: { id: string; course_id: string | null; stage_id: string; learner_key: string; kind: string; status: string; last_message_at: string | null; updated_at: string }): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await insertSession(session);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.state.isOnline) {</span>
+<span class="cstat-no" title="statement not covered" >    if (this.state.isOnline) {</span>
 <span class="cstat-no" title="statement not covered" >      this.forceSync();</span>
     }
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>insertMessage(message: { id: string; session_id: string; role: string; content: string; created_at: string }): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync insertMessage(message: { id: string; session_id: string; role: string; content: string; created_at: string }): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await insertMessage(message);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.state.isOnline) {</span>
+<span class="cstat-no" title="statement not covered" >    if (this.state.isOnline) {</span>
 <span class="cstat-no" title="statement not covered" >      this.forceSync();</span>
     }
   }
@@ -1060,7 +1060,7 @@ class SyncManager {
    * 插入消息附件（Phase 6.2）。
    * 附件与消息一起作为单元提交：调用方应先 insertMessage，再 insertMessageAttachment。
    */
-<span class="fstat-no" title="function not covered" >  async </span>insertMessageAttachment(attachment: {
+<span class="fstat-no" title="function not covered" >  as</span>ync insertMessageAttachment(attachment: {
     id: string;
     message_id: string;
     kind: string;
@@ -1075,7 +1075,7 @@ class SyncManager {
   }): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await insertMessageAttachment(attachment);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.state.isOnline) {</span>
+<span class="cstat-no" title="statement not covered" >    if (this.state.isOnline) {</span>
 <span class="cstat-no" title="statement not covered" >      this.forceSync();</span>
     }
   }
@@ -1083,7 +1083,7 @@ class SyncManager {
   /**
    * 查询指定消息下的所有附件（Phase 6.2）。
    */
-<span class="fstat-no" title="function not covered" >  async </span>getMessageAttachments(messageId: string): Promise&lt;{
+<span class="fstat-no" title="function not covered" >  as</span>ync getMessageAttachments(messageId: string): Promise&lt;{
     id: string;
     message_id: string;
     kind: string;
@@ -1099,16 +1099,16 @@ class SyncManager {
 <span class="cstat-no" title="statement not covered" >    return await dbGetMessageAttachments(messageId);</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>insertQuizResult(result: { id: string; quiz_id: string; answers: string; score: number | null; submitted_at: string }): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync insertQuizResult(result: { id: string; quiz_id: string; answers: string; score: number | null; submitted_at: string }): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await insertQuizResult(result);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.state.isOnline) {</span>
+<span class="cstat-no" title="statement not covered" >    if (this.state.isOnline) {</span>
 <span class="cstat-no" title="statement not covered" >      this.forceSync();</span>
     }
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>close(): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.syncInterval) {</span>
+<span class="fstat-no" title="function not covered" >  as</span>ync close(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    if (this.syncInterval) {</span>
 <span class="cstat-no" title="statement not covered" >      clearInterval(this.syncInterval);</span>
 <span class="cstat-no" title="statement not covered" >      this.syncInterval = null;</span>
     }
@@ -1123,7 +1123,7 @@ export const syncManager = <span class="cstat-no" title="statement not covered" 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T03:49:32.093Z
+                at 2026-07-19T03:58:37.811Z
             </div>
         <script src="../prettify.js"></script>
         <script>

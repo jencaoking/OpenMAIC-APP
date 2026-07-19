@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/9</span>
+                <span class='fraction'>0/18</span>
             </div>
         
             
@@ -390,7 +390,7 @@ const NATIVE_MODULE_NAME = <span class="cstat-no" title="statement not covered" 
 &nbsp;
 function <span class="fstat-no" title="function not covered" >getNativeModule(</span>): NativeWidgetModule | null {
   const mod = <span class="cstat-no" title="statement not covered" >NativeModules[NATIVE_MODULE_NAME];</span>
-<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (!mod) <span class="cstat-no" title="statement not covered" >return null;</span></span>
+<span class="cstat-no" title="statement not covered" >  if (!mod) <span class="cstat-no" title="statement not covered" >return null;</span></span>
 <span class="cstat-no" title="statement not covered" >  return mod as NativeWidgetModule;</span>
 }
 &nbsp;
@@ -401,9 +401,9 @@ class WidgetBridge {
   private native: NativeWidgetModule | null;
   private cachedData: DailyProgressWidgetData | null = <span class="cstat-no" title="statement not covered" >null;</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >  constructor() {</span>
+<span class="fstat-no" title="function not covered" >  co</span>nstructor() {
 <span class="cstat-no" title="statement not covered" >    this.native = getNativeModule();</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.native) {</span>
+<span class="cstat-no" title="statement not covered" >    if (!this.native) {</span>
 <span class="cstat-no" title="statement not covered" >      console.info(</span>
         '[WidgetBridge] Native module not registered. Widget will be no-op. ' +
           'Add the iOS WidgetKit extension or Android AppWidgetProvider via config plugin.',
@@ -414,16 +414,16 @@ class WidgetBridge {
   /**
    * 当前桥接器是否可用。
    */
-<span class="fstat-no" title="function not covered" >  isAvailable(</span>): boolean {
+<span class="fstat-no" title="function not covered" >  is</span>Available(): boolean {
 <span class="cstat-no" title="statement not covered" >    return this.native !== null;</span>
   }
 &nbsp;
   /**
    * 写入 Widget 数据并通知原生刷新时间线。
    */
-<span class="fstat-no" title="function not covered" >  async </span>setData(data: DailyProgressWidgetData): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync setData(data: DailyProgressWidgetData): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    this.cachedData = data;</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.native) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >    if (!this.native) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await this.native.setData(data);</span>
 <span class="cstat-no" title="statement not covered" >      await this.native.reloadAllTimelines();</span>
@@ -435,8 +435,8 @@ class WidgetBridge {
   /**
    * 读取缓存的 Widget 数据。
    */
-<span class="fstat-no" title="function not covered" >  async </span>getData(): Promise&lt;DailyProgressWidgetData | null&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.native) <span class="cstat-no" title="statement not covered" >return this.cachedData;</span></span>
+<span class="fstat-no" title="function not covered" >  as</span>ync getData(): Promise&lt;DailyProgressWidgetData | null&gt; {
+<span class="cstat-no" title="statement not covered" >    if (!this.native) <span class="cstat-no" title="statement not covered" >return this.cachedData;</span></span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      return await this.native.getData();</span>
     } catch {
@@ -448,8 +448,8 @@ class WidgetBridge {
    * 通知所有 Widget 刷新时间线（不修改数据）。
    * 适用于 App 内关键状态变更（如完成 Quiz、提交作业）。
    */
-<span class="fstat-no" title="function not covered" >  async </span>refresh(): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.native) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="fstat-no" title="function not covered" >  as</span>ync refresh(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    if (!this.native) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await this.native.reloadAllTimelines();</span>
     } catch (error) {
@@ -470,20 +470,20 @@ export function <span class="fstat-no" title="function not covered" >buildUnread
   pendingAssignmentCount: number,
   lastMessageSnippet?: string,
 ): string {
-<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (pendingAssignmentCount &gt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >  if (pendingAssignmentCount &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >    return truncate(`你昨天的代码作业有 ${pendingAssignmentCount} 个 Bug 待修复`, 30);</span>
   }
-<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (pendingQuizCount &gt; 0) {</span>
+<span class="cstat-no" title="statement not covered" >  if (pendingQuizCount &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >    return truncate(`还有 ${pendingQuizCount} 道题待完成`, 30);</span>
   }
-<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (lastMessageSnippet) {</span>
+<span class="cstat-no" title="statement not covered" >  if (lastMessageSnippet) {</span>
 <span class="cstat-no" title="statement not covered" >    return truncate(lastMessageSnippet, 30);</span>
   }
 <span class="cstat-no" title="statement not covered" >  return '今天还没有学习，去练一题吧！';</span>
 }
 &nbsp;
 function <span class="fstat-no" title="function not covered" >truncate(</span>text: string, max: number): string {
-<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (text.length &lt;= max) <span class="cstat-no" title="statement not covered" >return text;</span></span>
+<span class="cstat-no" title="statement not covered" >  if (text.length &lt;= max) <span class="cstat-no" title="statement not covered" >return text;</span></span>
 <span class="cstat-no" title="statement not covered" >  return text.slice(0, max - 1) + '…';</span>
 }
 &nbsp;
@@ -496,7 +496,7 @@ function <span class="fstat-no" title="function not covered" >truncate(</span>te
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T03:49:32.093Z
+                at 2026-07-19T03:58:37.811Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
