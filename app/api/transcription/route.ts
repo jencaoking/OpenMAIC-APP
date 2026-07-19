@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   let resolvedModelId: string | undefined;
   try {
     const formData = await req.formData();
-    const fd = formData as globalThis.FormData;
+    const fd = formData as unknown as globalThis.FormData;
     const audioFile = fd.get('audio') as File;
     const providerId = fd.get('providerId') as ASRProviderId | null;
     const modelId = fd.get('modelId') as string | null;

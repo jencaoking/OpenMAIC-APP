@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const fd = formData as globalThis.FormData;
+    const fd = formData as unknown as globalThis.FormData;
     const pdfFile = fd.get('pdf') as File | null;
     const providerId = fd.get('providerId') as PDFProviderId | null;
     const apiKey = fd.get('apiKey') as string | null;
