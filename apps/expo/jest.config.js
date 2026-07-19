@@ -26,24 +26,19 @@ module.exports = {
     '^@openmaic/core-engine$': '<rootDir>/../../packages/@openmaic/core-engine/src/index.ts',
   },
 
-  // 转换
+  // 转换 - 使用 babel-jest 处理所有 JS/TS 文件
   transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: 'tsconfig.json', isolatedModules: true }],
+    '^.+\\.(js|ts|tsx)$': 'babel-jest',
+    '^.+\\.(bmp|gif|jpg|jpeg|mp4|png|psd|svg|webp)$': require.resolve(
+      '@react-native/jest-preset/jest/assetFileTransformer.js',
+    ),
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|expo|@sentry|@openmaic|@react-native-community)/)',
+    'node_modules/(?!(react-native|@react-native|expo|@sentry|@openmaic)/)',
   ],
 
   // Mock 原生模块
   setupFiles: ['<rootDir>/__tests__/setup.ts'],
-
-  // ES Module 支持
-  extensionsToTreatAsEsm: ['.ts', '.tsx'],
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
-  },
 
   // 覆盖率
   collectCoverage: true,
