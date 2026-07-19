@@ -11,11 +11,11 @@
  * - 各工具函数
  */
 module.exports = {
-  preset: 'react-native',
+  preset: '@react-native/jest-preset',
   testEnvironment: 'node',
 
   // 测试文件位置
-  roots: ['<rootDir>/src'],
+  roots: ['<rootDir>/src', '<rootDir>/__tests__'],
   testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx'],
 
   // 模块解析（与 tsconfig 对齐）
