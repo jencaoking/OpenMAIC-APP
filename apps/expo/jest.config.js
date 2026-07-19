@@ -31,11 +31,19 @@ module.exports = {
     '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: 'tsconfig.json', isolatedModules: true }],
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|expo|@sentry|@openmaic)/)',
+    'node_modules/(?!(react-native|@react-native|expo|@sentry|@openmaic|@react-native-community)/)',
   ],
 
   // Mock 原生模块
   setupFiles: ['<rootDir>/__tests__/setup.ts'],
+
+  // ES Module 支持
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
+  globals: {
+    'ts-jest': {
+      useESM: true,
+    },
+  },
 
   // 覆盖率
   collectCoverage: true,
