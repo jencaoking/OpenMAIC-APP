@@ -1,274 +1,130 @@
+/**
+ * OpenMAIC 独立 Storage Server（PLAN.MD Phase 2）。
+ *
+ * 使用官方标准实现：
+ * - `createRuntimeHttpHandler` from `@openmaic/storage/server`
+ * - `PgRuntimeStore` + `ensureSchema` from `@openmaic/storage/runtime/pg`
+ * - `nodePostgresTransaction` + `ConnectableQueryable` from `@openmaic/storage/server/reference`
+ *
+ * 在官方 handler 外层包装：
+ * - CORS 中间件（支持 Web/Mobile 跨域）
+ * - `/healthz` 健康检查端点
+ * - 自定义鉴权钩子（Bearer Token + ADMIN_API_KEY）
+ *
+ * 启动方式：
+ *   pnpm --filter @openmaic/storage-server run dev
+ *   或
+ *   docker-compose up -d storage-server
+ *
+ * 环境变量：
+ * - POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB / POSTGRES_HOST / POSTGRES_PORT
+ * - STORAGE_SERVER_PORT（默认 3001）
+ * - ADMIN_API_KEY（管理员密钥，默认 admin_secret_key）
+ * - CORS_ORIGINS（逗号分隔的允许来源）
+ */
 import { createServer } from 'node:http';
 import { pathToFileURL } from 'node:url';
 import cors, {} from 'cors';
 import { Pool } from 'pg';
+// 官方标准实现
+import { createRuntimeHttpHandler } from '@openmaic/storage/server';
+import { PgRuntimeStore, ensureSchema } from '@openmaic/storage/runtime/pg';
+import { nodePostgresTransaction, } from '@openmaic/storage/server/reference';
+// ============================================================
+// 配置
+// ============================================================
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY ?? 'admin_secret_key';
-const ALLOWED_ORIGINS = process.env.CORS_ORIGINS?.split(',') ?? ['http://localhost:3000', 'http://localhost:8081'];
-export const RUNTIME_PG_SCHEMA = `
-CREATE TABLE IF NOT EXISTS runtime_sessions (
-  id TEXT PRIMARY KEY,
-  stage_id TEXT NOT NULL,
-  learner_key TEXT NOT NULL,
-  kind TEXT NOT NULL,
-  status TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
-  data JSONB NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS runtime_sessions_stage_learner_idx
-  ON runtime_sessions (stage_id, learner_key);
-CREATE INDEX IF NOT EXISTS runtime_sessions_learner_idx
-  ON runtime_sessions (learner_key);
-
-CREATE TABLE IF NOT EXISTS runtime_records (
-  id TEXT NOT NULL,
-  session_id TEXT NOT NULL REFERENCES runtime_sessions(id) ON DELETE CASCADE,
-  seq BIGINT NOT NULL CHECK (seq >= 0),
-  scene_id TEXT,
-  created_at TEXT NOT NULL,
-  data JSONB NOT NULL,
-  CONSTRAINT runtime_records_session_seq_unique UNIQUE (session_id, seq)
-);
-
-CREATE INDEX IF NOT EXISTS runtime_records_session_scene_idx
-  ON runtime_records (session_id, scene_id);
-`;
-export async function ensureSchema(queryable) {
-    for (const sql of RUNTIME_PG_SCHEMA.split(';')) {
-        const statement = sql.trim();
-        if (statement !== '')
-            await queryable.query(statement);
+const ALLOWED_ORIGINS = process.env.CORS_ORIGINS?.split(',').map((o) => o.trim()) ?? [
+    'http://localhost:3000',
+    'http://localhost:8081',
+];
+// ============================================================
+// 鉴权钩子（PLAN.MD 6. 核心协议契约规范）
+// ============================================================
+/**
+ * 身份验证钩子：解析 `Authorization: Bearer <learnerKey>` 头。
+ *
+ * 符合 PLAN.MD 规范：
+ * - 未认证请求返回 401 UNAUTHENTICATED
+ * - learnerKey 为空字符串视为未认证
+ */
+const authenticate = async (req) => {
+    const authorization = req.headers.authorization;
+    if (typeof authorization !== 'string' || !authorization.startsWith('Bearer ')) {
+        return undefined;
     }
-}
-function nodePostgresTransaction(pool) {
-    return async (body) => {
-        const client = await pool.connect();
-        try {
-            await client.query('BEGIN');
-            const result = await body(client);
-            await client.query('COMMIT');
-            return result;
-        }
-        catch (error) {
-            await client.query('ROLLBACK');
-            throw error;
-        }
-        finally {
-            client.release();
-        }
-    };
-}
-async function createReferenceRuntimeServer(pool, options = {}) {
+    const learnerKey = authorization.slice('Bearer '.length);
+    return learnerKey === '' ? undefined : { learnerKey };
+};
+/**
+ * 合并授权钩子：仅允许用户合并自己的数据（fromKey === toKey === learnerKey）。
+ *
+ * 生产环境应替换为真实的授权逻辑（如管理员发起的账号合并）。
+ */
+const authorizeMerge = async (principal, fromKey, toKey) => {
+    return principal.learnerKey === fromKey && fromKey === toKey;
+};
+/**
+ * 管理员授权钩子：基于 `ADMIN_API_KEY` 环境变量验证管理员身份。
+ *
+ * 管理员通过 `Authorization: Bearer <ADMIN_API_KEY>` 认证，
+ * 拥有 `deleteAllRuntime` / `deleteStageRuntime` 等管理操作权限。
+ */
+const authorizeAdmin = async (principal) => {
+    // 管理员使用特殊的 learnerKey（即 ADMIN_API_KEY）
+    return principal.learnerKey === ADMIN_API_KEY;
+};
+// ============================================================
+// Server 组装
+// ============================================================
+/**
+ * 创建独立的 Storage Server。
+ *
+ * 使用官方 `createRuntimeHttpHandler` + `PgRuntimeStore` 标准实现，
+ * 在外层包装 CORS 中间件和 `/healthz` 健康检查端点。
+ *
+ * @param pool PostgreSQL 连接池（node-postgres Pool）
+ * @returns 已创建但未监听的 HTTP Server
+ */
+export async function createStorageServer(pool) {
+    // 1. 初始化数据库 schema（幂等）
     await ensureSchema(pool);
+    // 2. 创建 PgRuntimeStore（官方标准 PG 后端）
     const withTransaction = nodePostgresTransaction(pool);
-    const authenticate = options.authenticate ??
-        (async (req) => {
-            const authorization = req.headers.authorization;
-            if (typeof authorization !== 'string' || !authorization.startsWith('Bearer ')) {
-                return undefined;
-            }
-            const learnerKey = authorization.slice('Bearer '.length);
-            return learnerKey === '' ? undefined : { learnerKey };
-        });
-    const authorizeMerge = options.authorizeMerge ??
-        (async (principal, fromKey, toKey) => principal.learnerKey === fromKey && fromKey === toKey);
-    const authorizeAdmin = options.authorizeAdmin ?? (async () => false);
+    const store = new PgRuntimeStore(pool, { withTransaction });
+    // 3. 创建官方标准 HTTP handler
+    const runtimeHandler = createRuntimeHttpHandler(store, {
+        authenticate,
+        authorizeMerge,
+        authorizeAdmin,
+    });
+    // 4. 包装 CORS + /healthz + 官方 handler
+    const corsMiddleware = cors({
+        origin: ALLOWED_ORIGINS,
+        credentials: true,
+    });
     return createServer((req, res) => {
-        const corsMiddleware = cors({
-            origin: ALLOWED_ORIGINS,
-            credentials: true,
-        });
+        // 先过 CORS
         corsMiddleware(req, res, () => {
             const url = new URL(req.url ?? '/', 'http://storage-server.invalid');
+            // 健康检查端点（不需要认证）
             if (url.pathname === '/healthz') {
                 res.writeHead(200, { 'content-type': 'application/json' });
-                res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
+                res.end(JSON.stringify({
+                    status: 'ok',
+                    timestamp: new Date().toISOString(),
+                    service: '@openmaic/storage-server',
+                }));
                 return;
             }
-            handleRuntimeRequest(req, res, pool, withTransaction, {
-                authenticate,
-                authorizeMerge,
-                authorizeAdmin,
-            }).catch((error) => {
-                if (res.headersSent) {
-                    res.destroy(error instanceof Error ? error : undefined);
-                    return;
-                }
-                console.error('Storage server error:', error);
-                res.writeHead(500, { 'content-type': 'application/json' });
-                res.end(JSON.stringify({ error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } }));
-            });
+            // 委托给官方标准 handler
+            runtimeHandler(req, res);
         });
     });
 }
-async function handleRuntimeRequest(req, res, pool, withTransaction, options) {
-    const url = new URL(req.url ?? '/', 'http://storage-server.invalid');
-    const parts = url.pathname.split('/').filter(p => p !== '');
-    const method = req.method ?? 'GET';
-    if (parts[0] !== 'runtime') {
-        res.writeHead(404, { 'content-type': 'application/json' });
-        res.end(JSON.stringify({ error: { code: 'ROUTE_NOT_FOUND', message: 'Route not found' } }));
-        return;
-    }
-    const principal = await options.authenticate(req);
-    if (principal === undefined) {
-        res.writeHead(401, { 'content-type': 'application/json' });
-        res.end(JSON.stringify({ error: { code: 'UNAUTHENTICATED', message: 'Authentication required' } }));
-        return;
-    }
-    if (method === 'POST' && parts.length === 2 && parts[1] === 'sessions') {
-        const body = await readJson(req);
-        const init = body;
-        if (principal.learnerKey !== undefined && init.learnerKey !== principal.learnerKey) {
-            res.writeHead(403, { 'content-type': 'application/json' });
-            res.end(JSON.stringify({ error: { code: 'FORBIDDEN_LEARNER', message: 'Cannot create session for another learner' } }));
-            return;
-        }
-        const session = { ...init, runtimeDslVersion: '1.0.0' };
-        try {
-            await pool.query('INSERT INTO runtime_sessions (id, stage_id, learner_key, kind, status, created_at, updated_at, data) VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb)', [session.id, session.stageId, session.learnerKey, session.kind, session.status, session.createdAt, session.updatedAt, JSON.stringify(session)]);
-            res.writeHead(201, { 'content-type': 'application/json' });
-            res.end(JSON.stringify(session));
-        }
-        catch (error) {
-            res.writeHead(500, { 'content-type': 'application/json' });
-            res.end(JSON.stringify({ error: { code: 'INTERNAL_ERROR', message: 'Failed to create session' } }));
-        }
-        return;
-    }
-    if (parts[1] === 'sessions' && parts.length >= 3) {
-        const sessionId = parts[2];
-        if (method === 'GET' && parts.length === 3) {
-            const result = await pool.query('SELECT data FROM runtime_sessions WHERE id = $1', [sessionId]);
-            if (result.rows.length === 0) {
-                res.writeHead(404, { 'content-type': 'application/json' });
-                res.end(JSON.stringify({ error: { code: 'SESSION_NOT_FOUND', message: 'Session not found' } }));
-                return;
-            }
-            const session = JSON.parse(result.rows[0].data);
-            if (principal.learnerKey !== undefined && session.learnerKey !== principal.learnerKey) {
-                res.writeHead(403, { 'content-type': 'application/json' });
-                res.end(JSON.stringify({ error: { code: 'FORBIDDEN_LEARNER', message: 'Cannot access session for another learner' } }));
-                return;
-            }
-            res.writeHead(200, { 'content-type': 'application/json' });
-            res.end(JSON.stringify(session));
-            return;
-        }
-        if (method === 'POST' && parts.length === 4 && parts[3] === 'records') {
-            const body = await readJson(req);
-            const init = body;
-            if (init.sessionId !== sessionId) {
-                res.writeHead(400, { 'content-type': 'application/json' });
-                res.end(JSON.stringify({ error: { code: 'VALIDATION_FAILED', message: 'Body sessionId does not match path' } }));
-                return;
-            }
-            const sessionResult = await pool.query('SELECT data FROM runtime_sessions WHERE id = $1', [sessionId]);
-            if (sessionResult.rows.length === 0) {
-                res.writeHead(404, { 'content-type': 'application/json' });
-                res.end(JSON.stringify({ error: { code: 'SESSION_NOT_FOUND', message: 'Session not found' } }));
-                return;
-            }
-            const session = JSON.parse(sessionResult.rows[0].data);
-            if (principal.learnerKey !== undefined && session.learnerKey !== principal.learnerKey) {
-                res.writeHead(403, { 'content-type': 'application/json' });
-                res.end(JSON.stringify({ error: { code: 'FORBIDDEN_LEARNER', message: 'Cannot append to session for another learner' } }));
-                return;
-            }
-            try {
-                const record = await withTransaction(async (tx) => {
-                    const lockResult = await tx.query('SELECT data FROM runtime_sessions WHERE id = $1 FOR UPDATE', [sessionId]);
-                    if (lockResult.rows.length === 0) {
-                        throw new Error('Session not found');
-                    }
-                    const seqResult = await tx.query('SELECT COALESCE(MAX(seq), -1)::text AS last_seq FROM runtime_records WHERE session_id = $1', [sessionId]);
-                    const seq = Number(seqResult.rows[0].last_seq ?? -1) + 1;
-                    const recordData = { ...init, seq };
-                    await tx.query('INSERT INTO runtime_records (id, session_id, seq, scene_id, created_at, data) VALUES ($1, $2, $3, $4, $5, $6::jsonb)', [recordData.id, recordData.sessionId, recordData.seq, recordData.sceneId ?? null, recordData.createdAt, JSON.stringify(recordData)]);
-                    return recordData;
-                });
-                res.writeHead(201, { 'content-type': 'application/json' });
-                res.end(JSON.stringify(record));
-            }
-            catch (error) {
-                res.writeHead(500, { 'content-type': 'application/json' });
-                res.end(JSON.stringify({ error: { code: 'INTERNAL_ERROR', message: 'Failed to append record' } }));
-            }
-            return;
-        }
-        if (method === 'GET' && parts.length === 4 && parts[3] === 'records') {
-            const sessionResult = await pool.query('SELECT data FROM runtime_sessions WHERE id = $1', [sessionId]);
-            if (sessionResult.rows.length === 0) {
-                res.writeHead(404, { 'content-type': 'application/json' });
-                res.end(JSON.stringify({ error: { code: 'SESSION_NOT_FOUND', message: 'Session not found' } }));
-                return;
-            }
-            const session = JSON.parse(sessionResult.rows[0].data);
-            if (principal.learnerKey !== undefined && session.learnerKey !== principal.learnerKey) {
-                res.writeHead(403, { 'content-type': 'application/json' });
-                res.end(JSON.stringify({ error: { code: 'FORBIDDEN_LEARNER', message: 'Cannot access records for another learner' } }));
-                return;
-            }
-            const sceneId = url.searchParams.get('sceneId');
-            let query = 'SELECT data FROM runtime_records WHERE session_id = $1 ORDER BY seq ASC';
-            const params = [sessionId];
-            if (sceneId !== null) {
-                query += ' AND scene_id = $2';
-                params.push(sceneId);
-            }
-            const result = await pool.query(query, params);
-            const records = result.rows.map(row => JSON.parse(row.data));
-            res.writeHead(200, { 'content-type': 'application/json' });
-            res.end(JSON.stringify(records));
-            return;
-        }
-        if (method === 'DELETE' && parts.length === 3) {
-            const sessionResult = await pool.query('SELECT data FROM runtime_sessions WHERE id = $1', [sessionId]);
-            if (sessionResult.rows.length === 0) {
-                res.writeHead(204);
-                res.end();
-                return;
-            }
-            const session = JSON.parse(sessionResult.rows[0].data);
-            if (principal.learnerKey !== undefined && session.learnerKey !== principal.learnerKey) {
-                res.writeHead(403, { 'content-type': 'application/json' });
-                res.end(JSON.stringify({ error: { code: 'FORBIDDEN_LEARNER', message: 'Cannot delete session for another learner' } }));
-                return;
-            }
-            await pool.query('DELETE FROM runtime_sessions WHERE id = $1', [sessionId]);
-            res.writeHead(204);
-            res.end();
-            return;
-        }
-    }
-    if (method === 'GET' && parts.length === 6 && parts[1] === 'stages' && parts[3] === 'learners' && parts[5] === 'sessions') {
-        const stageId = parts[2];
-        const learnerKey = parts[4];
-        if (principal.learnerKey !== undefined && learnerKey !== principal.learnerKey) {
-            res.writeHead(403, { 'content-type': 'application/json' });
-            res.end(JSON.stringify({ error: { code: 'FORBIDDEN_LEARNER', message: 'Cannot access sessions for another learner' } }));
-            return;
-        }
-        const result = await pool.query('SELECT data FROM runtime_sessions WHERE stage_id = $1 AND learner_key = $2 ORDER BY created_at ASC', [stageId, learnerKey]);
-        const sessions = result.rows.map(row => JSON.parse(row.data));
-        res.writeHead(200, { 'content-type': 'application/json' });
-        res.end(JSON.stringify(sessions));
-        return;
-    }
-    res.writeHead(404, { 'content-type': 'application/json' });
-    res.end(JSON.stringify({ error: { code: 'ROUTE_NOT_FOUND', message: 'Route not found' } }));
-}
-async function readJson(req) {
-    const chunks = [];
-    for await (const chunk of req) {
-        chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
-    }
-    if (chunks.length === 0) {
-        throw new Error('Request body must be a JSON object');
-    }
-    return JSON.parse(Buffer.concat(chunks).toString('utf8'));
-}
+// ============================================================
+// 入口
+// ============================================================
 async function main() {
     const POSTGRES_USER = process.env.POSTGRES_USER ?? 'openmaic';
     const POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD ?? 'openmaic_password';
@@ -280,7 +136,7 @@ async function main() {
     const pool = new Pool({ connectionString });
     let server;
     try {
-        server = await createReferenceRuntimeServer(pool);
+        server = await createStorageServer(pool);
         await new Promise((resolve, reject) => {
             server.once('error', reject);
             server.listen(port, '0.0.0.0', resolve);
@@ -291,6 +147,8 @@ async function main() {
         throw error;
     }
     process.stdout.write(`Storage server listening on http://0.0.0.0:${port}\n`);
+    process.stdout.write(`CORS origins: ${ALLOWED_ORIGINS.join(', ')}\n` +
+        `Admin API key: ${ADMIN_API_KEY === 'admin_secret_key' ? '(default)' : '(configured)'}\n`);
     const close = () => {
         server.close(() => {
             void pool.end().finally(() => process.exit(0));
@@ -305,4 +163,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
         process.exitCode = 1;
     });
 }
-export { createReferenceRuntimeServer, nodePostgresTransaction };
+// 导出供程序化使用
+export { authenticate, authorizeMerge, authorizeAdmin };
+//# sourceMappingURL=index.js.map

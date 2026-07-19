@@ -133,13 +133,17 @@ async function serverGetSession(
   }
 }
 
-/** 服务端创建 session（若已存在则跳过）。 */
+/** 服务端创建 session（若已存在则跳过）。
+ *
+ * 官方 API 行为：session 已存在时返回 409 SESSION_ALREADY_EXISTS。
+ * 迁移策略：若 session 已存在，跳过该 session 的所有 records（避免重复）。
+ */
 async function serverCreateSession(
   baseUrl: string,
   learnerKey: string,
   session: RuntimeSession,
 ): Promise<'created' | 'exists'> {
-  // 先检查是否已存在
+  // 先检查是否已存在（GET 请求）
   const existing = await serverGetSession(baseUrl, learnerKey, session.id);
   if (existing !== undefined) return 'exists';
 
@@ -156,11 +160,11 @@ async function serverCreateSession(
     body: JSON.stringify(init),
   });
 
-  if (!response.ok && response.status !== 201) {
-    const body = await response.text();
-    throw new Error(`createSession HTTP ${response.status}: ${body}`);
-  }
-  return 'created';
+  // 201 = 创建成功；409 = 已存在（并发迁移或之前迁移过）
+  if (response.status === 201) return 'created';
+  if (response.status === 409) return 'exists';
+  const body = await response.text();
+  throw new Error(`createSession HTTP ${response.status}: ${body}`);
 }
 
 /** 查询服务端某 session 的 records（返回已有序列号集合）。 */
@@ -191,15 +195,17 @@ async function serverListRecords(
   }
 }
 
-/** 服务端追加单个 record（若 seq 已存在则跳过）。 */
+/** 服务端追加单个 record。
+ *
+ * 官方 API 行为：seq 由服务端独占分配，客户端传入的 seq 被忽略。
+ * 返回 201 表示追加成功。不会返回 409（seq 冲突由服务端事务处理）。
+ */
 async function serverAppendRecord(
   baseUrl: string,
   learnerKey: string,
   record: RuntimeRecord,
-): Promise<'appended' | 'skipped'> {
-  // 查询服务端是否已含此 seq（批量优化：调用方应预先拉取 seq 集合）
-  // 这里仅做追加，依赖服务端的唯一约束防止重复
-  // 剥离服务端生成的 seq
+): Promise<void> {
+  // 剥离客户端 seq（服务端独占分配）
   const { seq: _omit, ...init } = record;
   void _omit;
 
@@ -215,10 +221,10 @@ async function serverAppendRecord(
     },
   );
 
-  if (response.status === 201) return 'appended';
-  if (response.status === 409) return 'skipped'; // seq 冲突 = 已存在
-  const body = await response.text();
-  throw new Error(`appendRecord HTTP ${response.status}: ${body}`);
+  if (response.status !== 201) {
+    const body = await response.text();
+    throw new Error(`appendRecord HTTP ${response.status}: ${body}`);
+  }
 }
 
 /**
@@ -264,39 +270,33 @@ export async function migrateIndexedDbToHttp(
     // 3. 逐个迁移 session 及其 records
     for (const session of localSessions) {
       try {
-        // 3a. 创建 session（若已存在则跳过）
+        // 3a. 创建 session（若已存在则跳过 records 追加，避免重复）
         const createResult = await serverCreateSession(baseUrl, learnerKey, session);
-        if (createResult === 'created') {
-          report.migratedSessions++;
-        } else {
+        if (createResult === 'exists') {
           report.skippedSessions++;
+          // session 已存在：读取本地 records 数量用于报告，但不追加（避免重复）
+          const localRecords = await listLocalRecords(db, session.id);
+          report.totalLocalRecords += localRecords.length;
+          report.skippedRecords += localRecords.length;
+          continue;
         }
+        report.migratedSessions++;
 
-        // 3b. 迁移 records
+        // 3b. session 是新创建的：追加所有本地 records
+        // 官方 API 中 seq 由服务端独占分配，按本地顺序追加即可
         const localRecords = await listLocalRecords(db, session.id);
         report.totalLocalRecords += localRecords.length;
 
-        // 3c. 预取服务端已有序列号，避免逐条查询
-        const serverSeqs = await serverListRecords(baseUrl, learnerKey, session.id);
-
         for (const record of localRecords) {
-          if (serverSeqs.has(record.seq)) {
-            report.skippedRecords++;
-            continue;
-          }
           try {
-            const result = await serverAppendRecord(baseUrl, learnerKey, record);
-            if (result === 'appended') {
-              report.migratedRecords++;
-            } else {
-              report.skippedRecords++;
-            }
+            await serverAppendRecord(baseUrl, learnerKey, record);
+            report.migratedRecords++;
           } catch (error) {
             report.failedRecords++;
             report.errors.push({
               sessionId: session.id,
               stageId: session.stageId,
-              error: `record seq=${record.seq}: ${error instanceof Error ? error.message : String(error)}`,
+              error: `record id=${record.id}: ${error instanceof Error ? error.message : String(error)}`,
             });
           }
         }

@@ -10,10 +10,17 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "verbatimModuleSyntax": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "paths": {
-      "@openmaic/storage": ["../@openmaic/storage/dist/index.js"],
-      "@openmaic/dsl": ["../@openmaic/dsl/dist/index.js"],
-      "@openmaic/storage-types": ["../@openmaic/storage-types/src/index.ts"]
+      "@openmaic/storage": ["../@openmaic/storage/dist/index.d.ts"],
+      "@openmaic/storage/server": ["../@openmaic/storage/dist/server/index.d.ts"],
+      "@openmaic/storage/server/reference": ["../@openmaic/storage/dist/server/reference.d.ts"],
+      "@openmaic/storage/runtime/pg": ["../@openmaic/storage/dist/runtime/pg.d.ts"],
+      "@openmaic/storage/runtime/http": ["../@openmaic/storage/dist/runtime/http.d.ts"],
+      "@openmaic/dsl": ["../@openmaic/dsl/dist/index.d.ts"],
+      "@openmaic/storage-types": ["../@openmaic/storage-types/dist/index.d.ts"]
     },
     "baseUrl": "."
   },
