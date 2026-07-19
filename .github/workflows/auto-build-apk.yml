@@ -102,18 +102,52 @@ jobs:
           eas-version: ${{ env.EAS_VERSION }}
           token: ${{ secrets.EXPO_TOKEN }}
 
+      - name: Debug Build Environment
+        working-directory: ${{ env.EXPO_DIR }}
+        run: |
+          echo "=== Current Directory ==="
+          pwd
+          echo "=== Directory Listing ==="
+          ls -la
+          echo "=== eas.json ==="
+          cat eas.json || echo "eas.json not found"
+          echo "=== app.json ==="
+          cat app.json | head -50
+          echo "=== EXPO_TOKEN status ==="
+          if [ -n "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "EXPO_TOKEN is set (length: ${#EXPO_TOKEN})"
+          else
+            echo "EXPO_TOKEN is NOT set!"
+          fi
+
       - name: EAS Build Android APK
         id: eas-build
         working-directory: ${{ env.EXPO_DIR }}
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          BUILD_OUTPUT=$(eas build --profile ${{ env.BUILD_PROFILE }} --platform android --non-interactive --wait)
+          set -e
+          echo "=== Starting EAS Build with profile: ${{ env.BUILD_PROFILE }} ==="
+          BUILD_OUTPUT=$(eas build --profile ${{ env.BUILD_PROFILE }} --platform android --non-interactive --wait 2>&1 || echo "BUILD_FAILED")
           echo "$BUILD_OUTPUT"
+          
+          if echo "$BUILD_OUTPUT" | grep -q "BUILD_FAILED"; then
+            echo "EAS Build failed! See output above for details."
+            exit 1
+          fi
+          
           BUILD_ID=$(echo "$BUILD_OUTPUT" | grep -oE 'build_id:?\s*[a-zA-Z0-9-]+' | sed 's/build_id:?\s*//' | tail -1)
           if [ -z "$BUILD_ID" ]; then
             BUILD_ID=$(echo "$BUILD_OUTPUT" | grep -oE 'https://expo\.dev/accounts/[^/]+/projects/[^/]+/builds/([a-zA-Z0-9-]+)' | sed 's|.*/builds/\([a-zA-Z0-9-]*\)|\1|' | tail -1)
           fi
+          
+          if [ -z "$BUILD_ID" ]; then
+            echo "ERROR: Could not extract BUILD_ID from output!"
+            echo "Full output:"
+            echo "$BUILD_OUTPUT"
+            exit 1
+          fi
+          
           echo "BUILD_ID=$BUILD_ID" >> $GITHUB_OUTPUT
 
       - name: Create output directory
