@@ -50,29 +50,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - name: Setup Node ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: |
-          echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -99,29 +86,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - name: Setup Node ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: |
-          echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -133,22 +107,19 @@ jobs:
           eas-version: ${{ env.EAS_VERSION }}
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Configure Sentry
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-        run: |
-          echo "SENTRY_CONFIGURED=true" >> $GITHUB_ENV
-        continue-on-error: true
-
       - name: EAS Build Android APK
         id: eas-build
         working-directory: ${{ env.EXPO_DIR }}
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          eas build --profile ${{ env.BUILD_PROFILE }} --platform android --non-interactive --wait
+          BUILD_OUTPUT=$(eas build --profile ${{ env.BUILD_PROFILE }} --platform android --non-interactive --wait)
+          echo "$BUILD_OUTPUT"
+          BUILD_ID=$(echo "$BUILD_OUTPUT" | grep -oE 'build_id:?\s*[a-zA-Z0-9-]+' | sed 's/build_id:?\s*//' | tail -1)
+          if [ -z "$BUILD_ID" ]; then
+            BUILD_ID=$(echo "$BUILD_OUTPUT" | grep -oE 'https://expo\.dev/accounts/[^/]+/projects/[^/]+/builds/([a-zA-Z0-9-]+)' | sed 's|.*/builds/\([a-zA-Z0-9-]*\)|\1|' | tail -1)
+          fi
+          echo "BUILD_ID=$BUILD_ID" >> $GITHUB_OUTPUT
 
       - name: Create output directory
         run: mkdir -p ${{ env.APK_OUTPUT_DIR }}
@@ -157,7 +128,7 @@ jobs:
         id: download-apk
         working-directory: ${{ env.EXPO_DIR }}
         run: |
-          eas build:download --platform android --latest --output ${{ env.APK_OUTPUT_DIR }}/app.apk
+          eas build:download --platform android --build-id ${{ steps.eas-build.outputs.BUILD_ID }} --output ${{ env.APK_OUTPUT_DIR }}/app.apk
           ls -la ${{ env.APK_OUTPUT_DIR }}/
 
       - name: Verify APK exists
