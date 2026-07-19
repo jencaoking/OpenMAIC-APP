@@ -384,6 +384,9 @@ importers:
       '@types/tinycolor2':
         specifier: ^1.4.6
         version: 1.4.6
+      '@types/web':
+        specifier: ^0.0.352
+        version: 0.0.352
       eslint:
         specifier: ^9
         version: 9.39.4(jiti@2.6.1)
@@ -6462,6 +6465,9 @@ packages:
 
   '@types/validator@13.15.10':
     resolution: {integrity: sha512-T8L6i7wCuyoK8A/ZeLYt1+q0ty3Zb9+qbSSvrIVitzT3YjZqkTZ40IbRsPanlB4h1QB3JVL1SYCdR6ngtFYcuA==}
+
+  '@types/web@0.0.352':
+    resolution: {integrity: sha512-UOZDC0FwpYm4zgRK/98jFGXgRirawQYN2TIkhpFbTW4dbQie/GNHJ9uMwJ/BkFxPIhgAEdkIF3AE6qNVaJn1NA==}
 
   '@types/xml2js@0.4.14':
     resolution: {integrity: sha512-4YnrRemBShWRO2QjvUin8ESA41rH+9nQGLUGZV/1IDhi3SL9OhdpNC/MrulTWuptXKwhx/aDxE7toV0f/ypIXQ==}
@@ -20365,7 +20371,9 @@ snapshots:
       metro-runtime: 0.84.4
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@react-native/normalize-colors@0.74.89': {}
 
@@ -21333,6 +21341,8 @@ snapshots:
   '@types/validate-npm-package-name@4.0.2': {}
 
   '@types/validator@13.15.10': {}
+
+  '@types/web@0.0.352': {}
 
   '@types/xml2js@0.4.14':
     dependencies:
