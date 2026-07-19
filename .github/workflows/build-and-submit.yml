@@ -220,19 +220,6 @@ jobs:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
 
-      - name: Notify Slack
-        if: always()
-        uses: slackapi/slack-github-action@v1
-        with:
-          slack-message: |
-            OpenMAIC Expo Build & Submit
-            Tag: ${{ github.ref_name }}
-            Platform: ${{ matrix.platform }}
-            Status: ${{ job.status }}
-            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
   # ============================================================
   # 阶段 5: EAS Update OTA 热更新（main 分支推送）
   # ============================================================
@@ -268,18 +255,6 @@ jobs:
         working-directory: ${{ env.EXPO_DIR }}
         run: |
           eas update --branch production --message "Auto OTA update from commit ${{ github.sha }}"
-
-      - name: Notify Slack
-        if: always()
-        uses: slackapi/slack-github-action@v1
-        with:
-          slack-message: |
-            OpenMAIC OTA Update Pushed
-            Branch: main
-            Commit: ${{ github.sha }}
-            Status: ${{ job.status }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   # ============================================================
   # 阶段 6: 紧急回滚（手动触发）
@@ -324,14 +299,3 @@ jobs:
           echo "::warning::Manual rollback required. Please run:"
           echo "::warning::eas update --branch production --rollback-to <previous-update-id>"
         continue-on-error: true
-
-      - name: Notify Slack (Critical)
-        uses: slackapi/slack-github-action@v1
-        with:
-          slack-message: |
-            🚨 OpenMAIC EMERGENCY ROLLBACK 🚨
-            Triggered by: ${{ github.actor }}
-            Reason: Manual trigger from GitHub Actions
-            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
