@@ -2,7 +2,7 @@
  * @file DeepLinkRouter.test.ts
  * @description Phase 7.5 单元测试：DeepLinkRouter URL 解析。
  */
-import { DeepLinkRouter } from '../../src/core/navigation/DeepLinkRouter';
+import { DeepLinkRouter } from '../src/core/navigation/DeepLinkRouter';
 
 describe('DeepLinkRouter', () => {
   describe('parse(url)', () => {

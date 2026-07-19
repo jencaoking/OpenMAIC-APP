@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/46</span>
+                <span class='fraction'>0/47</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/21</span>
+                <span class='fraction'>0/14</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/44</span>
+                <span class='fraction'>0/45</span>
             </div>
         
             
@@ -219,7 +219,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -358,7 +358,7 @@
  * 注意：OpenMAIC 当前不投放广告，但若未来接入分析 SDK（如 Firebase Analytics + IDFA），
  * 必须在首次调用前请求 ATT 授权。
  */
-import { Platform } from 'react-native';
+<span class="cstat-no" title="statement not covered" >import { Platform } from 'react-native';</span>
 &nbsp;
 /** ATT 授权状态（与 iOS ATTrackingManager.AuthorizationStatus 对齐）。 */
 export type AttAuthorizationStatus =
@@ -381,7 +381,7 @@ declare global {
 }
 &nbsp;
 function <span class="fstat-no" title="function not covered" >getNativeModule(</span>): AttNativeModule | null {
-<span class="cstat-no" title="statement not covered" >  if (Platform.OS !== 'ios') <span class="cstat-no" title="statement not covered" >return null;</span></span>
+<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (Platform.OS !== 'ios') <span class="cstat-no" title="statement not covered" >return null;</span></span>
 <span class="cstat-no" title="statement not covered" >  return (globalThis as any).__OpenMaicAttBridge ?? null;</span>
 }
 &nbsp;
@@ -404,19 +404,19 @@ function <span class="fstat-no" title="function not covered" >mapStatus(</span>c
 /**
  * ATT 授权服务。
  */
-export const AttConsent = <span class="cstat-no" title="statement not covered" >{</span>
+export const <span class="cstat-no" title="statement not covered" >AttConsent = {</span>
   /**
    * 获取当前 ATT 授权状态（不弹窗）。
    */
-<span class="fstat-no" title="function not covered" >  as</span>ync getStatus(): Promise&lt;AttAuthorizationStatus&gt; {
-<span class="cstat-no" title="statement not covered" >    if (cachedStatus) <span class="cstat-no" title="statement not covered" >return cachedStatus;</span></span>
-<span class="cstat-no" title="statement not covered" >    if (Platform.OS !== 'ios') {</span>
+<span class="fstat-no" title="function not covered" >  async </span>getStatus(): Promise&lt;AttAuthorizationStatus&gt; {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (cachedStatus) <span class="cstat-no" title="statement not covered" >return cachedStatus;</span></span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (Platform.OS !== 'ios') {</span>
 <span class="cstat-no" title="statement not covered" >      cachedStatus = 'authorized'; </span>// Android 无 ATT 概念
 <span class="cstat-no" title="statement not covered" >      return cachedStatus;</span>
     }
 &nbsp;
     const nativeModule = <span class="cstat-no" title="statement not covered" >getNativeModule();</span>
-<span class="cstat-no" title="statement not covered" >    if (!nativeModule) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!nativeModule) {</span>
 <span class="cstat-no" title="statement not covered" >      cachedStatus = 'authorized'; </span>// 原生模块未注册时降级为已授权（不阻塞功能）
 <span class="cstat-no" title="statement not covered" >      return cachedStatus;</span>
     }
@@ -438,18 +438,18 @@ export const AttConsent = <span class="cstat-no" title="statement not covered" >
    *
    * @returns 最终授权状态
    */
-<span class="fstat-no" title="function not covered" >  as</span>ync request(): Promise&lt;AttAuthorizationStatus&gt; {
-<span class="cstat-no" title="statement not covered" >    if (Platform.OS !== 'ios') {</span>
+<span class="fstat-no" title="function not covered" >  async </span>request(): Promise&lt;AttAuthorizationStatus&gt; {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (Platform.OS !== 'ios') {</span>
 <span class="cstat-no" title="statement not covered" >      return 'authorized';</span>
     }
 &nbsp;
     const current = <span class="cstat-no" title="statement not covered" >await this.getStatus();</span>
-<span class="cstat-no" title="statement not covered" >    if (current !== 'not_determined') {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (current !== 'not_determined') {</span>
 <span class="cstat-no" title="statement not covered" >      return current;</span>
     }
 &nbsp;
     const nativeModule = <span class="cstat-no" title="statement not covered" >getNativeModule();</span>
-<span class="cstat-no" title="statement not covered" >    if (!nativeModule) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!nativeModule) {</span>
 <span class="cstat-no" title="statement not covered" >      cachedStatus = 'authorized';</span>
 <span class="cstat-no" title="statement not covered" >      return cachedStatus;</span>
     }
@@ -468,7 +468,7 @@ export const AttConsent = <span class="cstat-no" title="statement not covered" >
   /**
    * 用户是否已授权 Tracking。
    */
-<span class="fstat-no" title="function not covered" >  as</span>ync isAuthorized(): Promise&lt;boolean&gt; {
+<span class="fstat-no" title="function not covered" >  async </span>isAuthorized(): Promise&lt;boolean&gt; {
     const status = <span class="cstat-no" title="statement not covered" >await this.getStatus();</span>
 <span class="cstat-no" title="statement not covered" >    return status === 'authorized';</span>
   },
@@ -476,7 +476,7 @@ export const AttConsent = <span class="cstat-no" title="statement not covered" >
   /**
    * 清除缓存（主要用于测试）。
    */
-<span class="fstat-no" title="function not covered" >  cl</span>earCache(): void {
+<span class="fstat-no" title="function not covered" >  clearCache(</span>): void {
 <span class="cstat-no" title="statement not covered" >    cachedStatus = null;</span>
   },
 };
@@ -487,7 +487,7 @@ export const AttConsent = <span class="cstat-no" title="statement not covered" >
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T04:00:41.104Z
+                at 2026-07-19T04:06:20.829Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

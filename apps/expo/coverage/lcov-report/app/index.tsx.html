@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/37</span>
+                <span class='fraction'>0/45</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/23</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/32</span>
+                <span class='fraction'>0/40</span>
             </div>
         
             
@@ -151,13 +151,13 @@
 <a name='L86'></a><a href='#L86'>86</a>
 <a name='L87'></a><a href='#L87'>87</a>
 <a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L89'></a><a href='#L89'>89</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -238,14 +238,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState, useEffect } from 'react';
-import SessionListScreen from '../features/sessions/SessionListScreen';
-import CreateSessionScreen from '../features/sessions/CreateSessionScreen';
-import DslRenderScreen from '../features/dsl/DslRenderScreen';
-import DslStressTestScreen from '../features/dsl/DslStressTestScreen';
-import { SessionChatScreen } from '../features/chat-flow/SessionChatScreen';
-import { QuizScreen } from '../features/quiz/QuizScreen';
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import React, { useState, useEffect } from 'react';</span>
+<span class="cstat-no" title="statement not covered" >import SessionListScreen from '../features/sessions/SessionListScreen';</span>
+<span class="cstat-no" title="statement not covered" >import CreateSessionScreen from '../features/sessions/CreateSessionScreen';</span>
+<span class="cstat-no" title="statement not covered" >import DslRenderScreen from '../features/dsl/DslRenderScreen';</span>
+<span class="cstat-no" title="statement not covered" >import DslStressTestScreen from '../features/dsl/DslStressTestScreen';</span>
+<span class="cstat-no" title="statement not covered" >import { SessionChatScreen } from '../features/chat-flow/SessionChatScreen';</span>
+<span class="cstat-no" title="statement not covered" >import { QuizScreen } from '../features/quiz/QuizScreen';</span>
 import type { DeepLinkTarget } from '../types';
 &nbsp;
 type Screen = 'list' | 'create' | 'dsl' | 'stress' | 'chat' | 'quiz';
@@ -262,15 +262,15 @@ const HomePage: React.FC&lt;HomePageProps&gt; = <span class="cstat-no" title="st
   const [selectedSessionId, setSelectedSessionId] = <span class="cstat-no" title="statement not covered" >useState&lt;string&gt;('');</span>
   const [selectedQuizId, setSelectedQuizId] = <span class="cstat-no" title="statement not covered" >useState&lt;string&gt;('1');</span>
 &nbsp;
-  const handleAddSession = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('create');</span></span>
-  const handleBack = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('list');</span></span>
-  const handleShowDsl = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('dsl');</span></span>
-  const handleShowStressTest = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('stress');</span></span>
+  const handleAddSession = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('create');</span></span>
+  const handleBack = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('list');</span></span>
+  const handleShowDsl = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('dsl');</span></span>
+  const handleShowStressTest = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >setCurrentScreen('stress');</span></span>
   const handleStartChat = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>essionId: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setSelectedSessionId(sessionId);</span>
 <span class="cstat-no" title="statement not covered" >    setCurrentScreen('chat');</span>
   };
-  const handleStartQuiz = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+  const handleStartQuiz = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setSelectedQuizId('1');</span>
 <span class="cstat-no" title="statement not covered" >    setCurrentScreen('quiz');</span>
   };
@@ -279,18 +279,18 @@ const HomePage: React.FC&lt;HomePageProps&gt; = <span class="cstat-no" title="st
    * 消费 Deep Link 跳转目标。
    * 优先级：推送通知 &gt; 初始 URL。
    */
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (!pendingDeepLink) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!pendingDeepLink) <span class="cstat-no" title="statement not covered" >return;</span></span>
     const { screen, params } = <span class="cstat-no" title="statement not covered" >pendingDeepLink;</span>
 <span class="cstat-no" title="statement not covered" >    switch (screen) {</span>
       case 'chat':
-<span class="cstat-no" title="statement not covered" >        if (params?.sessionId) {</span>
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (params?.sessionId) {</span>
 <span class="cstat-no" title="statement not covered" >          setSelectedSessionId(params.sessionId);</span>
 <span class="cstat-no" title="statement not covered" >          setCurrentScreen('chat');</span>
         }
 <span class="cstat-no" title="statement not covered" >        break;</span>
       case 'quiz':
-<span class="cstat-no" title="statement not covered" >        if (params?.quizId) {</span>
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (params?.quizId) {</span>
 <span class="cstat-no" title="statement not covered" >          setSelectedQuizId(params.quizId);</span>
         }
 <span class="cstat-no" title="statement not covered" >        setCurrentScreen('quiz');</span>
@@ -326,7 +326,7 @@ const HomePage: React.FC&lt;HomePageProps&gt; = <span class="cstat-no" title="st
   );
 };
 &nbsp;
-export default HomePage;
+<span class="cstat-no" title="statement not covered" >export default HomePage;</span>
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -334,7 +334,7 @@ export default HomePage;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T04:00:41.104Z
+                at 2026-07-19T04:06:20.829Z
             </div>
         <script src="../prettify.js"></script>
         <script>

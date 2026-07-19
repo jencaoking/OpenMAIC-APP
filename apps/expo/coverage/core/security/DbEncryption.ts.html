@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/40</span>
+                <span class='fraction'>0/43</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>0/5</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/40</span>
+                <span class='fraction'>0/43</span>
             </div>
         
             
@@ -242,14 +242,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -400,14 +400,14 @@
  * const db = await DbEncryption.openEncryptedDb('openmaic.db');
  * ```
  */
-import * as SQLite from 'expo-sqlite';
-import { SecureKeyStore } from './SecureKeyStore';
+<span class="cstat-no" title="statement not covered" >import * as SQLite from 'expo-sqlite';</span>
+<span class="cstat-no" title="statement not covered" >import { SecureKeyStore } from './SecureKeyStore';</span>
 &nbsp;
 /**
  * 数据库加密服务。
  * 静态方法调用，无状态。
  */
-export class DbEncryption {
+<span class="cstat-no" title="statement not covered" >export class D</span>bEncryption {
   /**
    * 打开加密的 SQLite 数据库。
    *
@@ -419,7 +419,7 @@ export class DbEncryption {
    * @param dbName 数据库文件名（如 'openmaic.db'）
    * @returns 已加密的 SQLiteDatabase 实例
    */
-<span class="fstat-no" title="function not covered" >  st</span>atic async openEncryptedDb(dbName: string): Promise&lt;SQLite.SQLiteDatabase&gt; {
+<span class="fstat-no" title="function not covered" >  static </span>async openEncryptedDb(dbName: string): Promise&lt;SQLite.SQLiteDatabase&gt; {
     // 1. 获取或生成加密密钥
     const encryptionKey = <span class="cstat-no" title="statement not covered" >await SecureKeyStore.getOrCreateDbKey();</span>
 &nbsp;
@@ -458,7 +458,7 @@ export class DbEncryption {
    * @param db 当前数据库实例
    * @param newKey 新密钥（base64 编码）
    */
-<span class="fstat-no" title="function not covered" >  st</span>atic async rekey(db: SQLite.SQLiteDatabase, newKey: string): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  static </span>async rekey(db: SQLite.SQLiteDatabase, newKey: string): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await db.execAsync(`PRAGMA rekey = '${newKey}';`);</span>
   }
 &nbsp;
@@ -469,7 +469,7 @@ export class DbEncryption {
    * @param dbName 数据库文件名
    * @returns true 表示已加密
    */
-<span class="fstat-no" title="function not covered" >  st</span>atic async isEncrypted(dbName: string): Promise&lt;boolean&gt; {
+<span class="fstat-no" title="function not covered" >  static </span>async isEncrypted(dbName: string): Promise&lt;boolean&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const db = <span class="cstat-no" title="statement not covered" >await SQLite.openDatabaseAsync(dbName);</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
@@ -496,9 +496,9 @@ export class DbEncryption {
    *
    * @param dbName 旧数据库文件名
    */
-<span class="fstat-no" title="function not covered" >  st</span>atic async migrateToEncrypted(dbName: string): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  static </span>async migrateToEncrypted(dbName: string): Promise&lt;void&gt; {
     const isAlreadyEncrypted = <span class="cstat-no" title="statement not covered" >await this.isEncrypted(dbName);</span>
-<span class="cstat-no" title="statement not covered" >    if (isAlreadyEncrypted) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (isAlreadyEncrypted) {</span>
 <span class="cstat-no" title="statement not covered" >      console.log('[DbEncryption] Database already encrypted, skip migration');</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
     }
@@ -531,7 +531,7 @@ export class DbEncryption {
   /**
    * 在用户登出时擦除数据库（删除文件 + 清除密钥）。
    */
-<span class="fstat-no" title="function not covered" >  st</span>atic async wipeDatabase(dbName: string): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  static </span>async wipeDatabase(dbName: string): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await SecureKeyStore.delete('db_encryption_key');</span>
     // 数据库文件删除由调用方通过 expo-file-system 完成
 <span class="cstat-no" title="statement not covered" >    console.log(`[DbEncryption] Encryption key wiped. Please delete ${dbName} file via FileSystem.`);</span>
@@ -544,7 +544,7 @@ export class DbEncryption {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T04:00:41.275Z
+                at 2026-07-19T04:06:20.955Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

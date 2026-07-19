@@ -2,7 +2,7 @@
  * @file SecureKeyStore.test.ts
  * @description Phase 7.5 单元测试：SecureKeyStore 密钥管理。
  */
-import { SecureKeyStore } from '../../src/core/security/SecureKeyStore';
+import { SecureKeyStore } from '../src/core/security/SecureKeyStore';
 import * as SecureStore from 'expo-secure-store';
 
 describe('SecureKeyStore', () => {

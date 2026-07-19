@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/17</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>0/5</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
@@ -233,8 +233,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -395,8 +395,8 @@
  * - 每张图右上角带删除按钮
  * - 点击缩略图可全屏预览（点击遮罩关闭）
  */
-import React, { useState } from 'react';
-import {
+<span class="cstat-no" title="statement not covered" >import React, { useState } from 'react';</span>
+<span class="cstat-no" title="statement not covered" >import {</span>
   View,
   Text,
   StyleSheet,
@@ -418,19 +418,19 @@ const THUMBNAIL_SIZE = <span class="cstat-no" title="statement not covered" >72;
 /**
  * 待发送图片预览条。
  */
-export const ImagePreviewBar: React.FC&lt;ImagePreviewBarProps&gt; = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> attachments, onRemove }) =&gt; {</span>
+export const <span class="cstat-no" title="statement not covered" >ImagePreviewBar: React.FC&lt;ImagePreviewBarProps&gt; = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>{</span> attachments, onRemove }) =&gt; {</span>
   const [previewUri, setPreviewUri] = <span class="cstat-no" title="statement not covered" >useState&lt;string | null&gt;(null);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  if (attachments.length === 0) <span class="cstat-no" title="statement not covered" >return null;</span></span>
+<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (attachments.length === 0) <span class="cstat-no" title="statement not covered" >return null;</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;View style={styles.container}&gt;
       &lt;ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scroll}&gt;
         {attachments.map(<span class="fstat-no" title="function not covered" >(a</span>ttachment) =&gt; (
-<span class="cstat-no" title="statement not covered" >          &lt;View key={attachment.id} style={styles.thumbWrap}&gt;</span>
+<span class="cstat-no" title="statement not covered" >          &lt;View key={attachment.id} s</span>tyle={styles.thumbWrap}&gt;
             &lt;TouchableOpacity
               activeOpacity={0.85}
-              onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setPreviewUri(attachment.localUri)}</span>
+              onPress={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >setPreviewUri(attachment.localUri)}</span>
               accessibilityLabel={`预览图片 ${attachment.id}`}
             &gt;
               &lt;Image
@@ -441,7 +441,7 @@ export const ImagePreviewBar: React.FC&lt;ImagePreviewBarProps&gt; = <span class
             &lt;/TouchableOpacity&gt;
             &lt;TouchableOpacity
               style={styles.removeBtn}
-              onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >onRemove(attachment.id)}</span>
+              onPress={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >onRemove(attachment.id)}</span>
               accessibilityLabel="移除图片"
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             &gt;
@@ -452,12 +452,12 @@ export const ImagePreviewBar: React.FC&lt;ImagePreviewBarProps&gt; = <span class
         ))}
       &lt;/ScrollView&gt;
 &nbsp;
-      &lt;Modal visible={previewUri !== null} transparent animationType="fade" onRequestClose={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setPreviewUri(null)}</span>&gt;
+      &lt;Modal visible={previewUri !== null} transparent animationType="fade" onRequestClose={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >setPreviewUri(null)}</span>&gt;
         &lt;View style={styles.previewOverlay}&gt;
           &lt;TouchableOpacity
             style={styles.previewCloseArea}
             activeOpacity={1}
-            onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setPreviewUri(null)}</span>
+            onPress={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >setPreviewUri(null)}</span>
           &gt;
             {previewUri &amp;&amp; (
               &lt;Image
@@ -477,8 +477,8 @@ export const ImagePreviewBar: React.FC&lt;ImagePreviewBarProps&gt; = <span class
  * 格式化字节为可读字符串。
  */
 function <span class="fstat-no" title="function not covered" >formatSize(</span>bytes: number): string {
-<span class="cstat-no" title="statement not covered" >  if (bytes &lt; 1024) <span class="cstat-no" title="statement not covered" >return `${bytes}B`;</span></span>
-<span class="cstat-no" title="statement not covered" >  if (bytes &lt; 1024 * 1024) <span class="cstat-no" title="statement not covered" >return `${(bytes / 1024).toFixed(1)}KB`;</span></span>
+<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (bytes &lt; 1024) <span class="cstat-no" title="statement not covered" >return `${bytes}B`;</span></span>
+<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (bytes &lt; 1024 * 1024) <span class="cstat-no" title="statement not covered" >return `${(bytes / 1024).toFixed(1)}KB`;</span></span>
 <span class="cstat-no" title="statement not covered" >  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;</span>
 }
 &nbsp;
@@ -556,7 +556,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T04:00:41.275Z
+                at 2026-07-19T04:06:20.955Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

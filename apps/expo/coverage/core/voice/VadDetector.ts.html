@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/63</span>
+                <span class='fraction'>0/65</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/30</span>
+                <span class='fraction'>0/21</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/58</span>
+                <span class='fraction'>0/60</span>
             </div>
         
             
@@ -244,7 +244,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -293,7 +293,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -415,7 +415,7 @@
  *
  * 该实现不依赖第三方 VAD SDK，纯 TS 完成，体积小、可跨端。
  */
-import { Audio } from 'expo-av';
+<span class="cstat-no" title="statement not covered" >import { Audio } from 'expo-av';</span>
 &nbsp;
 export interface VadDetectorConfig {
   /** 触发说话开始的音量阈值（0~1，归一化后）。默认 0.18。 */
@@ -455,7 +455,7 @@ const DEFAULT_CONFIG: VadDetectorConfig = <span class="cstat-no" title="statemen
  * -160 dBFS → 0；0 dBFS → 1。
  */
 function <span class="fstat-no" title="function not covered" >normalizeDbfs(</span>dbfs: number): number {
-<span class="cstat-no" title="statement not covered" >  if (!Number.isFinite(dbfs)) <span class="cstat-no" title="statement not covered" >return 0;</span></span>
+<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (!Number.isFinite(dbfs)) <span class="cstat-no" title="statement not covered" >return 0;</span></span>
   const clamped = <span class="cstat-no" title="statement not covered" >Math.max(-160, Math.min(0, dbfs));</span>
 <span class="cstat-no" title="statement not covered" >  return Math.max(0, (clamped + 160) / 160);</span>
 }
@@ -464,7 +464,7 @@ function <span class="fstat-no" title="function not covered" >normalizeDbfs(</sp
  * VAD 检测器。
  * 不持有录音器实例，由调用方注入 `Recording` 引用。
  */
-export class VadDetector {
+<span class="cstat-no" title="statement not covered" >export class V</span>adDetector {
   private config: VadDetectorConfig;
   private callbacks: VadDetectorCallbacks;
   private recording: Audio.Recording | null = <span class="cstat-no" title="statement not covered" >null;</span>
@@ -475,7 +475,7 @@ export class VadDetector {
   private isSpeaking = <span class="cstat-no" title="statement not covered" >false;</span>
   private isRunning = <span class="cstat-no" title="statement not covered" >false;</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >  co</span>nstructor(
+<span class="fstat-no" title="function not covered" >  constructor(</span>
     config: Partial&lt;VadDetectorConfig&gt; = <span class="branch-0 cbranch-no" title="branch not covered" >{},</span>
     callbacks: VadDetectorCallbacks = <span class="branch-0 cbranch-no" title="branch not covered" >{},</span>
   ) {
@@ -486,13 +486,13 @@ export class VadDetector {
   /**
    * 启动 VAD 检测。需要在 `recording.startAsync()` 完成后调用。
    */
-<span class="fstat-no" title="function not covered" >  st</span>art(recording: Audio.Recording): void {
-<span class="cstat-no" title="statement not covered" >    if (this.isRunning) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="fstat-no" title="function not covered" >  start(</span>recording: Audio.Recording): void {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.isRunning) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    this.recording = recording;</span>
 <span class="cstat-no" title="statement not covered" >    this.isRunning = true;</span>
 <span class="cstat-no" title="statement not covered" >    this.resetCounters();</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    this.timer = setInterval(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    this.timer = setInterval(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      void this.tick();</span>
     }, this.config.sampleIntervalMs);
   }
@@ -500,10 +500,10 @@ export class VadDetector {
   /**
    * 停止 VAD 检测，清理定时器。
    */
-<span class="fstat-no" title="function not covered" >  st</span>op(): void {
-<span class="cstat-no" title="statement not covered" >    if (!this.isRunning) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="fstat-no" title="function not covered" >  stop(</span>): void {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.isRunning) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    this.isRunning = false;</span>
-<span class="cstat-no" title="statement not covered" >    if (this.timer) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.timer) {</span>
 <span class="cstat-no" title="statement not covered" >      clearInterval(this.timer);</span>
 <span class="cstat-no" title="statement not covered" >      this.timer = null;</span>
     }
@@ -514,31 +514,31 @@ export class VadDetector {
   /**
    * 更新回调引用。UI 卸载时用于解绑。
    */
-<span class="fstat-no" title="function not covered" >  up</span>dateCallbacks(callbacks: VadDetectorCallbacks): void {
+<span class="fstat-no" title="function not covered" >  updateCallbacks(</span>callbacks: VadDetectorCallbacks): void {
 <span class="cstat-no" title="statement not covered" >    this.callbacks = callbacks;</span>
   }
 &nbsp;
   /** 当前是否处于说话状态。 */
-<span class="fstat-no" title="function not covered" >  ge</span>tIsSpeaking(): boolean {
+<span class="fstat-no" title="function not covered" >  getIsSpeaking(</span>): boolean {
 <span class="cstat-no" title="statement not covered" >    return this.isSpeaking;</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  pr</span>ivate resetCounters(): void {
+  private <span class="fstat-no" title="function not covered" >resetCounters(</span>): void {
 <span class="cstat-no" title="statement not covered" >    this.levelBuffer = [];</span>
 <span class="cstat-no" title="statement not covered" >    this.consecutiveSpeech = 0;</span>
 <span class="cstat-no" title="statement not covered" >    this.consecutiveSilence = 0;</span>
 <span class="cstat-no" title="statement not covered" >    this.isSpeaking = false;</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  pr</span>ivate async tick(): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    if (!this.recording || !this.isRunning) <span class="cstat-no" title="statement not covered" >return;</span></span>
+  private <span class="fstat-no" title="function not covered" >async </span>tick(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.recording || !this.isRunning) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
     let level = <span class="cstat-no" title="statement not covered" >0;</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
       const status = <span class="cstat-no" title="statement not covered" >await this.recording.getStatusAsync();</span>
       // expo-av 在 iOS/Android 都提供 metering 字段（dBFS）
-      const metering = <span class="cstat-no" title="statement not covered" >(status as { metering?: number }).metering;</span>
-<span class="cstat-no" title="statement not covered" >      if (typeof metering === 'number') {</span>
+      const metering = (<span class="cstat-no" title="statement not covered" >status as { metering?: number }).metering;</span>
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof metering === 'number') {</span>
 <span class="cstat-no" title="statement not covered" >        level = normalizeDbfs(metering);</span>
       }
     } catch {
@@ -552,14 +552,14 @@ export class VadDetector {
 <span class="cstat-no" title="statement not covered" >    if (smoothed &gt;= this.config.speechThreshold) {</span>
 <span class="cstat-no" title="statement not covered" >      this.consecutiveSpeech += 1;</span>
 <span class="cstat-no" title="statement not covered" >      this.consecutiveSilence = 0;</span>
-<span class="cstat-no" title="statement not covered" >      if (!this.isSpeaking &amp;&amp; this.consecutiveSpeech &gt;= this.config.speechStartFrames) {</span>
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.isSpeaking &amp;&amp; this.consecutiveSpeech &gt;= this.config.speechStartFrames) {</span>
 <span class="cstat-no" title="statement not covered" >        this.isSpeaking = true;</span>
 <span class="cstat-no" title="statement not covered" >        this.callbacks.onSpeechStart?.();</span>
       }
     } else <span class="cstat-no" title="statement not covered" >if (smoothed &lt;= this.config.silenceThreshold) {</span>
 <span class="cstat-no" title="statement not covered" >      this.consecutiveSilence += 1;</span>
 <span class="cstat-no" title="statement not covered" >      this.consecutiveSpeech = 0;</span>
-<span class="cstat-no" title="statement not covered" >      if (this.isSpeaking &amp;&amp; this.consecutiveSilence &gt;= this.config.speechEndFrames) {</span>
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (this.isSpeaking &amp;&amp; this.consecutiveSilence &gt;= this.config.speechEndFrames) {</span>
 <span class="cstat-no" title="statement not covered" >        this.isSpeaking = false;</span>
 <span class="cstat-no" title="statement not covered" >        this.callbacks.onSpeechEnd?.();</span>
       }
@@ -568,9 +568,9 @@ export class VadDetector {
     }
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  pr</span>ivate pushAndSmooth(level: number): number {
+  private <span class="fstat-no" title="function not covered" >pushAndSmooth(</span>level: number): number {
 <span class="cstat-no" title="statement not covered" >    this.levelBuffer.push(level);</span>
-<span class="cstat-no" title="statement not covered" >    if (this.levelBuffer.length &gt; this.config.smoothingWindow) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.levelBuffer.length &gt; this.config.smoothingWindow) {</span>
 <span class="cstat-no" title="statement not covered" >      this.levelBuffer.shift();</span>
     }
 <span class="cstat-no" title="statement not covered" >    return this.levelBuffer.reduce(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >a + b,</span> 0) / this.levelBuffer.length;</span>
@@ -583,7 +583,7 @@ export class VadDetector {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T04:00:41.275Z
+                at 2026-07-19T04:06:20.955Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

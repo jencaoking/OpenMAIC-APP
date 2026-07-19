@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/182</span>
+                <span class='fraction'>0/187</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/81</span>
+                <span class='fraction'>0/59</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/167</span>
+                <span class='fraction'>0/172</span>
             </div>
         
             
@@ -519,6 +519,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -531,17 +541,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -955,16 +955,16 @@
  *   立即调用 `ttsQueue.interrupt()` 停止 TTS，
  *   并将 LLM SSE 连接 abort，重置状态回 `listening`。
  */
-import { Audio } from 'expo-av';
+<span class="cstat-no" title="statement not covered" >import { Audio } from 'expo-av';</span>
 import type {
   VoiceEngineConfig,
   VoiceEngineSnapshot,
   VoiceSessionState,
   SttEvent,
 } from '../../types';
-import { audioSession } from './AudioSession';
-import { VadDetector } from './VadDetector';
-import { TtsQueue } from './TtsQueue';
+<span class="cstat-no" title="statement not covered" >import { audioSession } from './AudioSession';</span>
+<span class="cstat-no" title="statement not covered" >import { VadDetector } from './VadDetector';</span>
+<span class="cstat-no" title="statement not covered" >import { TtsQueue } from './TtsQueue';</span>
 &nbsp;
 type SnapshotListener = (snapshot: VoiceEngineSnapshot) =&gt; void;
 &nbsp;
@@ -977,7 +977,7 @@ interface RecordingHandle {
  * 语音对话引擎。
  * 每个会话页面创建一个实例，组件卸载时调用 `dispose()`。
  */
-export class VoiceEngine {
+<span class="cstat-no" title="statement not covered" >export class V</span>oiceEngine {
   private config: VoiceEngineConfig;
   private state: VoiceSessionState = <span class="cstat-no" title="statement not covered" >'idle';</span>
   private interimTranscript = <span class="cstat-no" title="statement not covered" >'';</span>
@@ -994,7 +994,7 @@ export class VoiceEngine {
   private llmAbort: AbortController | null = <span class="cstat-no" title="statement not covered" >null;</span>
   private disposed = <span class="cstat-no" title="statement not covered" >false;</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >  co</span>nstructor(config: VoiceEngineConfig) {
+<span class="fstat-no" title="function not covered" >  constructor(c</span>onfig: VoiceEngineConfig) {
 <span class="cstat-no" title="statement not covered" >    this.config = config;</span>
 <span class="cstat-no" title="statement not covered" >    this.vad = new VadDetector(</span>
       {
@@ -1002,7 +1002,7 @@ export class VoiceEngine {
         speechStartFrames: config.vadConsecutiveFrames ?? 6,
       },
       {
-        onSpeechStart: <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >this.handleBargeIn(),</span>
+        onSpeechStart: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >this.handleBargeIn(),</span>
         onLevel: <span class="fstat-no" title="function not covered" >(l</span>evel) =&gt; {
 <span class="cstat-no" title="statement not covered" >          this.micLevel = level;</span>
 <span class="cstat-no" title="statement not covered" >          this.emit();</span>
@@ -1012,13 +1012,13 @@ export class VoiceEngine {
 <span class="cstat-no" title="statement not covered" >    this.ttsQueue = new TtsQueue(</span>
       { ttsUrl: config.ttsUrl, authToken: config.authToken, maxChars: config.ttsChunkSize ?? 80 },
       {
-        onChunkStart: <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >this.setState('speaking'),</span>
+        onChunkStart: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >this.setState('speaking'),</span>
         onProgress: <span class="fstat-no" title="function not covered" >(p</span>) =&gt; {
 <span class="cstat-no" title="statement not covered" >          this.ttsProgress = p;</span>
 <span class="cstat-no" title="statement not covered" >          this.emit();</span>
         },
-        onAllComplete: <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >this.handleTtsAllComplete(),</span>
-        onInterrupted: <span class="fstat-no" title="function not covered" >()</span> =&gt; {
+        onAllComplete: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >this.handleTtsAllComplete(),</span>
+        onInterrupted: <span class="fstat-no" title="function not covered" >() =</span>&gt; {
           // 已由 barge-in 处理流程接管
         },
         onError: <span class="fstat-no" title="function not covered" >(e</span>rr) =&gt; <span class="cstat-no" title="statement not covered" >this.handleError(`TTS: ${err.message}`),</span>
@@ -1029,8 +1029,8 @@ export class VoiceEngine {
   /**
    * 启动语音会话：激活音频会话 → 开麦 → 连接 STT WS → 进入 listening。
    */
-<span class="fstat-no" title="function not covered" >  as</span>ync start(): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    if (this.state !== 'idle' &amp;&amp; this.state !== 'error') <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="fstat-no" title="function not covered" >  async </span>start(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.state !== 'idle' &amp;&amp; this.state !== 'error') <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    this.disposed = false;</span>
 <span class="cstat-no" title="statement not covered" >    this.error = null;</span>
 <span class="cstat-no" title="statement not covered" >    this.finalTranscript = '';</span>
@@ -1049,11 +1049,11 @@ export class VoiceEngine {
   /**
    * 主动停止语音会话，释放所有资源。
    */
-<span class="fstat-no" title="function not covered" >  as</span>ync stop(): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  async </span>stop(): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    this.disposed = true;</span>
 <span class="cstat-no" title="statement not covered" >    await this.ttsQueue.interrupt();</span>
 <span class="cstat-no" title="statement not covered" >    await this.stopRecordingAndStt();</span>
-<span class="cstat-no" title="statement not covered" >    if (this.llmAbort) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.llmAbort) {</span>
 <span class="cstat-no" title="statement not covered" >      this.llmAbort.abort();</span>
 <span class="cstat-no" title="statement not covered" >      this.llmAbort = null;</span>
     }
@@ -1064,7 +1064,7 @@ export class VoiceEngine {
   /**
    * 组件卸载时必须调用，避免内存泄漏与麦克风硬件未释放。
    */
-<span class="fstat-no" title="function not covered" >  as</span>ync dispose(): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  async </span>dispose(): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await this.stop();</span>
 <span class="cstat-no" title="statement not covered" >    this.listeners.clear();</span>
   }
@@ -1073,16 +1073,16 @@ export class VoiceEngine {
    * 订阅状态快照变更。
    * @returns 取消订阅函数。
    */
-<span class="fstat-no" title="function not covered" >  su</span>bscribe(listener: SnapshotListener): () =&gt; void {
+<span class="fstat-no" title="function not covered" >  subscribe(</span>listener: SnapshotListener): () =&gt; void {
 <span class="cstat-no" title="statement not covered" >    this.listeners.add(listener);</span>
 <span class="cstat-no" title="statement not covered" >    listener(this.getSnapshot());</span>
-<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >this.listeners.delete(listener);</span></span>
+<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >this.listeners.delete(listener);</span></span>
   }
 &nbsp;
   /**
    * 获取当前状态快照。
    */
-<span class="fstat-no" title="function not covered" >  ge</span>tSnapshot(): VoiceEngineSnapshot {
+<span class="fstat-no" title="function not covered" >  getSnapshot(</span>): VoiceEngineSnapshot {
 <span class="cstat-no" title="statement not covered" >    return {</span>
       state: this.state,
       interimTranscript: this.interimTranscript,
@@ -1097,15 +1097,15 @@ export class VoiceEngine {
   /**
    * 切换扬声器/听筒路由。
    */
-<span class="fstat-no" title="function not covered" >  as</span>ync switchRoute(route: 'speaker' | 'earpiece' | 'auto'): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  async </span>switchRoute(route: 'speaker' | 'earpiece' | 'auto'): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    await audioSession.switchRoute(route);</span>
   }
 &nbsp;
   // ───────────────────────── 私有方法 ─────────────────────────
 &nbsp;
-<span class="fstat-no" title="function not covered" >  pr</span>ivate async startRecordingAndStt(): Promise&lt;void&gt; {
+  private <span class="fstat-no" title="function not covered" >async </span>startRecordingAndStt(): Promise&lt;void&gt; {
     const permission = <span class="cstat-no" title="statement not covered" >await Audio.requestPermissionsAsync();</span>
-<span class="cstat-no" title="statement not covered" >    if (!permission.granted) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!permission.granted) {</span>
 <span class="cstat-no" title="statement not covered" >      throw new Error('Microphone permission denied');</span>
     }
 &nbsp;
@@ -1148,9 +1148,9 @@ export class VoiceEngine {
 <span class="cstat-no" title="statement not covered" >    this.startAudioStreamPush(recording, ws);</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  pr</span>ivate async stopRecordingAndStt(): Promise&lt;void&gt; {
+  private <span class="fstat-no" title="function not covered" >async </span>stopRecordingAndStt(): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >    this.vad.stop();</span>
-<span class="cstat-no" title="statement not covered" >    if (this.recordingHandle) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.recordingHandle) {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
 <span class="cstat-no" title="statement not covered" >        await this.recordingHandle.recording.stopAndUnloadAsync();</span>
 <span class="cstat-no" title="statement not covered" >        await this.recordingHandle.recording.getStatusAsync();</span>
@@ -1162,7 +1162,7 @@ export class VoiceEngine {
     }
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  pr</span>ivate openSttWebSocket(): WebSocket {
+  private <span class="fstat-no" title="function not covered" >openSttWebSocket(</span>): WebSocket {
     const ws = <span class="cstat-no" title="statement not covered" >new WebSocket(this.config.sttWsUrl, this.config.authToken ? ['bearer', this.config.authToken] : undefined);</span>
 <span class="cstat-no" title="statement not covered" >    ws.onmessage = <span class="fstat-no" title="function not covered" >(e</span>vent) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      try {</span>
@@ -1172,9 +1172,9 @@ export class VoiceEngine {
         // 非 JSON 消息忽略
       }
     };
-<span class="cstat-no" title="statement not covered" >    ws.onerror = <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >this.handleError('STT WebSocket error');</span></span>
+<span class="cstat-no" title="statement not covered" >    ws.onerror = <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >this.handleError('STT WebSocket error');</span></span>
 <span class="cstat-no" title="statement not covered" >    ws.onclose = <span class="fstat-no" title="function not covered" >(e</span>vent) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      if (!this.disposed &amp;&amp; this.state === 'listening') {</span>
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.disposed &amp;&amp; this.state === 'listening') {</span>
         // 异常断开时尝试重连（仅 listening 状态）
 <span class="cstat-no" title="statement not covered" >        this.handleSttEvent({ type: 'close', code: event.code, reason: event.reason });</span>
       }
@@ -1182,16 +1182,16 @@ export class VoiceEngine {
 <span class="cstat-no" title="statement not covered" >    return ws;</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  pr</span>ivate startAudioStreamPush(recording: Audio.Recording, ws: WebSocket | null): void {
-    const pushTimer = <span class="cstat-no" title="statement not covered" >setInterval(<span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      if (!ws || ws.readyState !== WebSocket.OPEN) <span class="cstat-no" title="statement not covered" >return;</span></span>
-<span class="cstat-no" title="statement not covered" >      if (this.state !== 'listening' &amp;&amp; this.state !== 'barge-in') {</span>
+  private <span class="fstat-no" title="function not covered" >startAudioStreamPush(</span>recording: Audio.Recording, ws: WebSocket | null): void {
+    const pushTimer = <span class="cstat-no" title="statement not covered" >setInterval(<span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!ws || ws.readyState !== WebSocket.OPEN) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (this.state !== 'listening' &amp;&amp; this.state !== 'barge-in') {</span>
 <span class="cstat-no" title="statement not covered" >        clearInterval(pushTimer);</span>
 <span class="cstat-no" title="statement not covered" >        return;</span>
       }
 <span class="cstat-no" title="statement not covered" >      try {</span>
         const uri = <span class="cstat-no" title="statement not covered" >recording.getURI();</span>
-<span class="cstat-no" title="statement not covered" >        if (!uri) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!uri) <span class="cstat-no" title="statement not covered" >return;</span></span>
         // 注：生产环境应使用原生模块直接读取 PCM 缓冲区。
         // 此处通过定期读取文件并切片上传，作为兼容降级方案。
         // 完整实现需自定义 NativeModule 暴露 readPcmChunk()，此处保留接口约定。
@@ -1203,13 +1203,13 @@ export class VoiceEngine {
 &nbsp;
     // 在 stop 时清理
     const originalStop = <span class="cstat-no" title="statement not covered" >this.stop.bind(this);</span>
-<span class="cstat-no" title="statement not covered" >    this.stop = <span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    this.stop = <span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      clearInterval(pushTimer);</span>
 <span class="cstat-no" title="statement not covered" >      await originalStop();</span>
     };
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  pr</span>ivate handleSttEvent(event: SttEvent): void {
+  private <span class="fstat-no" title="function not covered" >handleSttEvent(</span>event: SttEvent): void {
 <span class="cstat-no" title="statement not covered" >    switch (event.type) {</span>
       case 'interim':
 <span class="cstat-no" title="statement not covered" >        this.interimTranscript = event.text;</span>
@@ -1233,8 +1233,8 @@ export class VoiceEngine {
   /**
    * 用户说完一句话 → 进入 thinking → 调用 LLM 流式接口 → 喂给 TTS。
    */
-<span class="fstat-no" title="function not covered" >  pr</span>ivate async handleUserSpeechEnd(text: string): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    if (!text.trim()) <span class="cstat-no" title="statement not covered" >return;</span></span>
+  private <span class="fstat-no" title="function not covered" >async </span>handleUserSpeechEnd(text: string): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!text.trim()) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    this.setState('thinking');</span>
 <span class="cstat-no" title="statement not covered" >    this.aiReplyText = '';</span>
 <span class="cstat-no" title="statement not covered" >    this.ttsProgress = 0;</span>
@@ -1258,7 +1258,7 @@ export class VoiceEngine {
         signal: this.llmAbort.signal,
       });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      if (!response.ok || !response.body) {</span>
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!response.ok || !response.body) {</span>
 <span class="cstat-no" title="statement not covered" >        throw new Error(`LLM HTTP ${response.status}`);</span>
       }
 &nbsp;
@@ -1270,24 +1270,24 @@ export class VoiceEngine {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      while (true) {</span>
         const { done, value } = <span class="cstat-no" title="statement not covered" >await reader.read();</span>
-<span class="cstat-no" title="statement not covered" >        if (done) <span class="cstat-no" title="statement not covered" >break;</span></span>
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (done) <span class="cstat-no" title="statement not covered" >break;</span></span>
 <span class="cstat-no" title="statement not covered" >        buffer += decoder.decode(value, { stream: true });</span>
         const lines = <span class="cstat-no" title="statement not covered" >buffer.split('\n');</span>
 <span class="cstat-no" title="statement not covered" >        buffer = lines.pop() ?? '';</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        for (const line of lines) {</span>
           const trimmed = <span class="cstat-no" title="statement not covered" >line.trim();</span>
-<span class="cstat-no" title="statement not covered" >          if (!trimmed.startsWith('data:')) <span class="cstat-no" title="statement not covered" >continue;</span></span>
+<span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (!trimmed.startsWith('data:')) <span class="cstat-no" title="statement not covered" >continue;</span></span>
           const payload = <span class="cstat-no" title="statement not covered" >trimmed.slice(5).trim();</span>
-<span class="cstat-no" title="statement not covered" >          if (payload === '[DONE]') <span class="cstat-no" title="statement not covered" >continue;</span></span>
+<span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (payload === '[DONE]') <span class="cstat-no" title="statement not covered" >continue;</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >          try {</span>
             const parsed = <span class="cstat-no" title="statement not covered" >JSON.parse(payload) as { delta?: string; content?: string };</span>
             const chunk = <span class="cstat-no" title="statement not covered" >parsed.delta ?? parsed.content ?? '';</span>
-<span class="cstat-no" title="statement not covered" >            if (chunk) {</span>
+<span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (chunk) {</span>
 <span class="cstat-no" title="statement not covered" >              this.aiReplyText += chunk;</span>
 <span class="cstat-no" title="statement not covered" >              this.ttsQueue.enqueueFromStream(this.aiReplyText);</span>
-<span class="cstat-no" title="statement not covered" >              if (!firstChunkReceived) {</span>
+<span class="cstat-no" title="statement not covered" >              <span class="missing-if-branch" title="if path not taken" >I</span>if (!firstChunkReceived) {</span>
 <span class="cstat-no" title="statement not covered" >                firstChunkReceived = true;</span>
 <span class="cstat-no" title="statement not covered" >                this.setState('speaking');</span>
 <span class="cstat-no" title="statement not covered" >                await this.ttsQueue.start();</span>
@@ -1300,12 +1300,12 @@ export class VoiceEngine {
         }
       }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      if (!firstChunkReceived) {</span>
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!firstChunkReceived) {</span>
         // LLM 无任何输出，回到聆听态
 <span class="cstat-no" title="statement not covered" >        await this.returnToListening();</span>
       }
     } catch (err) {
-<span class="cstat-no" title="statement not covered" >      if ((err as Error).name === 'AbortError') <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if ((err as Error).name === 'AbortError') <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >      this.handleError(err instanceof Error ? err.message : 'LLM request failed');</span>
     } finally {
 <span class="cstat-no" title="statement not covered" >      this.llmAbort = null;</span>
@@ -1315,19 +1315,19 @@ export class VoiceEngine {
   /**
    * TTS 自然播放完成 → 重新开麦，进入下一回合。
    */
-<span class="fstat-no" title="function not covered" >  pr</span>ivate async handleTtsAllComplete(): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    if (this.disposed) <span class="cstat-no" title="statement not covered" >return;</span></span>
+  private <span class="fstat-no" title="function not covered" >async </span>handleTtsAllComplete(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.disposed) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    await this.returnToListening();</span>
   }
 &nbsp;
   /**
    * Barge-in：用户在 TTS 播放中突然开口 → 立即中断 TTS 与 LLM。
    */
-<span class="fstat-no" title="function not covered" >  pr</span>ivate async handleBargeIn(): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    if (this.state !== 'speaking') <span class="cstat-no" title="statement not covered" >return;</span></span>
+  private <span class="fstat-no" title="function not covered" >async </span>handleBargeIn(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.state !== 'speaking') <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    this.setState('barge-in');</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (this.llmAbort) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.llmAbort) {</span>
 <span class="cstat-no" title="statement not covered" >      this.llmAbort.abort();</span>
 <span class="cstat-no" title="statement not covered" >      this.llmAbort = null;</span>
     }
@@ -1339,8 +1339,8 @@ export class VoiceEngine {
   /**
    * 回到聆听态：重置文本缓存，重新开麦与 STT WS。
    */
-<span class="fstat-no" title="function not covered" >  pr</span>ivate async returnToListening(): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    if (this.disposed) <span class="cstat-no" title="statement not covered" >return;</span></span>
+  private <span class="fstat-no" title="function not covered" >async </span>returnToListening(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.disposed) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    this.interimTranscript = '';</span>
 <span class="cstat-no" title="statement not covered" >    this.finalTranscript = '';</span>
 <span class="cstat-no" title="statement not covered" >    this.aiReplyText = '';</span>
@@ -1355,18 +1355,18 @@ export class VoiceEngine {
     }
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  pr</span>ivate handleError(message: string): void {
+  private <span class="fstat-no" title="function not covered" >handleError(</span>message: string): void {
 <span class="cstat-no" title="statement not covered" >    this.error = message;</span>
 <span class="cstat-no" title="statement not covered" >    this.setState('error');</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  pr</span>ivate setState(next: VoiceSessionState): void {
-<span class="cstat-no" title="statement not covered" >    if (this.state === next) <span class="cstat-no" title="statement not covered" >return;</span></span>
+  private <span class="fstat-no" title="function not covered" >setState(</span>next: VoiceSessionState): void {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.state === next) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    this.state = next;</span>
 <span class="cstat-no" title="statement not covered" >    this.emit();</span>
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  pr</span>ivate emit(): void {
+  private <span class="fstat-no" title="function not covered" >emit(</span>): void {
     const snapshot = <span class="cstat-no" title="statement not covered" >this.getSnapshot();</span>
 <span class="cstat-no" title="statement not covered" >    this.listeners.forEach(<span class="fstat-no" title="function not covered" >(f</span>n) =&gt; <span class="cstat-no" title="statement not covered" >fn(snapshot))</span>;</span>
   }
@@ -1378,7 +1378,7 @@ export class VoiceEngine {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T04:00:41.275Z
+                at 2026-07-19T04:06:20.955Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

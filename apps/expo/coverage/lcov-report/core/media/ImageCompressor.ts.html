@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/39</span>
+                <span class='fraction'>0/42</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/35</span>
+                <span class='fraction'>0/38</span>
             </div>
         
             
@@ -221,8 +221,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -261,7 +261,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -369,8 +369,8 @@
  * 3. 同步生成 Base64（无 data: 前缀），供 Vision API 请求体直接使用。
  * 4. 通过 expo-image-manipulator 在原生层完成，避免 JS 主线程阻塞。
  */
-import * as ImageManipulator from 'expo-image-manipulator';
-import * as FileSystem from 'expo-file-system';
+<span class="cstat-no" title="statement not covered" >import * as ImageManipulator from 'expo-image-manipulator';</span>
+<span class="cstat-no" title="statement not covered" >import * as FileSystem from 'expo-file-system';</span>
 import type { ImageAttachment, ImageAttachmentSource } from '../../types';
 &nbsp;
 export interface CompressOptions {
@@ -409,14 +409,14 @@ function <span class="fstat-no" title="function not covered" >uuid(</span>): str
  * 图像压缩器。
  * 所有方法静态，无状态，可被任意组件调用。
  */
-export class ImageCompressor {
+<span class="cstat-no" title="statement not covered" >export class I</span>mageCompressor {
   /**
    * 压缩本地图像文件并返回 `ImageAttachment`。
    * @param uri 本地 file:// 或 ph:// URI
    * @param source 来源场景
    * @param options 压缩选项
    */
-<span class="fstat-no" title="function not covered" >  st</span>atic async compress(
+<span class="fstat-no" title="function not covered" >  static </span>async compress(
     uri: string,
     source: ImageAttachmentSource,
     options: CompressOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{},</span>
@@ -436,7 +436,7 @@ export class ImageCompressor {
     const result = <span class="cstat-no" title="statement not covered" >await ImageManipulator.manipulateAsync(uri, actions, saveOptions);</span>
 &nbsp;
     let base64: string | undefined;
-<span class="cstat-no" title="statement not covered" >    if (opts.generateBase64) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (opts.generateBase64) {</span>
 <span class="cstat-no" title="statement not covered" >      base64 = await this.readFileAsBase64(result.uri);</span>
     }
 &nbsp;
@@ -458,7 +458,7 @@ export class ImageCompressor {
    * 批量压缩多张图片，按顺序返回。
    * 串行执行避免内存峰值。
    */
-<span class="fstat-no" title="function not covered" >  st</span>atic async compressBatch(
+<span class="fstat-no" title="function not covered" >  static </span>async compressBatch(
     uris: string[],
     source: ImageAttachmentSource,
     options: CompressOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{},</span>
@@ -480,7 +480,7 @@ export class ImageCompressor {
    * 读取图片原始尺寸。
    * 使用 ImageManipulator 的 0 操作调用获取，避免引入额外依赖。
    */
-<span class="fstat-no" title="function not covered" >  pr</span>ivate static async getImageSize(uri: string): Promise&lt;{ width: number; height: number }&gt; {
+  private <span class="fstat-no" title="function not covered" >static </span>async getImageSize(uri: string): Promise&lt;{ width: number; height: number }&gt; {
     const result = <span class="cstat-no" title="statement not covered" >await ImageManipulator.manipulateAsync(uri, [], { format: ImageManipulator.SaveFormat.JPEG });</span>
 <span class="cstat-no" title="statement not covered" >    return { width: result.width ?? 1080, height: result.height ?? 1080 };</span>
   }
@@ -488,9 +488,9 @@ export class ImageCompressor {
   /**
    * 按最大边长等比缩放。
    */
-<span class="fstat-no" title="function not covered" >  pr</span>ivate static scaleToFit(width: number, height: number, maxDimension: number): { width: number; height: number } {
+  private <span class="fstat-no" title="function not covered" >static </span>scaleToFit(width: number, height: number, maxDimension: number): { width: number; height: number } {
     const longest = <span class="cstat-no" title="statement not covered" >Math.max(width, height);</span>
-<span class="cstat-no" title="statement not covered" >    if (longest &lt;= maxDimension) <span class="cstat-no" title="statement not covered" >return { width, height };</span></span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (longest &lt;= maxDimension) <span class="cstat-no" title="statement not covered" >return { width, height };</span></span>
     const ratio = <span class="cstat-no" title="statement not covered" >maxDimension / longest;</span>
 <span class="cstat-no" title="statement not covered" >    return {</span>
       width: Math.round(width * ratio),
@@ -501,7 +501,7 @@ export class ImageCompressor {
   /**
    * 读取本地文件为 base64（无 data: 前缀）。
    */
-<span class="fstat-no" title="function not covered" >  pr</span>ivate static async readFileAsBase64(uri: string): Promise&lt;string&gt; {
+  private <span class="fstat-no" title="function not covered" >static </span>async readFileAsBase64(uri: string): Promise&lt;string&gt; {
     const file = <span class="cstat-no" title="statement not covered" >new FileSystem.File(uri);</span>
     const base64 = <span class="cstat-no" title="statement not covered" >await file.base64();</span>
 <span class="cstat-no" title="statement not covered" >    return base64;</span>
@@ -514,7 +514,7 @@ export class ImageCompressor {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T04:00:41.104Z
+                at 2026-07-19T04:06:20.829Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

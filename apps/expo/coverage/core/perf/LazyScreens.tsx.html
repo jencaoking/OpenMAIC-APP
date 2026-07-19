@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>0/27</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
@@ -148,8 +148,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -196,7 +196,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -208,7 +208,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -226,8 +226,8 @@
  * 将 Quiz/Voice/Dsl 等重型页面用 React.lazy + Suspense 包装，
  * 避免首屏 Bundle 包含所有原生模块依赖，减小启动体积。
  */
-import React, { Suspense, lazy, useMemo } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+<span class="cstat-no" title="statement not covered" >import React, { Suspense, lazy, useMemo } from 'react';</span>
+<span class="cstat-no" title="statement not covered" >import { View, ActivityIndicator, StyleSheet } from 'react-native';</span>
 &nbsp;
 /** 通用 Suspense 加载占位组件。 */
 const LoadingFallback: React.FC&lt;{ label?: string }&gt; = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> label }) =&gt; (</span>
@@ -249,32 +249,32 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
  * 懒加载的 Quiz 页面。
  * 仅当用户首次进入 Quiz 时才加载 QuizScreen + Reanimated + Haptics 依赖。
  */
-export const LazyQuizScreen = <span class="cstat-no" title="statement not covered" >lazy(<span class="fstat-no" title="function not covered" >()</span> =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  import(/* webpackChunkName: "quiz" */ '../../features/quiz/QuizScreen').then(<span class="fstat-no" title="function not covered" >(m</span>) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+export const <span class="cstat-no" title="statement not covered" >LazyQuizScreen = lazy(<span class="fstat-no" title="function not covered" >() =</span>&gt;</span>
+<span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  import(/</span>* webpackChunkName: "quiz" */ '../../features/quiz/QuizScreen').t</span>hen(<span class="fstat-no" title="function not covered" >(m</span>) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
     default: (m as any).QuizScreen,
   })),
 );
 &nbsp;
-export const LazyVoiceModeScreen = <span class="cstat-no" title="statement not covered" >lazy(<span class="fstat-no" title="function not covered" >()</span> =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  import(/* webpackChunkName: "voice" */ '../../features/chat-flow/VoiceModeScreen').then(<span class="fstat-no" title="function not covered" >(m</span>) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+export const <span class="cstat-no" title="statement not covered" >LazyVoiceModeScreen = lazy(<span class="fstat-no" title="function not covered" >() =</span>&gt;</span>
+<span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  import(/</span>* webpackChunkName: "voice" */ '../../features/chat-flow/VoiceModeScreen').t</span>hen(<span class="fstat-no" title="function not covered" >(m</span>) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
     default: (m as any).VoiceModeScreen,
   })),
 );
 &nbsp;
-export const LazyDslRenderScreen = <span class="cstat-no" title="statement not covered" >lazy(<span class="fstat-no" title="function not covered" >()</span> =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  import(/* webpackChunkName: "dsl" */ '../../features/dsl/DslRenderScreen').then(<span class="fstat-no" title="function not covered" >(m</span>) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
+export const <span class="cstat-no" title="statement not covered" >LazyDslRenderScreen = lazy(<span class="fstat-no" title="function not covered" >() =</span>&gt;</span>
+<span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  import(/</span>* webpackChunkName: "dsl" */ '../../features/dsl/DslRenderScreen').t</span>hen(<span class="fstat-no" title="function not covered" >(m</span>) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
     default: (m as any).default,
   })),
 );
 &nbsp;
-export const LazyCreateSessionScreen = <span class="cstat-no" title="statement not covered" >lazy(<span class="fstat-no" title="function not covered" >()</span> =&gt;</span>
-<span class="cstat-no" title="statement not covered" >  import(</span>
+export const <span class="cstat-no" title="statement not covered" >LazyCreateSessionScreen = lazy(<span class="fstat-no" title="function not covered" >() =</span>&gt;</span>
+<span class="cstat-no" title="statement not covered" ><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  import(</span></span></span>
     /* webpackChunkName: "create-session" */ '../../features/sessions/CreateSessionScreen'
   ).then(<span class="fstat-no" title="function not covered" >(m</span>) =&gt; (<span class="cstat-no" title="statement not covered" >{ default: (m as any).default })</span>),
 );
 &nbsp;
 /** 高阶组件：将任意 Lazy 组件包装在 Suspense 中。 */
-export function <span class="fstat-no" title="function not covered" >withSuspense&lt;</span>P extends object&gt;(
+<span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >w</span>ithSuspense&lt;</span>P extends object&gt;(
   Component: React.LazyExoticComponent&lt;React.ComponentType&lt;P&gt;&gt;,
   label?: string,
 ): React.FC&lt;P&gt; {
@@ -286,9 +286,9 @@ export function <span class="fstat-no" title="function not covered" >withSuspens
 }
 &nbsp;
 /** 统一导出已包装 Suspense 的懒加载页面。 */
-export function <span class="fstat-no" title="function not covered" >useLazyScreens(</span>) {
+<span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >u</span>seLazyScreens(</span>) {
 <span class="cstat-no" title="statement not covered" >  return useMemo(</span>
-<span class="fstat-no" title="function not covered" >    ()</span> =&gt; (<span class="cstat-no" title="statement not covered" >{</span>
+<span class="fstat-no" title="function not covered" >    () =</span>&gt; (<span class="cstat-no" title="statement not covered" >{</span>
       QuizScreen: withSuspense(LazyQuizScreen, '加载答题页'),
       VoiceModeScreen: withSuspense(LazyVoiceModeScreen, '加载语音模式'),
       DslRenderScreen: withSuspense(LazyDslRenderScreen, '加载内容'),
@@ -304,7 +304,7 @@ export function <span class="fstat-no" title="function not covered" >useLazyScre
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T04:00:41.275Z
+                at 2026-07-19T04:06:20.955Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

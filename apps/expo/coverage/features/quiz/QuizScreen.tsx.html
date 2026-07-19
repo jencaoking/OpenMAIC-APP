@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/103</span>
+                <span class='fraction'>0/108</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/83</span>
+                <span class='fraction'>0/76</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/90</span>
+                <span class='fraction'>0/94</span>
             </div>
         
             
@@ -711,9 +711,8 @@
 <a name='L646'></a><a href='#L646'>646</a>
 <a name='L647'></a><a href='#L647'>647</a>
 <a name='L648'></a><a href='#L648'>648</a>
-<a name='L649'></a><a href='#L649'>649</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L649'></a><a href='#L649'>649</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -723,6 +722,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1126,7 +1126,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1359,8 +1359,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState, useCallback, useEffect, useRef } from 'react';
-import {
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import React, { useState, useCallback, useEffect, useRef } from 'react';</span>
+<span class="cstat-no" title="statement not covered" >import {</span>
   View,
   Text,
   StyleSheet,
@@ -1370,7 +1370,7 @@ import {
   Animated as RNAnimated,
   PanResponder,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
+<span class="cstat-no" title="statement not covered" >import * as Haptics from 'expo-haptics';</span>
 &nbsp;
 export interface Question {
   id: string;
@@ -1434,7 +1434,7 @@ const sampleQuestions: Question[] = <span class="cstat-no" title="statement not 
   },
 ];
 &nbsp;
-export const QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> quizId }) =&gt; {</span>
+export const <span class="cstat-no" title="statement not covered" >QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span>{</span> quizId }) =&gt; {</span>
   const [questions] = <span class="cstat-no" title="statement not covered" >useState&lt;Question[]&gt;(sampleQuestions);</span>
   const [currentIndex, setCurrentIndex] = <span class="cstat-no" title="statement not covered" >useState(0);</span>
   const [answers, setAnswers] = <span class="cstat-no" title="statement not covered" >useState&lt;Record&lt;string, string | string[]&gt;&gt;({});</span>
@@ -1448,7 +1448,7 @@ export const QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no
 &nbsp;
   const currentQuestion = <span class="cstat-no" title="statement not covered" >questions[currentIndex];</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    RNAnimated.spring(translateX, {</span>
       toValue: 0,
       useNativeDriver: true,
@@ -1474,7 +1474,7 @@ export const QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no
         toValue: -300,
         duration: 200,
         useNativeDriver: true,
-      }).start(<span class="fstat-no" title="function not covered" >()</span> =&gt; {
+      }).start(<span class="fstat-no" title="function not covered" >() =</span>&gt; {
 <span class="cstat-no" title="statement not covered" >        setCurrentIndex(<span class="fstat-no" title="function not covered" >(p</span>rev) =&gt; <span class="cstat-no" title="statement not covered" >prev - 1)</span>;</span>
       });
 <span class="cstat-no" title="statement not covered" >      RNAnimated.timing(opacity, {</span>
@@ -1487,7 +1487,7 @@ export const QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no
         toValue: 300,
         duration: 200,
         useNativeDriver: true,
-      }).start(<span class="fstat-no" title="function not covered" >()</span> =&gt; {
+      }).start(<span class="fstat-no" title="function not covered" >() =</span>&gt; {
 <span class="cstat-no" title="statement not covered" >        setCurrentIndex(<span class="fstat-no" title="function not covered" >(p</span>rev) =&gt; <span class="cstat-no" title="statement not covered" >prev + 1)</span>;</span>
       });
 <span class="cstat-no" title="statement not covered" >      RNAnimated.timing(opacity, {</span>
@@ -1508,7 +1508,7 @@ export const QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no
   };
 &nbsp;
   const panResponder = <span class="cstat-no" title="statement not covered" >PanResponder.create({</span>
-    onStartShouldSetPanResponder: <span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >true,</span>
+    onStartShouldSetPanResponder: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >true,</span>
     onPanResponderMove: handlePanResponderMove,
     onPanResponderRelease: handlePanResponderRelease,
   });
@@ -1521,13 +1521,13 @@ export const QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no
     opacity,
   };
 &nbsp;
-  const handleOptionPress = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (optionId: string) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (submittedAnswers.has(currentQuestion.id)) <span class="cstat-no" title="statement not covered" >return;</span></span>
+  const handleOptionPress = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>(optionId: string) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (submittedAnswers.has(currentQuestion.id)) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (currentQuestion.type === 'checkbox') {</span>
-      const currentAnswer = <span class="cstat-no" title="statement not covered" >(answers[currentQuestion.id] as string[]) || [];</span>
+      const currentAnswer = (<span class="cstat-no" title="statement not covered" >answers[currentQuestion.id] as string[]) || [];</span>
       const newAnswer = <span class="cstat-no" title="statement not covered" >currentAnswer.includes(optionId)</span>
         ? currentAnswer.filter(<span class="fstat-no" title="function not covered" >(i</span>d) =&gt; <span class="cstat-no" title="statement not covered" >id !== optionId)</span>
         : [...currentAnswer, optionId];
@@ -1541,8 +1541,8 @@ export const QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no
 <span class="cstat-no" title="statement not covered" >    setAnswers(<span class="fstat-no" title="function not covered" >(p</span>rev) =&gt; (<span class="cstat-no" title="statement not covered" >{ ...prev, [currentQuestion.id]: text })</span>);</span>
   };
 &nbsp;
-  const handleSubmit = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (isSubmitting || submittedAnswers.has(currentQuestion.id)) <span class="cstat-no" title="statement not covered" >return;</span></span>
+  const handleSubmit = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async </span>() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (isSubmitting || submittedAnswers.has(currentQuestion.id)) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    setIsSubmitting(true);</span>
 <span class="cstat-no" title="statement not covered" >    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);</span>
@@ -1595,14 +1595,14 @@ export const QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no
 <span class="cstat-no" title="statement not covered" >    setIsSubmitting(false);</span>
   };
 &nbsp;
-  const handleNext = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (currentIndex &lt; questions.length - 1) {</span>
+  const handleNext = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (currentIndex &lt; questions.length - 1) {</span>
 <span class="cstat-no" title="statement not covered" >      setCurrentIndex(<span class="fstat-no" title="function not covered" >(p</span>rev) =&gt; <span class="cstat-no" title="statement not covered" >prev + 1)</span>;</span>
     }
   };
 &nbsp;
-  const handlePrev = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (currentIndex &gt; 0) {</span>
+  const handlePrev = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (currentIndex &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >      setCurrentIndex(<span class="fstat-no" title="function not covered" >(p</span>rev) =&gt; <span class="cstat-no" title="statement not covered" >prev - 1)</span>;</span>
     }
   };
@@ -1613,7 +1613,7 @@ export const QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no
         ? (answers[currentQuestion.id] as string[])?.includes(optionId)
         : answers[currentQuestion.id] === optionId;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (submittedAnswers.has(currentQuestion.id)) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (submittedAnswers.has(currentQuestion.id)) {</span>
       const isCorrect =
 <span class="cstat-no" title="statement not covered" >        currentQuestion.type === 'checkbox'</span>
           ? (currentQuestion.correctAnswer as string[]).includes(optionId)
@@ -1621,12 +1621,12 @@ export const QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (isCorrect) {</span>
 <span class="cstat-no" title="statement not covered" >        return [styles.option, { backgroundColor: '#ecfdf5', borderColor: '#10b981' }];</span>
-      } else <span class="cstat-no" title="statement not covered" >if (isSelected) {</span>
+      } else <span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="if path not taken" >I</span>if (isSelected) {</span>
 <span class="cstat-no" title="statement not covered" >        return [styles.option, { backgroundColor: '#fef2f2', borderColor: '#ef4444' }];</span>
       }
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (isSelected) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (isSelected) {</span>
 <span class="cstat-no" title="statement not covered" >      return [styles.option, { backgroundColor: '#eff6ff', borderColor: '#3b82f6' }];</span>
     }
 &nbsp;
@@ -1690,7 +1690,7 @@ export const QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no
 <span class="cstat-no" title="statement not covered" >                    &lt;TouchableOpacity</span>
                       key={option.id}
                       style={getOptionStyle(option.id)}
-                      onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >handleOptionPress(option.id)}</span>
+                      onPress={<span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >handleOptionPress(option.id)}</span>
                       disabled={submittedAnswers.has(currentQuestion.id)}
                       accessibilityRole={currentQuestion.type === 'checkbox' ? 'checkbox' : 'radio'}
                       accessibilityState={{
@@ -1774,7 +1774,7 @@ export const QuizScreen: React.FC&lt;QuizScreenProps&gt; = <span class="cstat-no
   );
 };
 &nbsp;
-import { TextInput } from 'react-native';
+<span class="cstat-no" title="statement not covered" >import { TextInput } from 'react-native';</span>
 &nbsp;
 const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
   container: {
@@ -2014,7 +2014,7 @@ const styles = <span class="cstat-no" title="statement not covered" >StyleSheet.
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-19T04:00:41.275Z
+                at 2026-07-19T04:06:20.955Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
