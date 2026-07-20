@@ -1,0 +1,160 @@
+name: Expo Android Build (Local)
+
+on:
+  workflow_dispatch:
+    inputs:
+      build-type:
+        description: 'Build type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+      app-variant:
+        description: 'App variant (affects bundle ID suffix)'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - development
+          - preview
+          - production
+
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: expo-build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+  JAVA_VERSION: '17'
+  EXPO_DIR: apps/expo
+
+jobs:
+  build:
+    name: Build Android APK (${{ github.event.inputs.build-type || 'release' }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Setup Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Expo dependencies
+        working-directory: ${{ env.EXPO_DIR }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Determine build config
+        id: config
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "build_type=release" >> $GITHUB_OUTPUT
+            echo "variant=production" >> $GITHUB_OUTPUT
+          else
+            echo "build_type=${{ github.event.inputs.build-type || 'release' }}" >> $GITHUB_OUTPUT
+            echo "variant=${{ github.event.inputs.app-variant || 'preview' }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Expo prebuild (generate native Android project)
+        working-directory: ${{ env.EXPO_DIR }}
+        env:
+          APP_VARIANT: ${{ steps.config.outputs.variant }}
+        run: |
+          npx expo prebuild --platform android --clean
+
+      - name: Build APK with Gradle
+        working-directory: ${{ env.EXPO_DIR }}/android
+        env:
+          APP_VARIANT: ${{ steps.config.outputs.variant }}
+        run: |
+          chmod +x gradlew
+
+          if [ "${{ steps.config.outputs.build_type }}" = "debug" ]; then
+            ./gradlew :app:assembleDebug --no-daemon
+          else
+            ./gradlew :app:assembleRelease --no-daemon
+          fi
+
+      - name: Locate APK file
+        id: locate
+        working-directory: ${{ env.EXPO_DIR }}/android
+        run: |
+          BUILD_TYPE="${{ steps.config.outputs.build_type }}"
+          VARIANT="${{ steps.config.outputs.variant }}"
+
+          if [ "$BUILD_TYPE" = "debug" ]; then
+            APK_PATTERN="app/build/outputs/apk/debug/*.apk"
+          else
+            APK_PATTERN="app/build/outputs/apk/release/*.apk"
+          fi
+
+          APK_FILE=$(ls $APK_PATTERN 2>/dev/null | head -1)
+
+          if [ -z "$APK_FILE" ]; then
+            echo "::error::APK file not found. Build may have failed silently."
+            echo "Build outputs:"
+            find app/build/outputs -type f -name "*.apk" 2>/dev/null || echo "No APK files found"
+            exit 1
+          fi
+
+          # Copy to workspace root for easier access
+          cp "$APK_FILE" "${{ github.workspace }}/openmaic.apk"
+
+          SIZE=$(stat -c%s "${{ github.workspace }}/openmaic.apk" 2>/dev/null || stat -f%z "${{ github.workspace }}/openmaic.apk")
+          echo "APK size: $(( SIZE / 1024 / 1024 )) MB ($SIZE bytes)"
+          echo "apk_path=${{ github.workspace }}/openmaic.apk" >> $GITHUB_OUTPUT
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openmaic-android-${{ steps.config.outputs.variant }}-${{ steps.config.outputs.build_type }}
+          path: ${{ steps.locate.outputs.apk_path }}
+          retention-days: 30
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Android APK
+
+            - **Variant**: ${{ steps.config.outputs.variant }}
+            - **Type**: ${{ steps.config.outputs.build_type }}
+            - **Commit**: ${{ github.sha }}
+          files: ${{ steps.locate.outputs.apk_path }}
+          draft: false
+          prerelease: false
