@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useAgentRegistry } from '../store/agentRegistry';
+import { VoicePill } from './VoicePill';
 import type { AgentConfig } from '../types/agent';
 
 interface AgentBarProps {
@@ -110,6 +111,15 @@ export function AgentBar({ onAgentSelect }: AgentBarProps) {
                     <Text style={styles.agentName}>{agent.name}</Text>
                     <Text style={styles.agentRole}>{getRoleLabel(agent.role)}</Text>
                   </View>
+
+                  {/* 声音选择 */}
+                  {isSelected && (
+                    <VoicePill
+                      agentId={agent.id}
+                      agentIndex={selectedAgentIds.indexOf(agent.id)}
+                      isTeacher={isTeacher}
+                    />
+                  )}
                 </Pressable>
               );
             })}
