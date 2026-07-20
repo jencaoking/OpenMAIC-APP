@@ -29,6 +29,8 @@ const eslintConfig = defineConfig([
     '.worktrees/**',
     // Playwright e2e tests (not React code):
     'e2e/**',
+    // Expo React Native app — has its own toolchain, linted separately:
+    'apps/expo/**',
   ]),
   {
     rules: {
