@@ -7,7 +7,6 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "openmaic",
-    "jsEngine": "hermes",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "dev.openmaic.expo",
@@ -70,7 +69,6 @@
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_MICROPHONE"
       ],
-      "useNextNotificationsApi": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
