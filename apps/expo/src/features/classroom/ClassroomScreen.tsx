@@ -14,6 +14,7 @@ import { DEMO_SLIDES } from '../slides/demoSlides';
 
 interface ClassroomScreenProps {
   classroomId?: string;
+  title?: string;
   onBack: () => void;
 }
 
@@ -33,7 +34,7 @@ const DEMO_SCENES = [
   { id: '12', title: '课程总结', index: 11, type: 'slide' as const },
 ];
 
-export function ClassroomScreen({ classroomId, onBack }: ClassroomScreenProps) {
+export function ClassroomScreen({ classroomId, title: propTitle, onBack }: ClassroomScreenProps) {
   const { setScenes, setCurrentSceneIndex } = useClassroomStore();
   const [isPresenting, setIsPresenting] = useState(false);
 
@@ -66,7 +67,7 @@ export function ClassroomScreen({ classroomId, onBack }: ClassroomScreenProps) {
     <LandscapeContainer>
       <View style={styles.container}>
         <ClassroomHeader
-          title="量子力学基础"
+          title={propTitle || "量子力学基础"}
           subtitle={headerSubtitle}
           onBack={onBack}
           onPresent={() => setIsPresenting(true)}
