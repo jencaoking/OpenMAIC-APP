@@ -66,5 +66,5 @@ if (process.platform === 'win32' && fs.existsSync(process.execPath)) {
 }
 
 console.log(
-  `Electron 资源准备完成：static=${copiedStatic ? '已复制' : '跳过(不存在)'}, public=${copiedPublic ? '已复制' : '跳过(不存在)'}, node=${copiedNode ? '已复制' : '跳过'}`
+  `Electron 资源准备完成：static=${copiedStatic ? '已复制' : '跳过(不存在)'}, public=${copiedPublic ? '已复制' : '跳过(不存在)'}, node=${copiedNode ? '已复制' : '跳过'}`,
 );

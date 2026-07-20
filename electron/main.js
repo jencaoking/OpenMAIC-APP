@@ -29,10 +29,7 @@ function loadEnvFile(filePath) {
     if (eq === -1) continue;
     const key = line.slice(0, eq).trim();
     let val = line.slice(eq + 1).trim();
-    if (
-      (val.startsWith('"') && val.endsWith('"')) ||
-      (val.startsWith("'") && val.endsWith("'"))
-    ) {
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
       val = val.slice(1, -1);
     }
     out[key] = val;
@@ -76,13 +73,10 @@ function waitForServer(port, timeoutMs = 60000) {
   return new Promise((resolve, reject) => {
     const start = Date.now();
     const attempt = () => {
-      const req = http.get(
-        { host: '127.0.0.1', port, path: '/', timeout: 1500 },
-        (res) => {
-          res.resume();
-          resolve();
-        }
-      );
+      const req = http.get({ host: '127.0.0.1', port, path: '/', timeout: 1500 }, (res) => {
+        res.resume();
+        resolve();
+      });
       req.on('error', () => {
         if (Date.now() - start > timeoutMs) {
           return reject(new Error('Next 服务启动超时'));
@@ -101,7 +95,7 @@ async function startServer() {
   if (!fs.existsSync(serverJs)) {
     dialog.showErrorBox(
       '缺少构建产物',
-      `未找到 Next standalone 服务：\n${serverJs}\n\n请先运行 pnpm build 生成 .next/standalone。`
+      `未找到 Next standalone 服务：\n${serverJs}\n\n请先运行 pnpm build 生成 .next/standalone。`,
     );
     app.quit();
     return null;
