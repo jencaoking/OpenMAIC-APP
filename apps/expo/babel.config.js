@@ -3,10 +3,15 @@ module.exports = function (api) {
   return {
     presets: [
       'module:metro-react-native-babel-preset',
-      '@babel/preset-typescript',
     ],
     plugins: [
-      // 必须在 TypeScript 转换之后、其他 class 特性插件之前
+      // 必须第一个执行：TypeScript 转换（处理 declare 字段）
+      ['@babel/plugin-transform-typescript', {
+        isTSX: true,
+        allowNamespaces: true,
+        allExtensions: true,
+      }],
+      // 其次：class 特性（private methods 需要 loose:true 匹配 preset）
       ['@babel/plugin-transform-private-methods', { loose: true }],
     ],
   };
