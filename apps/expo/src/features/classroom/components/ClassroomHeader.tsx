@@ -6,9 +6,10 @@ interface ClassroomHeaderProps {
   title: string;
   subtitle?: string;
   onBack: () => void;
+  onPresent?: () => void;
 }
 
-export function ClassroomHeader({ title, subtitle, onBack }: ClassroomHeaderProps) {
+export function ClassroomHeader({ title, subtitle, onBack, onPresent }: ClassroomHeaderProps) {
   const { toggleSidebar, toggleChatArea, sidebarCollapsed, chatAreaCollapsed } =
     useClassroomStore();
 
@@ -26,6 +27,13 @@ export function ClassroomHeader({ title, subtitle, onBack }: ClassroomHeaderProp
       </View>
 
       <View style={styles.spacer} />
+
+      {/* Presentation Mode */}
+      {onPresent && (
+        <Pressable style={styles.presentBtn} onPress={onPresent}>
+          <Text style={styles.presentText}>⛶ 演示</Text>
+        </Pressable>
+      )}
 
       {/* Toggle Buttons */}
       <Pressable style={styles.toggleBtn} onPress={toggleSidebar}>
@@ -84,6 +92,20 @@ const styles = StyleSheet.create({
   },
   spacer: {
     flex: 1,
+  },
+  presentBtn: {
+    paddingHorizontal: 10,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: '#7c3aed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  presentText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#ffffff',
   },
   toggleBtn: {
     width: 32,

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { LandscapeContainer } from './layout/LandscapeContainer';
 import { ThreeColumnLayout } from './layout/ThreeColumnLayout';
@@ -7,6 +7,7 @@ import { SceneSidebar } from './components/SceneSidebar';
 import { CanvasArea } from './components/CanvasArea';
 import { Roundtable } from './components/Roundtable';
 import { ChatArea } from './components/ChatArea';
+import { PresentationMode } from './components/PresentationMode';
 import { useClassroomStore } from './store/classroomStore';
 import { useClassroomPlayback } from './hooks/useClassroomPlayback';
 import { DEMO_SLIDES } from '../slides/demoSlides';
@@ -34,6 +35,7 @@ const DEMO_SCENES = [
 
 export function ClassroomScreen({ classroomId, onBack }: ClassroomScreenProps) {
   const { setScenes, setCurrentSceneIndex } = useClassroomStore();
+  const [isPresenting, setIsPresenting] = useState(false);
 
   // 初始化播放引擎
   const { togglePlayPause, nextScene, prevScene } = useClassroomPlayback();
@@ -51,6 +53,15 @@ export function ClassroomScreen({ classroomId, onBack }: ClassroomScreenProps) {
     return `场景 ${currentScene.index + 1}`;
   }, [currentScene]);
 
+  // 演示模式
+  if (isPresenting) {
+    return (
+      <LandscapeContainer>
+        <PresentationMode onExit={() => setIsPresenting(false)} />
+      </LandscapeContainer>
+    );
+  }
+
   return (
     <LandscapeContainer>
       <View style={styles.container}>
@@ -58,6 +69,7 @@ export function ClassroomScreen({ classroomId, onBack }: ClassroomScreenProps) {
           title="量子力学基础"
           subtitle={headerSubtitle}
           onBack={onBack}
+          onPresent={() => setIsPresenting(true)}
         />
         <View style={styles.body}>
           <ThreeColumnLayout
