@@ -305,7 +305,7 @@ jobs:
       - name: Push OTA update
         working-directory: ${{ env.EXPO_DIR }}
         run: |
-          eas update --branch production --platform android --platform ios --message "Auto OTA update from commit ${{ github.sha }}"
+          eas update --branch production --platform all --message "Auto OTA update from commit ${{ github.sha }}"
 
   rollback:
     name: Emergency Rollback
@@ -364,5 +364,5 @@ jobs:
         run: |
           set -e
           echo "=== Rolling back to update: ${{ steps.rollback-update.outputs.PREVIOUS_UPDATE_ID }} ==="
-          eas update:republish --platform android --platform ios --group ${{ steps.rollback-update.outputs.PREVIOUS_UPDATE_ID }}
+          eas update:republish --platform all --group ${{ steps.rollback-update.outputs.PREVIOUS_UPDATE_ID }}
           echo "Rollback completed successfully!"

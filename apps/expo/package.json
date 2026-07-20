@@ -58,8 +58,8 @@
     "eas:build:prod": "eas build --profile production --platform all",
     "eas:submit:ios": "eas submit --platform ios",
     "eas:submit:android": "eas submit --platform android",
-    "eas:update": "eas update --branch production --platform ios --platform android --message",
-    "eas:update:rollback": "eas update --rollback --branch production --platform ios --platform android"
+    "eas:update": "eas update --branch production --platform all --message",
+    "eas:update:rollback": "eas update --rollback --branch production --platform all"
   },
   "private": true
 }

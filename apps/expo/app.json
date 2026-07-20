@@ -124,7 +124,8 @@
       "url": "https://u.expo.dev/ba903523-6943-4818-ab8d-5b7071e8789f",
       "enabled": true,
       "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "excludedPlatforms": ["web"]
     },
     "runtimeVersion": {
       "policy": "sdkVersion"
