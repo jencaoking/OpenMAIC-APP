@@ -119,11 +119,11 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "openmaic-expo"
+        "projectId": "ba903523-6943-4818-ab8d-5b7071e8789f"
       }
     },
     "updates": {
-      "url": "https://u.expo.dev/openmaic-expo",
+      "url": "https://u.expo.dev/ba903523-6943-4818-ab8d-5b7071e8789f",
       "enabled": true,
       "checkAutomatically": "ON_LOAD",
       "fallbackToCacheTimeout": 0
