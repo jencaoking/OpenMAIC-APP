@@ -17,6 +17,7 @@ interface SessionListScreenProps {
   onShowStressTest: () => void;
   onStartChat: (sessionId: string) => void;
   onStartQuiz: () => void;
+  onStartClassroom?: () => void;
 }
 
 function formatDate(dateString: string): string {
@@ -92,6 +93,7 @@ const SessionListScreen: React.FC<SessionListScreenProps> = ({
   onShowStressTest,
   onStartChat,
   onStartQuiz,
+  onStartClassroom,
 }) => {
   const { state, fetchSessions } = useSessionStore();
   const { sessions, status, error } = state;
@@ -124,6 +126,9 @@ const SessionListScreen: React.FC<SessionListScreenProps> = ({
       <View style={styles.header}>
         <Text style={styles.headerTitle}>会话列表</Text>
         <View style={styles.headerButtons}>
+          <Pressable style={styles.classroomButton} onPress={onStartClassroom}>
+            <Text style={styles.classroomButtonText}>课堂</Text>
+          </Pressable>
           <Pressable style={styles.dslButton} onPress={onShowDsl}>
             <Text style={styles.dslButtonText}>DSL</Text>
           </Pressable>
@@ -238,6 +243,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#d97706',
+  },
+  classroomButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#faf5ff',
+    borderRadius: 8,
+  },
+  classroomButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#7c3aed',
   },
   loadingContainer: {
     flex: 1,

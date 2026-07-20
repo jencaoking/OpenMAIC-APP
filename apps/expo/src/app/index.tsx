@@ -5,9 +5,10 @@ import DslRenderScreen from '../features/dsl/DslRenderScreen';
 import DslStressTestScreen from '../features/dsl/DslStressTestScreen';
 import { SessionChatScreen } from '../features/chat-flow/SessionChatScreen';
 import { QuizScreen } from '../features/quiz/QuizScreen';
+import { ClassroomScreen } from '../features/classroom/ClassroomScreen';
 import type { DeepLinkTarget } from '../types';
 
-type Screen = 'list' | 'create' | 'dsl' | 'stress' | 'chat' | 'quiz';
+type Screen = 'list' | 'create' | 'dsl' | 'stress' | 'chat' | 'quiz' | 'classroom';
 
 interface HomePageProps {
   /** 来自 Deep Link 或推送通知的待处理跳转目标。 */
@@ -32,6 +33,9 @@ const HomePage: React.FC<HomePageProps> = ({ pendingDeepLink, onDeepLinkConsumed
   const handleStartQuiz = () => {
     setSelectedQuizId('1');
     setCurrentScreen('quiz');
+  };
+  const handleStartClassroom = () => {
+    setCurrentScreen('classroom');
   };
 
   /**
@@ -74,6 +78,7 @@ const HomePage: React.FC<HomePageProps> = ({ pendingDeepLink, onDeepLinkConsumed
           onShowStressTest={handleShowStressTest}
           onStartChat={handleStartChat}
           onStartQuiz={handleStartQuiz}
+          onStartClassroom={handleStartClassroom}
         />
       )}
       {currentScreen === 'create' && <CreateSessionScreen onBack={handleBack} />}
@@ -81,6 +86,9 @@ const HomePage: React.FC<HomePageProps> = ({ pendingDeepLink, onDeepLinkConsumed
       {currentScreen === 'stress' && <DslStressTestScreen onBack={handleBack} />}
       {currentScreen === 'chat' && <SessionChatScreen sessionId={selectedSessionId} />}
       {currentScreen === 'quiz' && <QuizScreen quizId={selectedQuizId} />}
+      {currentScreen === 'classroom' && (
+        <ClassroomScreen onBack={handleBack} />
+      )}
     </>
   );
 };
