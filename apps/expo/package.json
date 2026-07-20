@@ -34,6 +34,7 @@
     "react-native-worklets": "0.10.0"
   },
   "devDependencies": {
+    "@babel/plugin-transform-private-methods": "^8.0.1",
     "@babel/preset-env": "7",
     "@babel/preset-react": "^7.29.7",
     "@babel/preset-typescript": "^7.28.5",
@@ -57,8 +58,8 @@
     "eas:build:prod": "eas build --profile production --platform all",
     "eas:submit:ios": "eas submit --platform ios",
     "eas:submit:android": "eas submit --platform android",
-    "eas:update": "eas update --branch production --platform android,ios --message",
-    "eas:update:rollback": "eas update:republish --branch production --platform android,ios"
+    "eas:update": "eas update --branch production --platform ios --platform android --message",
+    "eas:update:rollback": "eas update --rollback --branch production --platform ios --platform android"
   },
   "private": true
 }
