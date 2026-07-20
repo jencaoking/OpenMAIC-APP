@@ -1,0 +1,21 @@
+# Electron 打包配置（Windows exe）
+appId: chat.maic.openmaic
+productName: OpenMAIC
+copyright: Copyright © 2026 THU-MAIC
+directories:
+  output: dist-electron
+  buildResources: build
+# 仅打包 electron 入口与 package.json，避免把庞大的项目根 node_modules 打进 asar
+files:
+  - electron/**
+  - package.json
+# 把 Next standalone 服务（含其独立 node_modules、N-API 原生模块）作为外部资源
+extraResources:
+  - from: .next/standalone
+    to: server
+  - from: dist-runtime
+    to: runtime
+win:
+  target:
+    - portable
+  artifactName: OpenMAIC-${version}-portable.${ext}

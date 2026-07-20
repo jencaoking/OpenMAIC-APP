@@ -100,10 +100,6 @@
           "cameraPermission": "OpenMAIC 需要使用相机拍照识别题目。"
         }
       ],
-      "expo-image-manipulator",
-      "expo-battery",
-      "expo-file-system",
-      "expo-secure-store",
       [
         "expo-build-properties",
         {

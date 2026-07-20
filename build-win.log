@@ -1,0 +1,26 @@
+=== build-win 2026-07-19T06:43:10.869Z ===
+--- prepare: J:\CODE\NODEJS\node.exe scripts/prepare-electron.mjs ---
+
+node:fs:3116
+  binding.copyFile(
+          ^
+
+Error: EBUSY: resource busy or locked, copyfile 'J:\CODE\NODEJS\node.exe' -> 'j:\PROJECT\JS Project\OpenMAIC\dist-runtime\node.exe'
+    at Object.copyFileSync (node:fs:3116:11)
+    at file:///j:/PROJECT/JS%20Project/OpenMAIC/scripts/prepare-electron.mjs:64:6
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  errno: -4082,
+  code: 'EBUSY',
+  syscall: 'copyfile',
+  path: 'J:\\CODE\\NODEJS\\node.exe',
+  dest: 'j:\\PROJECT\\JS Project\\OpenMAIC\\dist-runtime\\node.exe'
+}
+
+Node.js v24.18.0
+
+Electron 资源准备完成：static=已复制, public=已复制, node=已复制
+
+
+--- electron-builder: J:\CODE\NODEJS\node.exe J:\PROJECT\JS Project\OpenMAIC\node_modules\electron-builder\cli.js --win -c electron-builder.yml ---

@@ -2,6 +2,7 @@
   "name": "openmaic",
   "version": "0.3.0",
   "private": true,
+  "main": "electron/main.js",
   "license": "MIT",
   "engines": {
     "node": ">=20.9.0"
@@ -24,7 +25,10 @@
     "eval:outline-language": "tsx eval/outline-language/runner.ts",
     "eval:orchestration": "tsx eval/orchestration/runner.ts",
     "eval:orchestration:answering": "tsx eval/orchestration/answering-runner.ts",
-    "eval:orchestration:answer-content": "tsx eval/orchestration/answer-content-runner.ts"
+    "eval:orchestration:answer-content": "tsx eval/orchestration/answer-content-runner.ts",
+    "electron": "electron .",
+    "prepare:electron": "node scripts/prepare-electron.mjs",
+    "dist:win": "pnpm sync:maic-importer && next build && node scripts/build-win.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.71",
@@ -155,6 +159,8 @@
     "@types/sanitize-html": "^2.16.1",
     "@types/tinycolor2": "^1.4.6",
     "@types/web": "^0.0.352",
+    "electron": "^43.1.1",
+    "electron-builder": "^26.15.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.2",
     "fake-indexeddb": "^6.2.5",
