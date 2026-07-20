@@ -94,3 +94,5 @@ e2e/__screenshots-619/
 
 .trae
 .codebuddy
+dist-runtime/
+dist-electron/
