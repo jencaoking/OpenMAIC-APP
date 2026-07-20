@@ -1,44 +1,64 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { useClassroomStore } from '../store/classroomStore';
+import { TeacherAvatar } from './TeacherAvatar';
+import { StudentAvatars } from './StudentAvatars';
+import { SpeechBubble } from './SpeechBubble';
+import { ProactiveCard } from './ProactiveCard';
 
 export function Roundtable() {
-  const { lectureSpeech, speakingAgentId, engineMode } = useClassroomStore();
-  const [inputText, setInputText] = useState('');
+  const {
+    lectureSpeech,
+    liveSpeech,
+    speakingAgentId,
+    engineMode,
+    isStreaming,
+  } = useClassroomStore();
 
-  const isSpeaking = speakingAgentId !== null;
-  const speechText = lectureSpeech || (engineMode === 'idle' ? null : '等待播放...');
+  const [inputText, setInputText] = useState('');
+  const [showDiscussion, setShowDiscussion] = useState(false);
+
+  // 确定当前发言内容
+  const currentSpeech = liveSpeech || lectureSpeech;
+  const bubbleRole = speakingAgentId === 'teacher' ? 'teacher' : 'user';
 
   return (
     <View style={styles.container}>
       {/* Teacher Column */}
       <View style={styles.teacherColumn}>
-        <View style={styles.teacherGradient} />
-        <View style={[styles.teacherAvatar, isSpeaking && styles.teacherAvatarActive]}>
-          <Text style={styles.teacherEmoji}>👨‍🏫</Text>
-          {isSpeaking && <View style={styles.speakingDot} />}
-        </View>
-        <Text style={styles.teacherName}>AI 教师</Text>
+        <TeacherAvatar name="AI 教师" avatar="👨‍🏫" size={48} />
       </View>
 
       {/* Center Stage */}
       <View style={styles.centerStage}>
         <View style={styles.chatCard}>
           {/* Speech Bubble */}
-          {speechText && (
-            <View style={styles.bubble}>
-              <Text style={styles.bubbleText}>{speechText}</Text>
-            </View>
+          {currentSpeech && (
+            <SpeechBubble
+              text={currentSpeech}
+              role={bubbleRole}
+              isStreaming={isStreaming}
+            />
           )}
 
           {/* Thinking Dots */}
-          {engineMode === 'live' && (
+          {engineMode === 'live' && !currentSpeech && (
             <View style={styles.thinkingDots}>
               <View style={[styles.dot, styles.dot1]} />
               <View style={[styles.dot, styles.dot2]} />
               <View style={[styles.dot, styles.dot3]} />
             </View>
           )}
+
+          {/* Proactive Discussion Card */}
+          <ProactiveCard
+            visible={showDiscussion}
+            onJoin={() => {
+              setShowDiscussion(false);
+              // TODO: 触发讨论
+            }}
+            onSkip={() => setShowDiscussion(false)}
+          />
 
           {/* Text Input */}
           <View style={styles.inputPill}>
@@ -49,7 +69,15 @@ export function Roundtable() {
               value={inputText}
               onChangeText={setInputText}
             />
-            <Pressable style={styles.sendBtn}>
+            <Pressable
+              style={[styles.sendBtn, !inputText && styles.sendBtnDisabled]}
+              onPress={() => {
+                if (inputText.trim()) {
+                  // TODO: 发送消息
+                  setInputText('');
+                }
+              }}
+            >
               <Text style={styles.sendIcon}>↑</Text>
             </Pressable>
           </View>
@@ -58,15 +86,7 @@ export function Roundtable() {
 
       {/* Students Column */}
       <View style={styles.studentsColumn}>
-        <View style={[styles.studentAvatar, { backgroundColor: '#22c55e' }]}>
-          <Text style={styles.studentText}>A</Text>
-        </View>
-        <View style={[styles.studentAvatar, { backgroundColor: '#f59e0b' }]}>
-          <Text style={styles.studentText}>B</Text>
-        </View>
-        <View style={[styles.studentAvatar, { backgroundColor: '#3b82f6' }]}>
-          <Text style={styles.studentText}>C</Text>
-        </View>
+        <StudentAvatars size={32} />
       </View>
     </View>
   );
@@ -91,61 +111,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRightWidth: StyleSheet.hairlineWidth,
     borderRightColor: 'rgba(0,0,0,0.06)',
-    position: 'relative',
-  },
-  teacherGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 40,
-    backgroundColor: 'rgba(250,245,255,0.5)',
-  },
-  teacherAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    borderColor: '#8b5cf6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#8b5cf6',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  teacherAvatarActive: {
-    shadowOpacity: 0.5,
-  },
-  teacherEmoji: {
-    fontSize: 18,
-  },
-  speakingDot: {
-    position: 'absolute',
-    bottom: -2,
-    right: -2,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#22c55e',
-    borderWidth: 2.5,
-    borderColor: '#ffffff',
-  },
-  teacherName: {
-    marginTop: 6,
-    fontSize: 9,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.1,
-    color: '#7c3aed',
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ddd6fe',
-    overflow: 'hidden',
   },
   // Center Stage
   centerStage: {
@@ -158,7 +123,7 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     height: '100%',
     borderRadius: 24,
-    backgroundColor: 'linear-gradient(180deg, rgba(255,255,255,0.3), rgba(255,255,255,0.8))',
+    backgroundColor: 'rgba(255,255,255,0.7)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.5)',
     padding: 12,
@@ -168,25 +133,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 24,
     elevation: 4,
-  },
-  bubble: {
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#e5e5e5',
-    borderRadius: 14,
-    borderBottomLeftRadius: 4,
-    padding: 10,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  bubbleText: {
-    fontSize: 12,
-    lineHeight: 18,
-    color: '#242424',
   },
   thinkingDots: {
     flexDirection: 'row',
@@ -233,6 +179,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  sendBtnDisabled: {
+    backgroundColor: '#d1d5db',
+    shadowOpacity: 0,
+  },
   sendIcon: {
     fontSize: 13,
     color: '#ffffff',
@@ -240,28 +190,8 @@ const styles = StyleSheet.create({
   },
   // Students
   studentsColumn: {
-    width: 50,
+    width: 60,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-  },
-  studentAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  studentText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#ffffff',
   },
 });
