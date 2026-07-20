@@ -103,6 +103,7 @@
         {
           "android": {
             "minSdkVersion": 24,
+            "newArchEnabled": false,
             "packagingOptions": {
               "jniLibs": {
                 "useLegacyPackaging": false
