@@ -538,6 +538,9 @@ importers:
         specifier: ~5.0.0
         version: 5.0.14(@types/react@19.2.14)(immer@11.1.4)(react@19.2.3)(use-sync-external-store@1.6.0(react@19.2.3))
     devDependencies:
+      '@babel/plugin-transform-private-methods':
+        specifier: ^7.29.0
+        version: 7.29.7(@babel/core@7.29.0)
       '@babel/preset-env':
         specifier: '7'
         version: 7.29.7(@babel/core@7.29.0)
