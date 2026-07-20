@@ -382,7 +382,7 @@ export function Roundtable({
       },
     });
 
-  const handleSendMessage = () => {
+  const handleSendMessage = useCallback(() => {
     if (!inputValue.trim() || isSendCooldown) return;
 
     showLocalUserMessage(inputValue);
@@ -391,9 +391,9 @@ export function Roundtable({
     isSendCooldownRef.current = true;
     setInputValue('');
     setIsInputOpen(false);
-  };
+  }, [inputValue, isSendCooldown, showLocalUserMessage, onMessageSend]);
 
-  const handleToggleInput = () => {
+  const handleToggleInput = useCallback(() => {
     if (isSendCooldown) return;
     if (!isInputOpen) {
       onInputActivate?.();
@@ -404,9 +404,9 @@ export function Roundtable({
       cancelRecording();
       setIsVoiceOpen(false);
     }
-  };
+  }, [isSendCooldown, isInputOpen, onInputActivate, isVoiceOpen, isProcessing, cancelRecording]);
 
-  const handleToggleVoice = () => {
+  const handleToggleVoice = useCallback(() => {
     if (isVoiceOpen) {
       if (isRecording) {
         stopRecording();
@@ -420,7 +420,16 @@ export function Roundtable({
       setIsInputOpen(false);
       startRecording();
     }
-  };
+  }, [
+    isVoiceOpen,
+    isRecording,
+    isSendCooldown,
+    isProcessing,
+    onInputActivate,
+    onUserInputActivity,
+    startRecording,
+    stopRecording,
+  ]);
 
   const handleContinueSoftClosing = () => {
     onContinueDiscussion?.();
@@ -496,6 +505,9 @@ export function Roundtable({
     isVoiceOpen,
     isRecording,
     isProcessing,
+    cancelRecording,
+    handleToggleInput,
+    handleToggleVoice,
   ]);
 
   const isPresentationInteractionActive = isInputOpen || isVoiceOpen || isRecording || isProcessing;

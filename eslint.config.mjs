@@ -48,6 +48,15 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  // Electron main-process files are CJS modules that must use require() —
+  // they run in Node, not bundler-managed ES modules, so the TS
+  // `no-require-imports` rule does not apply.
+  {
+    files: ['electron/main.js', 'electron/preload.js'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
   // Package boundary (machine-enforced): @openmaic/renderer is a standalone,
   // app-agnostic package. It must never reach back into the host app through
   // the `@/…` path alias, so a deadline can't punch a "temporary"

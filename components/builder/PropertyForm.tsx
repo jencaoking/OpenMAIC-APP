@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -73,10 +73,14 @@ function TextareaControl({ field, value, onChange }: ControlProps) {
 
 function SliderControl({ field, value, onChange }: ControlProps) {
   const [localValue, setLocalValue] = useState([(value as number) || field.min || 0]);
-
-  useEffect(() => {
+  // Sync local state when the upstream `value` prop changes (avoid cascading
+  // renders from setState-in-effect). React-recommended pattern: store the
+  // previous value in state and update during render if it has changed.
+  const [prevValue, setPrevValue] = useState(value);
+  if (prevValue !== value) {
+    setPrevValue(value);
     setLocalValue([(value as number) || field.min || 0]);
-  }, [value, field.min]);
+  }
 
   const handleChange = (values: number[]) => {
     setLocalValue(values);

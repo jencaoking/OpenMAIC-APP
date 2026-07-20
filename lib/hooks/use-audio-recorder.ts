@@ -126,7 +126,7 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
             setRecordingTime(0);
 
             // Start timer
-            timerRef.current = window.setInterval(() => {
+            timerRef.current = setInterval(() => {
               setRecordingTime((prev) => prev + 1);
             }, 1000);
           };

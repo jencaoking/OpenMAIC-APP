@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IDslNode, ComponentMap, DslContext, DslAction, ActionHandler } from './types';
+import type { IDslNode, ComponentMap, DslContext, ActionHandler } from './types';
 import { resolveBindingsInNode } from './binding';
 
 interface DslNodeRendererProps<TContext extends DslContext = DslContext> {
@@ -22,13 +22,9 @@ function DslNodeRendererInternal<TContext extends DslContext = DslContext>({
   const { type, props, children, id, actions } = resolvedNode;
 
   const Component = componentMap[type];
-  if (!Component) {
-    console.warn(`[core-engine] No component registered for type: ${type}`);
-    return null;
-  }
 
   const eventHandlers = useMemo(() => {
-    if (!actions || !onAction) {
+    if (!Component || !actions || !onAction) {
       return {};
     }
     const handlers: Record<string, () => void> = {};
@@ -38,9 +34,10 @@ function DslNodeRendererInternal<TContext extends DslContext = DslContext>({
       };
     }
     return handlers;
-  }, [actions, onAction, context]);
+  }, [Component, actions, onAction, context]);
 
   const mergedProps = useMemo(() => {
+    if (!Component) return {};
     const merged: Record<string, unknown> = {
       ...props,
       ...eventHandlers,
@@ -49,10 +46,10 @@ function DslNodeRendererInternal<TContext extends DslContext = DslContext>({
       merged.id = id;
     }
     return merged;
-  }, [props, eventHandlers, id]);
+  }, [Component, props, eventHandlers, id]);
 
   const renderedChildren = useMemo(() => {
-    if (!children) return [];
+    if (!Component || !children) return [];
     return children.map((child, index) => {
       if (typeof child === 'string') {
         return child;
@@ -67,7 +64,12 @@ function DslNodeRendererInternal<TContext extends DslContext = DslContext>({
         />
       );
     });
-  }, [children, componentMap, context, onAction]);
+  }, [Component, children, componentMap, context, onAction]);
+
+  if (!Component) {
+    console.warn(`[core-engine] No component registered for type: ${type}`);
+    return null;
+  }
 
   return React.createElement(Component, mergedProps, ...renderedChildren);
 }

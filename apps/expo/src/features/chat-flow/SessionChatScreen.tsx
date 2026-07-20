@@ -40,7 +40,15 @@ const VOICE_CONFIG: VoiceEngineConfig = {
 };
 
 export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId }) => {
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [messages, setMessages] = useState<IMessage[]>(() => [
+    {
+      id: '1',
+      content:
+        '欢迎来到 OpenMAIC！我是你的 AI 学习助手。请开始提问，我会为你提供详细的解答。\n\n**支持的功能：**\n- 📝 代码高亮展示\n- 📊 表格渲染\n- 📋 一键复制代码\n- 🎯 互动答题\n- 📷 拍照识题（点击 + 按钮）\n- 🎙️ 语音对话（点击右下角麦克风）',
+      role: 'assistant',
+      timestamp: new Date(),
+    },
+  ]);
   const [streamingContent, setStreamingContent] = useState<string>('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [inputText, setInputText] = useState('');
@@ -56,17 +64,6 @@ export const SessionChatScreen: React.FC<SessionChatScreenProps> = ({ sessionId 
   );
 
   const maxInputHeight = 44 * 4;
-
-  useEffect(() => {
-    const welcomeMessage: IMessage = {
-      id: '1',
-      content:
-        '欢迎来到 OpenMAIC！我是你的 AI 学习助手。请开始提问，我会为你提供详细的解答。\n\n**支持的功能：**\n- 📝 代码高亮展示\n- 📊 表格渲染\n- 📋 一键复制代码\n- 🎯 互动答题\n- 📷 拍照识题（点击 + 按钮）\n- 🎙️ 语音对话（点击右下角麦克风）',
-      role: 'assistant',
-      timestamp: new Date(),
-    };
-    setMessages([welcomeMessage]);
-  }, []);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {

@@ -326,7 +326,7 @@ const useBuilderStoreBase = create<BuilderState>()((set, get) => ({
     const node = get().getNodeById(nodeId, dslTree);
     if (!node) return;
 
-    let tempTree = removeNodeFromTree(dslTree, nodeId);
+    const tempTree = removeNodeFromTree(dslTree, nodeId);
 
     const addAtIndex = (
       tree: DslSchema,
