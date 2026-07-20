@@ -24,11 +24,7 @@ interface RootLayoutProps {
  * 2. 配置推送通知服务（Phase 6.3）
  * 3. 注册后台同步任务（Phase 6.3）
  * 4. 监听 Deep Link 跳转事件，并向下传递给 HomePage
- *
- * 注意：后台同步任务定义必须在模块顶层完成，确保 TaskManager 在 App 启动早期即可路由。
  */
-defineBackgroundSyncTask();
-
 const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
   const [isDbReady, setIsDbReady] = useState(false);
   const [dbError, setDbError] = useState<Error | null>(null);
@@ -41,6 +37,9 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
 
     const initApp = async () => {
       try {
+        // 定义后台同步任务（必须在组件挂载后调用，确保 Native Bridge 已初始化）
+        defineBackgroundSyncTask();
+
         // 数据库初始化（Native 线程，不阻塞 JS Bridge）
         await syncManager.init();
         setIsDbReady(true);

@@ -83,7 +83,7 @@
           "icon": "./assets/icon.png"
         }
       ],
-      ["expo-task-manager", { "backgroundMode": "true" }],
+      ["expo-task-manager", { "backgroundMode": true }],
       [
         "expo-camera",
         {

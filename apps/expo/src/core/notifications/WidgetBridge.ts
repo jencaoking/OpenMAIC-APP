@@ -109,8 +109,19 @@ class WidgetBridge {
   }
 }
 
-/** 全局 Widget 桥接单例。 */
-export const widgetBridge = new WidgetBridge();
+/** 全局 Widget 桥接单例（延迟初始化，避免 NativeModules 在模块加载时未就绪）。 */
+let _widgetBridge: WidgetBridge | null = null;
+export function getWidgetBridge(): WidgetBridge {
+  if (!_widgetBridge) {
+    _widgetBridge = new WidgetBridge();
+  }
+  return _widgetBridge;
+}
+export const widgetBridge = {
+  setData: (data: DailyProgressWidgetData) => getWidgetBridge().setData(data),
+  getData: () => getWidgetBridge().getData(),
+  refresh: () => getWidgetBridge().refresh(),
+};
 
 /**
  * 构造一条"未读提示"文本的工具方法。

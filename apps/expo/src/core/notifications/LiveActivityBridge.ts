@@ -166,5 +166,18 @@ class LiveActivityBridge {
   }
 }
 
-/** 全局 Live Activity 桥接单例。 */
-export const liveActivityBridge = new LiveActivityBridge();
+/** 全局 Live Activity 桥接单例（延迟初始化，避免 NativeModules 在模块加载时未就绪）。 */
+let _liveActivityBridge: LiveActivityBridge | null = null;
+export function getLiveActivityBridge(): LiveActivityBridge {
+  if (!_liveActivityBridge) {
+    _liveActivityBridge = new LiveActivityBridge();
+  }
+  return _liveActivityBridge;
+}
+export const liveActivityBridge = {
+  start: (attrs: LiveActivityAttributes) => getLiveActivityBridge().start(attrs),
+  update: (id: string, attrs: Partial<LiveActivityAttributes>) => getLiveActivityBridge().update(id, attrs),
+  end: (id: string) => getLiveActivityBridge().end(id),
+  getActive: () => getLiveActivityBridge().getActive(),
+  endAll: () => getLiveActivityBridge().endAll(),
+};
