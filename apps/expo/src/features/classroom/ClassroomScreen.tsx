@@ -8,6 +8,7 @@ import { CanvasArea } from './components/CanvasArea';
 import { Roundtable } from './components/Roundtable';
 import { ChatArea } from './components/ChatArea';
 import { useClassroomStore } from './store/classroomStore';
+import { useClassroomPlayback } from './hooks/useClassroomPlayback';
 import { DEMO_SLIDES } from '../slides/demoSlides';
 
 interface ClassroomScreenProps {
@@ -33,6 +34,9 @@ const DEMO_SCENES = [
 
 export function ClassroomScreen({ classroomId, onBack }: ClassroomScreenProps) {
   const { setScenes, setCurrentSceneIndex } = useClassroomStore();
+
+  // 初始化播放引擎
+  const { togglePlayPause, nextScene, prevScene } = useClassroomPlayback();
 
   // Load scenes on mount
   useEffect(() => {

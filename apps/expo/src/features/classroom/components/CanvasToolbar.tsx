@@ -1,16 +1,17 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useClassroomStore } from '../store/classroomStore';
+import { useClassroomPlayback } from '../hooks/useClassroomPlayback';
 
 export function CanvasToolbar() {
   const {
     scenes,
     currentSceneIndex,
     engineMode,
-    setEngineMode,
-    goToNextScene,
-    goToPrevScene,
+    speechProgress,
   } = useClassroomStore();
+
+  const { togglePlayPause, nextScene, prevScene } = useClassroomPlayback();
 
   const isPlaying = engineMode === 'playing';
   const isFirst = currentSceneIndex === 0;
@@ -21,7 +22,7 @@ export function CanvasToolbar() {
       {/* Prev */}
       <Pressable
         style={[styles.btn, isFirst && styles.btnDisabled]}
-        onPress={goToPrevScene}
+        onPress={prevScene}
         disabled={isFirst}
       >
         <Text style={[styles.btnText, isFirst && styles.btnTextDisabled]}>◀</Text>
@@ -31,7 +32,7 @@ export function CanvasToolbar() {
       <View style={styles.group}>
         <Pressable
           style={[styles.btn, isPlaying && styles.btnActive]}
-          onPress={() => setEngineMode(isPlaying ? 'paused' : 'playing')}
+          onPress={togglePlayPause}
         >
           <Text style={[styles.btnText, isPlaying && styles.btnTextActive]}>
             {isPlaying ? '⏸' : '▶'}
@@ -42,7 +43,7 @@ export function CanvasToolbar() {
       {/* Next */}
       <Pressable
         style={[styles.btn, isLast && styles.btnDisabled]}
-        onPress={goToNextScene}
+        onPress={nextScene}
         disabled={isLast}
       >
         <Text style={[styles.btnText, isLast && styles.btnTextDisabled]}>▶</Text>
@@ -52,6 +53,20 @@ export function CanvasToolbar() {
       <Text style={styles.pageIndicator}>
         {scenes.length > 0 ? `${currentSceneIndex + 1} / ${scenes.length}` : '0 / 0'}
       </Text>
+
+      {/* Progress Bar */}
+      {engineMode === 'playing' && speechProgress !== null && (
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <View
+              style={[
+                styles.progressFill,
+                { width: `${(speechProgress || 0) * 100}%` },
+              ]}
+            />
+          </View>
+        </View>
+      )}
 
       {/* Speed */}
       <View style={styles.speedBadge}>
@@ -64,7 +79,7 @@ export function CanvasToolbar() {
       {isPlaying && (
         <Pressable
           style={styles.endBtn}
-          onPress={() => setEngineMode('idle')}
+          onPress={() => useClassroomStore.getState().setEngineMode('idle')}
         >
           <Text style={styles.endBtnText}>结束讨论</Text>
         </Pressable>
@@ -123,6 +138,22 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginLeft: 8,
     fontVariant: ['tabular-nums'],
+  },
+  progressContainer: {
+    width: 60,
+    height: 4,
+    backgroundColor: '#e5e7eb',
+    borderRadius: 2,
+    marginLeft: 8,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    flex: 1,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#7c3aed',
+    borderRadius: 2,
   },
   speedBadge: {
     width: 32,
