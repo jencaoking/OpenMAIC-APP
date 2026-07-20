@@ -7,12 +7,28 @@
  * 3. resolver.unstable_enablePackageExports — 支持 package.json 的 exports 字段，按需打包
  * 4. transformer.unstable_allowInlineImport — 允许 inline import 表达式优化
  * 5. Hermes 字节码预编译 — 由 Expo SDK 57 默认启用，无需额外配置
+ * 6. resolveRequest — 处理 node: 协议模块，将其重定向到空 stub（用于 pptxgenjs 等使用 node:fs/node:https 的库）
  *
  * 详见：https://docs.expo.dev/guides/performance/
  */
 const { getDefaultConfig } = require('expo/metro-config');
+const path = require('path');
 
 const config = getDefaultConfig(__dirname);
+
+const nodeStubPath = path.resolve(__dirname, 'plugins', 'node-stubs');
+
+config.resolver.resolveRequest = (context, moduleName) => {
+  if (moduleName.startsWith('node:')) {
+    const stubName = moduleName.replace('node:', '');
+    const stubPath = path.join(nodeStubPath, `${stubName}.js`);
+    return {
+      filePath: stubPath,
+      type: 'sourceFile',
+    };
+  }
+  return context.resolveRequest(context, moduleName);
+};
 
 // 启用 inlineRequires（按需加载模块，减小首屏 JS Bundle 体积）
 config.transformer.minifyConfig = {
