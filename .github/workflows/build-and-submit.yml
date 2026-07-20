@@ -1,14 +1,15 @@
 # Phase 7.4 GitHub Actions — OpenMAIC Expo Build & Submit Pipeline
 #
 # 触发条件：
-#   1. 推送 tag (v*.*.*) → 触发生产构建 + 自动提审
-#   2. 推送 main 分支 → 触发 EAS Update OTA 推送
-#   3. Pull Request → 仅运行类型检查 + 单元测试
+#   1. 推送正式版 tag (v*.*.*, 不含 -beta/-rc) → 触发生产构建 + 自动提审
+#   2. 推送预发布 tag (v*.*.*-beta*, v*.*.*-rc*) → 由 auto-build-apk.yml 处理
+#   3. 推送 main 分支 → 触发 EAS Update OTA 推送
+#   4. Pull Request → 仅运行类型检查 + 单元测试
 #
 # 流水线阶段：
 #   1. quality  - TypeScript 类型检查 + ESLint
 #   2. test     - Jest 单元测试 + Maestro E2E（仅 tag 触发）
-#   3. build    - EAS Build (production profile, iOS + Android)
+#   3. build    - EAS Build (production/preview profile, iOS + Android)
 #   4. submit   - EAS Submit (App Store + Google Play)
 #   5. ota      - EAS Update (JS-only 热更新)
 #   6. rollback - 手动触发的紧急回滚
@@ -46,7 +47,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   PNPM_VERSION: '10'
   EAS_VERSION: latest
   EXPO_DIR: apps/expo
@@ -64,15 +65,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: ${{ env.PNPM_VERSION }}
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -96,14 +96,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node + pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: ${{ env.PNPM_VERSION }}
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -122,13 +122,19 @@ jobs:
           retention-days: 7
 
   # ============================================================
-  # 阶段 3: 生产构建（仅 tag 触发或手动选择）
+  # 阶段 3: 生产构建（仅正式版 tag 触发或手动选择）
+  # 排除预发布版本 (-beta/-rc)
   # ============================================================
   build-production:
     name: Build Production (iOS + Android)
     runs-on: ubuntu-latest
     needs: [quality, test]
-    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'build-production')
+    timeout-minutes: 120
+    if: >-
+      (startsWith(github.ref, 'refs/tags/v') &&
+       !contains(github.ref_name, '-beta') &&
+       !contains(github.ref_name, '-rc')) ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'build-production')
     strategy:
       matrix:
         platform: [ios, android]
@@ -136,14 +142,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node + pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: ${{ env.PNPM_VERSION }}
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -165,27 +171,74 @@ jobs:
         continue-on-error: true
 
       - name: EAS Build (${{ matrix.platform }})
+        id: eas-build
         working-directory: ${{ env.EXPO_DIR }}
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          eas build --profile production --platform ${{ matrix.platform }} --non-interactive --no-wait
+          set -e
+          echo "=== Starting EAS Build with profile: production ==="
+          BUILD_OUTPUT=$(eas build --profile production --platform ${{ matrix.platform }} --non-interactive --no-wait --json 2>/dev/null)
+          echo "$BUILD_OUTPUT"
+
+          BUILD_ID=$(echo "$BUILD_OUTPUT" | jq -r '.[0].id // .id')
+          if [ -z "$BUILD_ID" ] || [ "$BUILD_ID" = "null" ]; then
+            echo "ERROR: Could not extract BUILD_ID from output!"
+            exit 1
+          fi
+
+          echo "BUILD_ID=$BUILD_ID" >> $GITHUB_OUTPUT
+          echo "Build submitted with ID: $BUILD_ID"
 
       - name: Wait for build completion
         id: wait-build
         working-directory: ${{ env.EXPO_DIR }}
         run: |
-          echo "Build submitted. Use EAS dashboard to monitor progress."
-          echo "::notice::Build submitted to EAS. Check https://expo.dev/accounts/jencaoking/projects/openmaic-expo/builds"
+          set -e
+          BUILD_ID="${{ steps.eas-build.outputs.BUILD_ID }}"
+          MAX_RETRIES=60
+          RETRY_DELAY=60
+
+          echo "Waiting for build $BUILD_ID to complete..."
+
+          for i in $(seq 1 $MAX_RETRIES); do
+            BUILD_STATUS=$(eas build:view "$BUILD_ID" --json 2>/dev/null | jq -r '.[0].status // .status')
+            echo "Attempt $i/$MAX_RETRIES - Build status: $BUILD_STATUS"
+
+            case "$BUILD_STATUS" in
+              "finished")
+                echo "Build completed successfully!"
+                echo "BUILD_SUCCESS=true" >> $GITHUB_OUTPUT
+                exit 0
+                ;;
+              "errored")
+                echo "Build failed!"
+                echo "BUILD_SUCCESS=false" >> $GITHUB_OUTPUT
+                exit 1
+                ;;
+              "canceled")
+                echo "Build canceled!"
+                echo "BUILD_SUCCESS=false" >> $GITHUB_OUTPUT
+                exit 1
+                ;;
+            esac
+
+            sleep $RETRY_DELAY
+          done
+
+          echo "Timeout waiting for build completion!"
+          echo "BUILD_SUCCESS=false" >> $GITHUB_OUTPUT
+          exit 1
 
   # ============================================================
-  # 阶段 4: 自动提审（构建完成后）
+  # 阶段 3b: Preview 构建（手动触发）
   # ============================================================
-  submit:
-    name: Submit to App Stores
+  build-preview:
+    name: Build Preview (iOS + Android)
     runs-on: ubuntu-latest
-    needs: build-production
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [quality, test]
+    timeout-minutes: 120
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'build-preview'
     strategy:
       matrix:
         platform: [ios, android]
@@ -193,14 +246,104 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node + pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
-      - uses: pnpm/action-setup@v3
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
         with:
-          version: ${{ env.PNPM_VERSION }}
+          expo-version: latest
+          eas-version: ${{ env.EAS_VERSION }}
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: EAS Build Preview (${{ matrix.platform }})
+        id: eas-build-preview
+        working-directory: ${{ env.EXPO_DIR }}
+        run: |
+          set -e
+          echo "=== Starting EAS Build with profile: preview ==="
+          BUILD_OUTPUT=$(eas build --profile preview --platform ${{ matrix.platform }} --non-interactive --no-wait --json 2>/dev/null)
+          echo "$BUILD_OUTPUT"
+
+          BUILD_ID=$(echo "$BUILD_OUTPUT" | jq -r '.[0].id // .id')
+          if [ -z "$BUILD_ID" ] || [ "$BUILD_ID" = "null" ]; then
+            echo "ERROR: Could not extract BUILD_ID from output!"
+            exit 1
+          fi
+
+          echo "BUILD_ID=$BUILD_ID" >> $GITHUB_OUTPUT
+          echo "Preview build submitted with ID: $BUILD_ID"
+
+      - name: Wait for preview build completion
+        working-directory: ${{ env.EXPO_DIR }}
+        run: |
+          set -e
+          BUILD_ID="${{ steps.eas-build-preview.outputs.BUILD_ID }}"
+          MAX_RETRIES=60
+          RETRY_DELAY=60
+
+          echo "Waiting for preview build $BUILD_ID to complete..."
+
+          for i in $(seq 1 $MAX_RETRIES); do
+            BUILD_STATUS=$(eas build:view "$BUILD_ID" --json 2>/dev/null | jq -r '.[0].status // .status')
+            echo "Attempt $i/$MAX_RETRIES - Build status: $BUILD_STATUS"
+
+            case "$BUILD_STATUS" in
+              "finished")
+                echo "Preview build completed successfully!"
+                exit 0
+                ;;
+              "errored")
+                echo "Preview build failed!"
+                exit 1
+                ;;
+              "canceled")
+                echo "Preview build canceled!"
+                exit 1
+                ;;
+            esac
+
+            sleep $RETRY_DELAY
+          done
+
+          echo "Timeout waiting for preview build completion!"
+          exit 1
+
+  # ============================================================
+  # 阶段 4: 自动提审（仅正式版生产构建完成后）
+  # ============================================================
+  submit:
+    name: Submit to App Stores
+    runs-on: ubuntu-latest
+    needs: build-production
+    if: >-
+      startsWith(github.ref, 'refs/tags/v') &&
+      !contains(github.ref_name, '-beta') &&
+      !contains(github.ref_name, '-rc')
+    strategy:
+      matrix:
+        platform: [ios, android]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -221,25 +364,27 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
 
   # ============================================================
-  # 阶段 5: EAS Update OTA 热更新（main 分支推送）
+  # 阶段 5: EAS Update OTA 热更新（main 分支推送或手动触发）
   # ============================================================
   ota-update:
     name: Push EAS Update (OTA)
     runs-on: ubuntu-latest
     needs: quality
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: >-
+      (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'ota')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node + pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: ${{ env.PNPM_VERSION }}
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -257,7 +402,7 @@ jobs:
           eas update --branch production --message "Auto OTA update from commit ${{ github.sha }}"
 
   # ============================================================
-  # 阶段 6: 紧急回滚（手动触发）
+  # 阶段 6: 紧急回滚（手动触发，真正执行回滚）
   # ============================================================
   rollback:
     name: Emergency Rollback
@@ -267,14 +412,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node + pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: ${{ env.PNPM_VERSION }}
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -293,9 +438,28 @@ jobs:
           eas update:list --branch production --limit 10
 
       - name: Rollback to previous update
+        id: rollback-update
         working-directory: ${{ env.EXPO_DIR }}
         run: |
-          # 列出最近 2 个 update，将上一个标记为最新
-          echo "::warning::Manual rollback required. Please run:"
-          echo "::warning::eas update --branch production --rollback-to <previous-update-id>"
-        continue-on-error: true
+          set -e
+          echo "=== Retrieving update list ==="
+          UPDATE_LIST=$(eas update:list --branch production --limit 5 --json 2>/dev/null)
+          echo "$UPDATE_LIST"
+
+          PREVIOUS_UPDATE_ID=$(echo "$UPDATE_LIST" | jq -r '.[1].id')
+          echo "Previous update ID: $PREVIOUS_UPDATE_ID"
+
+          if [ -z "$PREVIOUS_UPDATE_ID" ] || [ "$PREVIOUS_UPDATE_ID" = "null" ]; then
+            echo "::error::Could not find previous update ID to rollback to!"
+            exit 1
+          fi
+
+          echo "PREVIOUS_UPDATE_ID=$PREVIOUS_UPDATE_ID" >> $GITHUB_OUTPUT
+
+      - name: Execute rollback
+        working-directory: ${{ env.EXPO_DIR }}
+        run: |
+          set -e
+          echo "=== Rolling back to update: ${{ steps.rollback-update.outputs.PREVIOUS_UPDATE_ID }} ==="
+          eas update --branch production --rollback-to ${{ steps.rollback-update.outputs.PREVIOUS_UPDATE_ID }}
+          echo "Rollback completed successfully!"
