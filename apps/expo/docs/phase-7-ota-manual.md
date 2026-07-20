@@ -193,7 +193,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
       - name: Push OTA
         working-directory: apps/expo
-        run: eas update --branch production --message "Auto OTA from ${{ github.sha }}"
+        run: eas update --branch production --platform android,ios --message "Auto OTA from ${{ github.sha }}"
 ```
 
 ### 6.2 必需的 GitHub Secrets

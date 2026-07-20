@@ -58,7 +58,7 @@
     "eas:submit:ios": "eas submit --platform ios",
     "eas:submit:android": "eas submit --platform android",
     "eas:update": "eas update --branch production --platform android,ios --message",
-    "eas:update:rollback": "eas update --rollback --branch production --platform android,ios"
+    "eas:update:rollback": "eas update:republish --branch production --platform android,ios"
   },
   "private": true
 }
