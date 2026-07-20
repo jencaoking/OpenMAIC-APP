@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "openmaic-expo",
-    "slug": "openmaic-expo",
+    "name": "openmaic",
+    "slug": "openmaic",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
