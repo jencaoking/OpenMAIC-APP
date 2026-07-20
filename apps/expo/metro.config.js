@@ -18,16 +18,31 @@ const config = getDefaultConfig(__dirname);
 
 const nodeStubPath = path.resolve(__dirname, 'plugins', 'node-stubs');
 
-config.resolver.resolveRequest = (context, moduleName) => {
+config.resolver.extraNodeModules = {
+  'node:fs': path.join(nodeStubPath, 'fs.js'),
+  'node:https': path.join(nodeStubPath, 'https.js'),
+  'node:path': path.join(nodeStubPath, 'path.js'),
+  'node:os': path.join(nodeStubPath, 'os.js'),
+  'node:crypto': path.join(nodeStubPath, 'crypto.js'),
+  'node:stream': path.join(nodeStubPath, 'stream.js'),
+};
+
+config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (moduleName.startsWith('node:')) {
     const stubName = moduleName.replace('node:', '');
     const stubPath = path.join(nodeStubPath, `${stubName}.js`);
+    if (require('fs').existsSync(stubPath)) {
+      return {
+        filePath: stubPath,
+        type: 'sourceFile',
+      };
+    }
     return {
-      filePath: stubPath,
+      filePath: path.join(nodeStubPath, 'index.js'),
       type: 'sourceFile',
     };
   }
-  return context.resolveRequest(context, moduleName);
+  return context.resolveRequest(context, moduleName, platform);
 };
 
 // 启用 inlineRequires（按需加载模块，减小首屏 JS Bundle 体积）
