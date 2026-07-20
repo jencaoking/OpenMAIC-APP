@@ -45,10 +45,11 @@
       }
     },
     "production": {
+      "distribution": "internal",
       "autoIncrement": true,
       "android": {
-        "buildType": "app-bundle",
-        "gradleCommand": ":app:bundleRelease"
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
       },
       "ios": {
         "simulator": false,
@@ -60,34 +61,6 @@
       "channel": "production",
       "cache": {
         "key": "production-v1"
-      },
-      "credentialsSource": "remote"
-    }
-  },
-  "submit": {
-    "production": {
-      "android": {
-        "serviceAccountKeyPath": "./google-service-account.json",
-        "track": "internal",
-        "releaseStatus": "draft"
-      },
-      "ios": {
-        "appleId": "jencaoking@icloud.com",
-        "ascAppId": "dev.openmaic.expo",
-        "appleTeamId": "OPENMAIC",
-        "sku": "openmaic-expo-prod"
-      }
-    },
-    "preview": {
-      "android": {
-        "serviceAccountKeyPath": "./google-service-account.json",
-        "track": "internal",
-        "releaseStatus": "draft"
-      },
-      "ios": {
-        "appleId": "jencaoking@icloud.com",
-        "ascAppId": "dev.openmaic.expo",
-        "appleTeamId": "OPENMAIC"
       }
     }
   }

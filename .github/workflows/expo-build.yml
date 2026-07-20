@@ -1,10 +1,11 @@
-name: Auto Build APK
+name: Expo Build & OTA
 
 on:
   push:
     tags:
-      - 'v*.*.*-beta*'
-      - 'v*.*.*-rc*'
+      - 'v*.*.*'
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -15,28 +16,29 @@ on:
       - labeled
   workflow_dispatch:
     inputs:
-      profile:
-        description: 'Build profile'
+      action:
+        description: 'Action to run'
         required: true
-        default: 'preview'
+        default: 'build-preview'
         type: choice
         options:
-          - development
-          - preview
+          - build-preview
+          - build-development
+          - ota
+          - rollback
 
 permissions:
   contents: write
   packages: read
 
 concurrency:
-  group: auto-build-apk-${{ github.ref }}-${{ github.event.inputs.profile || 'preview' }}
+  group: expo-build-${{ github.ref }}-${{ github.event.inputs.action || 'default' }}
   cancel-in-progress: true
 
 env:
   NODE_VERSION: '22'
   EAS_VERSION: latest
   EXPO_DIR: apps/expo
-  BUILD_PROFILE: ${{ github.event.inputs.profile || 'preview' }}
   APK_OUTPUT_DIR: ${{ github.workspace }}/apk-build
 
 jobs:
@@ -45,6 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >-
       (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'workflow_dispatch') ||
       (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'build:apk'))
     steps:
@@ -73,14 +76,52 @@ jobs:
         run: pnpm run lint
         continue-on-error: true
 
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: quality
+    if: >-
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Jest unit tests
+        working-directory: ${{ env.EXPO_DIR }}
+        run: |
+          npx jest --passWithNoTests --coverage --ci
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: ${{ env.EXPO_DIR }}/coverage/
+          retention-days: 7
+
   build-apk:
     name: Build Android APK
     runs-on: ubuntu-latest
+    needs: [quality, test]
+    timeout-minutes: 60
     if: >-
       (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
-      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.action == 'build-preview' || github.event.inputs.action == 'build-development')) ||
       (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'build:apk'))
-    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -106,25 +147,17 @@ jobs:
           eas-version: ${{ env.EAS_VERSION }}
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Debug Build Environment
-        working-directory: ${{ env.EXPO_DIR }}
-        env:
-          EXPO_TOKEN_VALUE: ${{ secrets.EXPO_TOKEN }}
+      - name: Determine build profile
+        id: build-profile
         run: |
-          echo "=== Current Directory ==="
-          pwd
-          echo "=== Directory Listing ==="
-          ls -la
-          echo "=== eas.json ==="
-          cat eas.json || echo "eas.json not found"
-          echo "=== app.json ==="
-          cat app.json | head -50
-          echo "=== EXPO_TOKEN status ==="
-          if [ -n "$EXPO_TOKEN_VALUE" ]; then
-            echo "EXPO_TOKEN is set (length: ${#EXPO_TOKEN_VALUE})"
+          if [ "${{ github.event_name }}" = "push" ] && startsWith "${{ github.ref }}" "refs/tags/v"; then
+            PROFILE="preview"
+          elif [ "${{ github.event.inputs.action }}" = "build-development" ]; then
+            PROFILE="development"
           else
-            echo "EXPO_TOKEN is NOT set!"
+            PROFILE="preview"
           fi
+          echo "BUILD_PROFILE=$PROFILE" >> $GITHUB_OUTPUT
 
       - name: EAS Build Android APK
         id: eas-build
@@ -133,8 +166,8 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
           set -e
-          echo "=== Starting EAS Build with profile: ${{ env.BUILD_PROFILE }} ==="
-          BUILD_OUTPUT=$(eas build --profile ${{ env.BUILD_PROFILE }} --platform android --non-interactive --no-wait --json 2>/dev/null)
+          echo "=== Starting EAS Build with profile: ${{ steps.build-profile.outputs.BUILD_PROFILE }} ==="
+          BUILD_OUTPUT=$(eas build --profile ${{ steps.build-profile.outputs.BUILD_PROFILE }} --platform android --non-interactive --no-wait --json 2>/dev/null)
           echo "$BUILD_OUTPUT"
 
           BUILD_ID=$(echo "$BUILD_OUTPUT" | jq -r '.[0].id // .id')
@@ -208,7 +241,7 @@ jobs:
         if: steps.verify-apk.outputs.APK_FOUND == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: openmaic-apk-${{ env.BUILD_PROFILE }}
+          name: openmaic-apk-${{ steps.build-profile.outputs.BUILD_PROFILE }}
           path: ${{ env.APK_OUTPUT_DIR }}/*.apk
           retention-days: 30
 
@@ -220,7 +253,7 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             📱 Android APK Build
-            - Profile: ${{ env.BUILD_PROFILE }}
+            - Profile: ${{ steps.build-profile.outputs.BUILD_PROFILE }}
             - Commit: ${{ github.sha }}
             - Branch: ${{ github.ref_name }}
           files: ${{ env.APK_OUTPUT_DIR }}/*.apk
@@ -233,8 +266,103 @@ jobs:
         with:
           args: |
             🚀 OpenMAIC APK Build Completed!
-            - Profile: ${{ env.BUILD_PROFILE }}
+            - Profile: ${{ steps.build-profile.outputs.BUILD_PROFILE }}
             - Tag: ${{ github.ref_name }}
             - Commit: ${{ github.sha }}
             - Download: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
         continue-on-error: true
+
+  ota-update:
+    name: Push EAS Update (OTA)
+    runs-on: ubuntu-latest
+    needs: quality
+    if: >-
+      (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'ota')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: ${{ env.EAS_VERSION }}
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Push OTA update
+        working-directory: ${{ env.EXPO_DIR }}
+        run: |
+          eas update --branch production --message "Auto OTA update from commit ${{ github.sha }}"
+
+  rollback:
+    name: Emergency Rollback
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'rollback'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: ${{ env.EAS_VERSION }}
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: List recent OTA updates
+        working-directory: ${{ env.EXPO_DIR }}
+        run: |
+          echo "Recent EAS Update branches:"
+          eas update:list --branch production --limit 10
+
+      - name: Rollback to previous update
+        id: rollback-update
+        working-directory: ${{ env.EXPO_DIR }}
+        run: |
+          set -e
+          echo "=== Retrieving update list ==="
+          UPDATE_LIST=$(eas update:list --branch production --limit 5 --json 2>/dev/null)
+          echo "$UPDATE_LIST"
+
+          PREVIOUS_UPDATE_ID=$(echo "$UPDATE_LIST" | jq -r '.[1].id')
+          echo "Previous update ID: $PREVIOUS_UPDATE_ID"
+
+          if [ -z "$PREVIOUS_UPDATE_ID" ] || [ "$PREVIOUS_UPDATE_ID" = "null" ]; then
+            echo "::error::Could not find previous update ID to rollback to!"
+            exit 1
+          fi
+
+          echo "PREVIOUS_UPDATE_ID=$PREVIOUS_UPDATE_ID" >> $GITHUB_OUTPUT
+
+      - name: Execute rollback
+        working-directory: ${{ env.EXPO_DIR }}
+        run: |
+          set -e
+          echo "=== Rolling back to update: ${{ steps.rollback-update.outputs.PREVIOUS_UPDATE_ID }} ==="
+          eas update --branch production --rollback-to ${{ steps.rollback-update.outputs.PREVIOUS_UPDATE_ID }}
+          echo "Rollback completed successfully!"
