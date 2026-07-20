@@ -8,6 +8,7 @@ import { CanvasArea } from './components/CanvasArea';
 import { Roundtable } from './components/Roundtable';
 import { ChatArea } from './components/ChatArea';
 import { useClassroomStore } from './store/classroomStore';
+import { DEMO_SLIDES } from '../slides/demoSlides';
 
 interface ClassroomScreenProps {
   classroomId?: string;
