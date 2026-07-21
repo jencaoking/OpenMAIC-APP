@@ -97,8 +97,9 @@ docker compose up --build
 | 平台 | 技术栈 | 状态 |
 |------|--------|------|
 | **Web** | Next.js 16, React 19, Tailwind 4 | 完整功能 |
-| **移动端** | Expo SDK 57, React Native 0.86 | 核心功能，离线同步 |
+| **移动端** | Expo SDK 57, React Native 0.86 | 课堂生成/播放、Agent、语音、离线同步 |
 | **桌面端** | Electron 43 | Web 应用封装 |
+| **文档站** | Next.js + Fumadocs | 6 语言文档 |
 
 ---
 
@@ -106,36 +107,75 @@ docker compose up --build
 
 ```
 OpenMAIC/
-├── app/                     # Next.js Web 端 (App Router)
-│   ├── api/                 # 服务端 API (~25 个接口)
-│   ├── classroom/[id]/      # 课堂播放器
-│   └── page.tsx             # 首页（生成输入）
+├── app/                              # Next.js Web 端 (App Router)
+│   ├── api/                          # 服务端 API (~25 个接口)
+│   ├── classroom/[id]/               # 课堂播放器
+│   └── page.tsx                      # 首页（生成输入）
 │
-├── apps/expo/               # Expo 移动端 (React Native)
-├── electron/                # Electron 桌面端封装
+├── apps/
+│   └── expo/                         # Expo 移动端 (React Native)
+│       └── src/
+│           ├── app/                  # 应用入口与路由
+│           ├── core/                 # 核心模块
+│           │   ├── api/              # HTTP 客户端
+│           │   ├── media/            # 图片压缩、多模态消息
+│           │   ├── monitoring/       # Sentry 监控
+│           │   ├── navigation/       # 深链接路由
+│           │   ├── notifications/    # 推送通知、后台同步、小组件
+│           │   ├── perf/             # 启动优化、懒加载
+│           │   ├── security/         # 密钥存储、DB 加密
+│           │   ├── store/            # 会话状态管理
+│           │   └── voice/            # 语音引擎 (STT/TTS/VAD)
+│           ├── db/                   # SQLite 数据库 + 同步
+│           ├── features/
+│           │   ├── classroom/        # ★ 课堂播放器 (完整移植)
+│           │   │   ├── api/          # 生成 API、Agent API、声音解析
+│           │   │   ├── components/   # 16 个 UI 组件
+│           │   │   ├── hooks/        # 播放/生成编排
+│           │   │   ├── layout/       # 横屏三栏布局
+│           │   │   ├── store/        # Zustand 状态 (6 个 store)
+│           │   │   └── types/        # Agent/Voice 类型定义
+│           │   ├── slides/           # RN 幻灯片渲染器
+│           │   │   ├── elements/     # 8 种元素渲染器
+│           │   │   └── hooks/        # 缩放计算
+│           │   ├── chat-flow/        # 聊天 + 语音模式
+│           │   ├── quiz/             # 答题系统
+│           │   ├── dsl/              # DSL 渲染
+│           │   └── sessions/         # 会话管理
+│           ├── shared/               # 共享组件/hooks (待填充)
+│           └── types/                # 全局类型定义
+│
+├── electron/                         # Electron 桌面端封装 (185 行)
 │
 ├── packages/
-│   ├── @openmaic/dsl        # DSL 类型与验证
-│   ├── @openmaic/core-engine # 跨端渲染引擎
-│   ├── @openmaic/renderer   # 幻灯片渲染器 (Web)
-│   ├── @openmaic/storage    # 持久化层
-│   └── @openmaic/importer   # PPTX 解析器
+│   ├── @openmaic/dsl                 # DSL 类型与验证 (零依赖)
+│   ├── @openmaic/core-engine         # 跨端渲染引擎
+│   ├── @openmaic/renderer            # 幻灯片渲染器 (Web)
+│   ├── @openmaic/storage             # 持久化层
+│   ├── @openmaic/storage-types       # 存储类型契约
+│   ├── @openmaic/importer            # PPTX 解析器
+│   ├── maic-storage-server           # 存储服务 (Node.js)
+│   ├── mathml2omml/                  # MathML 转换
+│   ├── pptxgenjs/                    # PPTX 生成
+│   └── docs/                         # 文档站
 │
-├── lib/                     # 核心业务逻辑
-├── components/              # React UI 组件
-└── tests/                   # 单元测试与 E2E 测试
+├── lib/                              # 核心业务逻辑 (Web)
+├── components/                       # React UI 组件 (Web)
+├── configs/                          # 共享常量
+└── tests/                            # 单元测试与 E2E 测试
 ```
 
 ### 技术栈
 
 | 类别 | 技术 |
 |------|------|
-| **Web** | Next.js 16, React 19, Tailwind 4, Zustand, Motion |
-| **AI/LLM** | Vercel AI SDK, LangChain, LangGraph, CopilotKit |
-| **移动端** | Expo SDK 57, React Native 0.86, Reanimated, SQLite |
+| **Web** | Next.js 16, React 19, Tailwind 4, Zustand, Motion, shadcn/ui |
+| **AI/LLM** | Vercel AI SDK, LangChain, LangGraph, CopilotKit, 14+ 提供商 |
+| **移动端** | Expo SDK 57, React Native 0.86, Reanimated, SQLite, expo-av |
 | **桌面端** | Electron 43, electron-builder |
 | **数据库** | PostgreSQL 16, SQLite (移动端), IndexedDB (浏览器) |
 | **测试** | Vitest, Playwright, Jest |
+| **CI/CD** | GitHub Actions, EAS Build, semantic-release |
 
 ---
 
