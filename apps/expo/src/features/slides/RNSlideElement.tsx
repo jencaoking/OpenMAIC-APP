@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ElementTypes, type PPTElement, type SlideTheme } from '@openmaic/dsl';
 import { RNTextElement } from './elements/RNTextElement';
@@ -9,18 +9,46 @@ import { RNTableElement } from './elements/RNTableElement';
 import { RNCodeElement } from './elements/RNCodeElement';
 import { RNLatexElement } from './elements/RNLatexElement';
 import { RNChartElement } from './elements/RNChartElement';
+import { useTextEditorStore } from './editor/textEditorStore';
 
 interface RNSlideElementProps {
   element: PPTElement;
   index: number;
   theme?: Pick<SlideTheme, 'fontColor' | 'fontName'>;
+  editable?: boolean;
+  onElementContentChange?: (elementId: string, content: string) => void;
 }
 
-export function RNSlideElement({ element, index, theme }: RNSlideElementProps) {
+export function RNSlideElement({
+  element,
+  index,
+  theme,
+  editable = false,
+  onElementContentChange,
+}: RNSlideElementProps) {
+  const setEditingElementId = useTextEditorStore((s) => s.setEditingElementId);
+
+  const handleContentChange = useCallback(
+    (content: string) => onElementContentChange?.(element.id, content),
+    [element.id, onElementContentChange],
+  );
+
+  const handleDoubleClick = useCallback(() => {
+    if (editable && element.type === ElementTypes.TEXT) {
+      setEditingElementId(element.id);
+    }
+  }, [editable, element.id, element.type, setEditingElementId]);
+
   const renderElement = useMemo(() => {
     switch (element.type) {
       case ElementTypes.TEXT:
-        return <RNTextElement element={element} />;
+        return (
+          <RNTextElement
+            element={element}
+            editable={editable}
+            onContentChange={handleContentChange}
+          />
+        );
       case ElementTypes.IMAGE:
         return <RNImageElement element={element} />;
       case ElementTypes.SHAPE:
@@ -37,16 +65,14 @@ export function RNSlideElement({ element, index, theme }: RNSlideElementProps) {
         return <RNChartElement element={element} />;
       case ElementTypes.VIDEO:
       case ElementTypes.AUDIO:
-        // 视频/音频暂时用占位符
         return <View style={styles.placeholder} />;
       default:
         return null;
     }
-  }, [element]);
+  }, [element, editable, handleContentChange]);
 
   if (!renderElement) return null;
 
-  // 从 PPTElement 联合类型中安全提取公共字段
   const el = element as unknown as Record<string, unknown>;
 
   return (
@@ -62,6 +88,7 @@ export function RNSlideElement({ element, index, theme }: RNSlideElementProps) {
           opacity: (el.opacity as number) ?? 1,
         },
       ]}
+      onTouchEnd={handleDoubleClick}
     >
       <View
         style={[

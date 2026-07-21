@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  #editor { width: 100%; height: 100%; outline: none; cursor: text; overflow: auto; }
+  #editor:focus, #editor:focus-visible { outline: none; }
+  #editor p { margin: 0; }
+  #editor ul { list-style: disc outside !important; padding-inline-start: 1.5rem !important; }
+  #editor ol { list-style: decimal outside !important; padding-inline-start: 1.5rem !important; }
+  #editor li { display: list-item !important; }
+  #editor blockquote { border-left: 3px solid #ccc; padding-left: 12px; margin: 4px 0; }
+  #editor a { color: #4a90d9; text-decoration: underline; }
+  #editor code { background: rgba(0,0,0,0.06); padding: 1px 4px; border-radius: 3px; font-family: monospace; }
+  #editor [data-placeholder]::before {
+    content: attr(data-placeholder);
+    color: #aaa;
+    position: absolute;
+    pointer-events: none;
+  }
+  .format-painter { cursor: crosshair !important; }
+</style>
+</head>
+<body>
+<div id="editor" contenteditable="false"></div>
+
+<!-- ProseMirror core libraries from CDN -->
+<script src="https://unpkg.com/prosemirror-model@1.25.4/dist/index.js"></script>
+<script src="https://unpkg.com/prosemirror-state@1.4.4/dist/index.js"></script>
+<script src="https://unpkg.com/prosemirror-view@1.41.5/dist/index.js"></script>
+<script src="https://unpkg.com/prosemirror-transform@1.10.2/dist/index.js"></script>
+<script src="https://unpkg.com/prosemirror-commands@1.7.1/dist/index.js"></script>
+<script src="https://unpkg.com/prosemirror-keymap@1.2.3/dist/index.js"></script>
+<script src="https://unpkg.com/prosemirror-history@1.5.0/dist/index.js"></script>
+<script src="https://unpkg.com/prosemirror-inputrules@1.5.1/dist/index.js"></script>
+<script src="https://unpkg.com/prosemirror-schema-basic@1.2.4/dist/index.js"></script>
+<script src="https://unpkg.com/prosemirror-schema-list@1.5.1/dist/index.js"></script>
+<script src="https://unpkg.com/prosemirror-dropcursor@1.8.2/dist/index.js"></script>
+<script src="https://unpkg.com/prosemirror-gapcursor@1.4.0/dist/index.js"></script>
+
+<script>
+// ============================================================
+// ProseMirror Schema — EXACT COPY from lib/prosemirror/schema/
+// ============================================================
+(function() {
+  const { Schema, DOMParser } = prosemirrorModel;
+  const { EditorState } = prosemirrorState;
+  const { EditorView } = prosemirrorView;
+  const { history, undo, redo } = prosemirrorHistory;
+  const { baseKeymap, toggleMark, wrapIn, lift, selectParentNode, joinUp, joinDown,
+    chainCommands, newlineInCode, createParagraphNear, liftEmptyBlock, splitBlockKeepMarks } = prosemirrorCommands;
+  const { keymap } = prosemirrorKeymap;
+  const { inputRules, wrappingInputRule, smartQuotes, emDash, ellipsis, InputRule } = prosemirrorInputrules;
+  const { splitListItem, liftListItem, sinkListItem, wrapInList } = prosemirrorSchemaList;
+  const { dropCursor } = prosemirrorDropcursor;
+  const { gapCursor } = prosemirrorGapcursor;
+  const { undoInputRule } = prosemirrorInputrules;
+
+  // ── Schema: Nodes ──
+  const { nodes: basicNodes, marks: basicMarks } = prosemirrorSchemaBasic;
+
+  const orderedList = {
+    attrs: { order: { default: 1 }, listStyleType: { default: '' }, fontsize: { default: '' }, color: { default: '' } },
+    content: 'list_item+',
+    group: 'block',
+    parseDOM: [{ tag: 'ol', getAttrs(dom) {
+      const order = (dom.hasAttribute('start') ? dom.getAttribute('start') : 1) || 1;
+      const attr = { order: +order };
+      const { listStyleType, fontSize, color } = dom.style;
+      if (listStyleType) attr.listStyleType = listStyleType;
+      if (fontSize) attr.fontsize = fontSize;
+      if (color) attr.color = color;
+      return attr;
+    }}],
+    toDOM(node) {
+      const { order, listStyleType, fontsize, color } = node.attrs;
+      let style = '';
+      if (listStyleType) style += 'list-style-type: ' + listStyleType + ';';
+      if (fontsize) style += 'font-size: ' + fontsize + ';';
+      if (color) style += 'color: ' + color + ';';
+      const attr = { style };
+      if (order !== 1) attr.start = order;
+      return ['ol', attr, 0];
+    }
+  };
+
+  const bulletList = {
+    attrs: { listStyleType: { default: '' }, fontsize: { default: '' }, color: { default: '' } },
+    content: 'list_item+',
+    group: 'block',
+    parseDOM: [{ tag: 'ul', getAttrs(dom) {
+      const attr = {};
+      const { listStyleType, fontSize, color } = dom.style;
+      if (listStyleType) attr.listStyleType = listStyleType;
+      if (fontSize) attr.fontsize = fontSize;
+      if (color) attr.color = color;
+      return attr;
+    }}],
+    toDOM(node) {
+      const { listStyleType, fontsize, color } = node.attrs;
+      let style = '';
+      if (listStyleType) style += 'list-style-type: ' + listStyleType + ';';
+      if (fontsize) style += 'font-size: ' + fontsize + ';';
+      if (color) style += 'color: ' + color + ';';
+      return ['ul', { style }, 0];
+    }
+  };
+
+  const listItem = {
+    ...prosemirrorSchemaList.listItem,
+    content: 'paragraph block*',
+    group: 'block',
+  };
+
+  const paragraph = {
+    attrs: { align: { default: '' }, indent: { default: 0 }, textIndent: { default: 0 } },
+    content: 'inline*',
+    group: 'block',
+    parseDOM: [
+      { tag: 'p', getAttrs(dom) {
+        const { textAlign, textIndent } = dom.style;
+        let align = dom.getAttribute('align') || textAlign || '';
+        align = /(left|right|center|justify)/.test(align) ? align : '';
+        let textIndentLevel = 0;
+        if (textIndent) {
+          if (/em/.test(textIndent)) textIndentLevel = parseInt(textIndent);
+          else if (/px/.test(textIndent)) { textIndentLevel = Math.floor(parseInt(textIndent) / 16); if (!textIndentLevel) textIndentLevel = 1; }
+        }
+        const indent = +(dom.getAttribute('data-indent') || 0);
+        return { align, indent, textIndent: textIndentLevel };
+      }},
+      { tag: 'img', ignore: true },
+      { tag: 'pre', skip: true },
+    ],
+    toDOM(node) {
+      const { align, indent, textIndent } = node.attrs;
+      let style = '';
+      if (align && align !== 'left') style += 'text-align: ' + align + ';';
+      if (textIndent) style += 'text-indent: ' + textIndent + 'em;';
+      const attr = { style };
+      if (indent) attr['data-indent'] = indent;
+      return ['p', attr, 0];
+    }
+  };
+
+  const schemaNodes = {
+    doc: basicNodes.doc,
+    paragraph,
+    blockquote: basicNodes.blockquote,
+    text: basicNodes.text,
+    ordered_list: orderedList,
+    bullet_list: bulletList,
+    list_item: listItem,
+  };
+
+  // ── Schema: Marks ──
+  const subscript = {
+    excludes: 'subscript',
+    parseDOM: [{ tag: 'sub' }, { style: 'vertical-align', getAttrs: v => v === 'sub' && null }],
+    toDOM: () => ['sub', 0],
+  };
+  const superscript = {
+    excludes: 'superscript',
+    parseDOM: [{ tag: 'sup' }, { style: 'vertical-align', getAttrs: v => v === 'super' && null }],
+    toDOM: () => ['sup', 0],
+  };
+  const strikethrough = {
+    parseDOM: [
+      { tag: 'strike' },
+      { style: 'text-decoration', getAttrs: v => v === 'line-through' && null },
+      { style: 'text-decoration-line', getAttrs: v => v === 'line-through' && null },
+    ],
+    toDOM: () => ['span', { style: 'text-decoration-line: line-through;' }, 0],
+  };
+  const underline = {
+    parseDOM: [
+      { tag: 'u' },
+      { style: 'text-decoration', getAttrs: v => v === 'underline' && null },
+      { style: 'text-decoration-line', getAttrs: v => v === 'underline' && null },
+    ],
+    toDOM: () => ['span', { style: 'text-decoration: underline;' }, 0],
+  };
+  const forecolor = {
+    attrs: { color: {} }, inline: true, group: 'inline',
+    parseDOM: [{ style: 'color', getAttrs: c => c ? { color: c } : {} }],
+    toDOM(mark) { const { color } = mark.attrs; return ['span', { style: color ? 'color:' + color + ';' : '' }, 0]; },
+  };
+  const backcolor = {
+    attrs: { backcolor: {} }, inline: true, group: 'inline',
+    parseDOM: [{ style: 'background-color', getAttrs: c => c ? { backcolor: c } : {} }],
+    toDOM(mark) { const { backcolor } = mark.attrs; return ['span', { style: backcolor ? 'background-color:' + backcolor + ';' : '' }, 0]; },
+  };
+  const fontsize = {
+    attrs: { fontsize: {} }, inline: true, group: 'inline',
+    parseDOM: [{ style: 'font-size', getAttrs: s => s ? { fontsize: s } : {} }],
+    toDOM(mark) { const { fontsize: s } = mark.attrs; return ['span', { style: s ? 'font-size:' + s + ';' : '' }, 0]; },
+  };
+  const fontname = {
+    attrs: { fontname: {} }, inline: true, group: 'inline',
+    parseDOM: [{ style: 'font-family', getAttrs: f => ({ fontname: f && typeof f === 'string' ? f.replace(/["']/g, '') : '' }) }],
+    toDOM(mark) { const { fontname: f } = mark.attrs; let style = ''; if (f && !/["\\]/.test(f)) style = 'font-family: "' + f + '";'; return ['span', { style }, 0]; },
+  };
+  const link = {
+    attrs: { href: {}, title: { default: null }, target: { default: '_blank' } },
+    inclusive: false,
+    parseDOM: [{ tag: 'a[href]', getAttrs: dom => ({ href: dom.getAttribute('href'), title: dom.getAttribute('title') }) }],
+    toDOM: node => ['a', node.attrs, 0],
+  };
+  const mark = {
+    attrs: { index: { default: null } },
+    parseDOM: [{ tag: 'mark', getAttrs: dom => ({ index: dom.dataset.index }) }],
+    toDOM: node => ['mark', { 'data-index': node.attrs.index }, 0],
+  };
+
+  const schemaMarks = {
+    em: basicMarks.em, strong: basicMarks.strong, code: basicMarks.code,
+    fontsize, fontname, forecolor, backcolor,
+    subscript, superscript, strikethrough, underline, link, mark,
+  };
+
+  const schema = new Schema({ nodes: schemaNodes, marks: schemaMarks });
+
+  // ── Utils ── (EXACT COPY from lib/prosemirror/utils.ts)
+  function isList(node, s) {
+    return node.type === s.nodes.bullet_list || node.type === s.nodes.ordered_list;
+  }
+  function autoSelectAll(view) {
+    if (view.state.selection.empty) {
+      const { state, dispatch } = view;
+      prosemirrorCommands.selectAll(state, dispatch);
+    }
+  }
+  function addMark(editorView, m, selection) {
+    if (selection) editorView.dispatch(editorView.state.tr.addMark(selection.from, selection.to, m));
+    else { const { $from, $to } = editorView.state.selection; editorView.dispatch(editorView.state.tr.addMark($from.pos, $to.pos, m)); }
+  }
+  function findNodesWithSameMark(doc, from, to, markType) {
+    let ii = from;
+    const finder = mk => mk.type === markType;
+    let firstMark = null, fromNode = null, toNode = null;
+    while (ii <= to) { const node = doc.nodeAt(ii); if (!node || !node.marks) return null; const mk = node.marks.find(finder); if (!mk) return null; if (firstMark && mk !== firstMark) return null; fromNode = fromNode || node; firstMark = firstMark || mk; toNode = node; ii++; }
+    let fromPos = from, toPos = to;
+    ii = from - 1; while (ii > 0) { const node = doc.nodeAt(ii); const mk = node && node.marks.find(finder); if (!mk || mk !== firstMark) break; fromPos = ii; fromNode = node; ii--; }
+    ii = to + 1; while (ii < doc.nodeSize - 2) { const node = doc.nodeAt(ii); const mk = node && node.marks.find(finder); if (!mk || mk !== firstMark) break; toPos = ii; toNode = node; ii++; }
+    return { mark: firstMark, from: { node: fromNode, pos: fromPos }, to: { node: toNode, pos: toPos } };
+  }
+  function markActive(state, type) {
+    const { from, $from, to, empty } = state.selection;
+    if (empty) return type.isInSet(state.storedMarks || $from.marks());
+    return state.doc.rangeHasMark(from, to, type);
+  }
+  function getMarkAttrs(view) {
+    const { selection, doc } = view.state; const { from } = selection;
+    let node = doc.nodeAt(from) || doc.nodeAt(from - 1);
+    while (node && node.type.name !== 'text' && node.lastChild) node = node.lastChild;
+    return node ? (node.marks || []) : [];
+  }
+  function getAttrValue(marks, markType, attr) {
+    for (const mk of marks) { if (mk.type.name === markType && mk.attrs[attr]) return mk.attrs[attr]; }
+    return null;
+  }
+  function isActiveMark(marks, markType) { for (const mk of marks) { if (mk.type.name === markType) return true; } return false; }
+  function getAttrValueInSelection(view, attr) {
+    const { selection, doc } = view.state; const { from, to } = selection;
+    let keepChecking = true, value = '';
+    doc.nodesBetween(from, to, node => { if (keepChecking && node.attrs[attr]) { keepChecking = false; value = node.attrs[attr]; } return keepChecking; });
+    return value;
+  }
+  function findParentNodeClosestToPos($pos, predicate) {
+    for (let i = $pos.depth; i > 0; i--) { const node = $pos.node(i); if (predicate(node)) return { pos: i > 0 ? $pos.before(i) : 0, start: $pos.start(i), depth: i, node }; }
+  }
+  function findParentNode(predicate) { return (_ref) => findParentNodeClosestToPos(_ref.$from, predicate); }
+  function findParentNodeOfType(nodeType) { return (selection) => findParentNode(node => (Array.isArray(nodeType) ? nodeType.indexOf(node.type) > -1 : node.type === nodeType))(selection); }
+  function isActiveOfParentNodeType(nodeType, state) { return !!findParentNodeOfType(state.schema.nodes[nodeType])(state.selection); }
+  function getTextAttrs(view, attrs) {
+    const defaultAttrs = { color: '#000000', backcolor: '', fontsize: '16px', fontname: '', align: 'left', ...attrs };
+    const marks = getMarkAttrs(view);
+    return {
+      bold: isActiveMark(marks, 'strong'), em: isActiveMark(marks, 'em'),
+      underline: isActiveMark(marks, 'underline'), strikethrough: isActiveMark(marks, 'strikethrough'),
+      superscript: isActiveMark(marks, 'superscript'), subscript: isActiveMark(marks, 'subscript'),
+      code: isActiveMark(marks, 'code'),
+      color: getAttrValue(marks, 'forecolor', 'color') || defaultAttrs.color,
+      backcolor: getAttrValue(marks, 'backcolor', 'backcolor') || defaultAttrs.backcolor,
+      fontsize: getAttrValue(marks, 'fontsize', 'fontsize') || defaultAttrs.fontsize,
+      fontname: getAttrValue(marks, 'fontname', 'fontname') || defaultAttrs.fontname,
+      link: getAttrValue(marks, 'link', 'href') || '',
+      align: (getAttrValueInSelection(view, 'align') || defaultAttrs.align),
+      bulletList: isActiveOfParentNodeType('bullet_list', view.state),
+      orderedList: isActiveOfParentNodeType('ordered_list', view.state),
+      blockquote: isActiveOfParentNodeType('blockquote', view.state),
+    };
+  }
+  function getFontsize(view) {
+    const marks = getMarkAttrs(view);
+    return parseInt(getAttrValue(marks, 'fontsize', 'fontsize') || '16px');
+  }
+
+  // ── Commands ── (EXACT COPY from lib/prosemirror/commands/)
+  function alignmentCommand(view, alignment) {
+    const { state } = view; const { schema, selection } = state;
+    const tr = state.tr.setSelection(selection); const { from, to } = tr.selection; const { doc } = tr;
+    if (!selection || !doc) return;
+    const allowedTypes = new Set([schema.nodes.blockquote, schema.nodes.list_item, schema.nodes.paragraph]);
+    const tasks = [];
+    doc.nodesBetween(from, to, (node, pos) => {
+      const align = node.attrs.align || '';
+      if (align !== alignment && allowedTypes.has(node.type)) tasks.push({ node, pos, nodeType: node.type });
+      return true;
+    });
+    if (!tasks.length) return;
+    tasks.forEach(({ node, pos, nodeType }) => {
+      let attrs = { ...node.attrs, align: alignment || null };
+      tr.setNodeMarkup(pos, nodeType, attrs, node.marks);
+    });
+    view.dispatch(tr);
+  }
+
+  function setIndent(tr, schema, delta, indentKey) {
+    const { selection, doc } = tr;
+    if (!selection || !doc) return tr;
+    const { from, to } = selection;
+    doc.nodesBetween(from, to, (node, pos) => {
+      if (node.type.name === 'paragraph' || node.type.name === 'blockquote') {
+        let indent = (node.attrs[indentKey] || 0) + delta;
+        indent = Math.max(0, Math.min(8, indent));
+        if (indent !== node.attrs[indentKey]) tr.setNodeMarkup(pos, node.type, { ...node.attrs, [indentKey]: indent }, node.marks);
+        return false;
+      } else if (isList(node, schema)) return false;
+      return true;
+    });
+    return tr;
+  }
+  function indentCommand(view, delta) {
+    const { state } = view; const { schema, selection } = state;
+    const tr = setIndent(state.tr.setSelection(selection), schema, delta, 'indent');
+    if (tr.docChanged) { view.dispatch(tr); return true; }
+    return false;
+  }
+  function textIndentCommand(view, delta) {
+    const { state } = view; const { schema, selection } = state;
+    const tr = setIndent(state.tr.setSelection(selection), schema, delta, 'textIndent');
+    if (tr.docChanged) { view.dispatch(tr); return true; }
+    return false;
+  }
+  function setListStyle(view, style) {
+    const { state } = view; const { schema, selection } = state;
+    const tr = state.tr.setSelection(selection); const { doc } = tr;
+    if (!doc) return;
+    const { from, to } = selection;
+    doc.nodesBetween(from, to, (node, pos) => {
+      if (isList(node, schema)) {
+        if (from - 3 <= pos && to + 3 >= pos + node.nodeSize) {
+          const styles = Array.isArray(style) ? style : [style];
+          for (const s of styles) tr.setNodeAttribute(pos, s.key, s.value);
+        }
+      }
+      return false;
+    });
+    view.dispatch(tr);
+  }
+  function toggleList(listType, itemType, listStyleType, textStyleAttr) {
+    return (state, dispatch) => {
+      const { schema, selection } = state;
+      const { $from, $to } = selection; const range = $from.blockRange($to);
+      if (!range) return false;
+      const parentList = findParentNode(node => isList(node, schema))(selection);
+      if (range.depth >= 1 && parentList && range.depth - parentList.depth <= 1) {
+        if (parentList.node.type === listType && !listStyleType) return liftListItem(itemType)(state, dispatch);
+        if (isList(parentList.node, schema) && listType.validContent(parentList.node.content)) {
+          const { tr } = state;
+          const nodeAttrs = { ...parentList.node.attrs, ...textStyleAttr };
+          if (listStyleType) nodeAttrs.listStyleType = listStyleType;
+          tr.setNodeMarkup(parentList.pos, listType, nodeAttrs);
+          if (dispatch) dispatch(tr);
+          return false;
+        }
+      }
+      const nodeAttrs = { ...textStyleAttr };
+      if (listStyleType) nodeAttrs.listStyleType = listStyleType;
+      return wrapInList(listType, nodeAttrs)(state, dispatch);
+    };
+  }
+  function replaceText(view, newText) {
+    const { state } = view; const { schema, doc } = state;
+    let marks = []; let nodeType = schema.nodes.paragraph;
+    if (doc.content.size > 2) { const firstCharPos = doc.resolve(1); marks = [...firstCharPos.marks()]; nodeType = firstCharPos.parent.type; }
+    const lines = newText.split('\n');
+    const newNodes = lines.map(line => {
+      if (line.trim() === '') return nodeType.create();
+      return nodeType.create(null, schema.text(line, marks));
+    });
+    view.dispatch(state.tr.replaceWith(0, doc.content.size, newNodes));
+  }
+
+  // ── Plugins ── (EXACT COPY from lib/prosemirror/plugins/)
+  function buildInputRules(s) {
+    const rules = [...smartQuotes, ellipsis, emDash];
+    rules.push(wrappingInputRule(/^\s*>\s$/, s.nodes.blockquote));
+    rules.push(wrappingInputRule(/^(\d+)\.\s$/, s.nodes.ordered_list, m => ({ order: +m[1] }), (m, node) => node.childCount + node.attrs.order === +m[1]));
+    rules.push(wrappingInputRule(/^\s*([-+*])\s$/, s.nodes.bullet_list));
+    rules.push(new InputRule(/(?:^|\s)((?:`)((?:[^`]+))(?:`))$/, (state, match, start, end) => {
+      const tr = state.tr.insertText(match[2] + ' ', start, end);
+      return tr.addMark(start, start + match[2].length, state.schema.marks.code.create());
+    }));
+    rules.push(new InputRule(/(?:https?:\/\/)?[\w-]+(?:\.[\w-]+)+\.?(?:\d+)?(?:\/\S*)?$/, (state, match, start, end) => {
+      const tr = state.tr.insertText(match[0], start, end);
+      return tr.addMark(start, start + match[0].length, state.schema.marks.link.create({ href: match[0], title: match[0] }));
+    }));
+    return inputRules({ rules });
+  }
+  function buildKeymap(s) {
+    const keys = {};
+    const bind = (key, cmd) => (keys[key] = cmd);
+    bind('Alt-ArrowUp', joinUp); bind('Alt-ArrowDown', joinDown);
+    bind('Mod-z', undo); bind('Mod-y', redo); bind('Backspace', undoInputRule);
+    bind('Escape', selectParentNode);
+    bind('Mod-b', toggleMark(s.marks.strong)); bind('Mod-i', toggleMark(s.marks.em));
+    bind('Mod-u', toggleMark(s.marks.underline)); bind('Mod-d', toggleMark(s.marks.strikethrough));
+    bind('Mod-e', toggleMark(s.marks.code));
+    bind('Mod-;', toggleMark(s.marks.superscript)); bind("Mod-'", toggleMark(s.marks.subscript));
+    bind('Enter', chainCommands(splitListItem(s.nodes.list_item), newlineInCode, createParagraphNear, liftEmptyBlock, splitBlockKeepMarks));
+    bind('Mod-[', liftListItem(s.nodes.list_item)); bind('Mod-]', sinkListItem(s.nodes.list_item));
+    bind('Tab', sinkListItem(s.nodes.list_item));
+    return keys;
+  }
+  function placeholderPlugin(placeholder) {
+    return new prosemirrorState.Plugin({
+      props: {
+        decorations(state) {
+          const { $from } = state.selection;
+          const node = $from.parent;
+          if (node.type.name === 'paragraph' && node.nodeSize === 2) {
+            const dec = prosemirrorView.Decoration.node($from.before(), $from.after(), { 'data-placeholder': placeholder });
+            return prosemirrorView.DecorationSet.create(state.doc, [dec]);
+          }
+          return prosemirrorView.DecorationSet.empty;
+        }
+      }
+    });
+  }
+  function buildPlugins(opts) {
+    const plugins = [
+      buildInputRules(schema),
+      keymap(buildKeymap(schema)),
+      keymap(baseKeymap),
+      dropCursor(), gapCursor(), history(),
+    ];
+    if (opts && opts.placeholder) plugins.push(placeholderPlugin(opts.placeholder));
+    return plugins;
+  }
+
+  // ── Document creation ──
+  function createDocument(content) {
+    const htmlString = '<div>' + content + '</div>';
+    const parser = new DOMParser();
+    const element = parser.parseFromString(htmlString, 'text/html').body.firstElementChild;
+    return DOMParser.fromSchema(schema).parse(element);
+  }
+
+  // ── Editor initialization ──
+  let editorView = null;
+  let currentContent = '';
+
+  function initEditor(content, editable, placeholder) {
+    const container = document.getElementById('editor');
+    if (!container) return;
+    if (editorView) editorView.destroy();
+
+    editorView = new EditorView(container, {
+      state: EditorState.create({
+        doc: createDocument(content || ''),
+        plugins: buildPlugins(placeholder ? { placeholder } : {}),
+      }),
+      handleDOMEvents: {
+        focus: () => { postMessage({ type: 'focus' }); return false; },
+        blur: () => { postMessage({ type: 'blur' }); return false; },
+        keydown: () => {
+          // Debounced change notification
+          clearTimeout(window._changeTimer);
+          window._changeTimer = setTimeout(() => {
+            if (!editorView) return;
+            const html = editorView.dom.innerHTML;
+            if (html !== currentContent) {
+              currentContent = html;
+              postMessage({ type: 'change', html });
+              postMessage({ type: 'attrs', attrs: getTextAttrs(editorView) });
+            }
+          }, 150);
+          return false;
+        },
+        click: () => {
+          clearTimeout(window._clickTimer);
+          window._clickTimer = setTimeout(() => {
+            if (editorView) postMessage({ type: 'attrs', attrs: getTextAttrs(editorView) });
+          }, 30);
+          return false;
+        },
+      },
+      editable: () => editable,
+      dispatchTransaction(tr) {
+        const newState = this.state.apply(tr);
+        this.updateState(newState);
+        if (tr.selectionSet || tr.docChanged || tr.storedMarksSet) {
+          postMessage({ type: 'attrs', attrs: getTextAttrs(editorView) });
+        }
+      },
+    });
+    currentContent = editorView.dom.innerHTML;
+  }
+
+  function updateContent(content) {
+    if (!editorView) return;
+    if (editorView.hasFocus()) return;
+    const { doc, tr } = editorView.state;
+    editorView.dispatch(tr.replaceRangeWith(0, doc.content.size, createDocument(content)));
+    currentContent = editorView.dom.innerHTML;
+  }
+
+  function setEditable(editable) {
+    if (!editorView) return;
+    editorView.setProps({ editable: () => editable });
+  }
+
+  // ── Command execution ──
+  function execCommand(payload) {
+    if (!editorView) return;
+    const { command, value } = payload;
+    const view = editorView;
+    const s = view.state;
+    const marks = s.schema.marks;
+
+    switch (command) {
+      case 'fontname':
+        autoSelectAll(view);
+        addMark(view, marks.fontname.create({ fontname: value }));
+        break;
+      case 'fontsize':
+        autoSelectAll(view);
+        addMark(view, marks.fontsize.create({ fontsize: value }));
+        setListStyle(view, { key: 'fontsize', value });
+        break;
+      case 'fontsize-add': {
+        const step = value ? +value : 2;
+        autoSelectAll(view);
+        const fs = getFontsize(view) + step + 'px';
+        addMark(view, marks.fontsize.create({ fontsize: fs }));
+        setListStyle(view, { key: 'fontsize', value: fs });
+        break;
+      }
+      case 'fontsize-reduce': {
+        const step = value ? +value : 2;
+        autoSelectAll(view);
+        let fs = getFontsize(view) - step;
+        if (fs < 12) fs = 12;
+        addMark(view, marks.fontsize.create({ fontsize: fs + 'px' }));
+        setListStyle(view, { key: 'fontsize', value: fs + 'px' });
+        break;
+      }
+      case 'color':
+        autoSelectAll(view);
+        addMark(view, marks.forecolor.create({ color: value }));
+        setListStyle(view, { key: 'color', value });
+        break;
+      case 'backcolor':
+        autoSelectAll(view);
+        addMark(view, marks.backcolor.create({ backcolor: value }));
+        break;
+      case 'bold':
+        autoSelectAll(view);
+        toggleMark(marks.strong)(s, view.dispatch);
+        break;
+      case 'em':
+        autoSelectAll(view);
+        toggleMark(marks.em)(s, view.dispatch);
+        break;
+      case 'underline':
+        autoSelectAll(view);
+        toggleMark(marks.underline)(s, view.dispatch);
+        break;
+      case 'strikethrough':
+        autoSelectAll(view);
+        toggleMark(marks.strikethrough)(s, view.dispatch);
+        break;
+      case 'subscript':
+        toggleMark(marks.subscript)(s, view.dispatch);
+        break;
+      case 'superscript':
+        toggleMark(marks.superscript)(s, view.dispatch);
+        break;
+      case 'blockquote':
+        if (isActiveOfParentNodeType('blockquote', s)) lift(s, view.dispatch);
+        else wrapIn(s.schema.nodes.blockquote)(s, view.dispatch);
+        break;
+      case 'code':
+        toggleMark(marks.code)(s, view.dispatch);
+        break;
+      case 'align':
+        alignmentCommand(view, value);
+        break;
+      case 'indent':
+        indentCommand(view, +value);
+        break;
+      case 'textIndent':
+        textIndentCommand(view, +value);
+        break;
+      case 'bulletList': {
+        const { bullet_list: bl, list_item: li } = s.schema.nodes;
+        toggleList(bl, li, value || '', {})(s, view.dispatch);
+        break;
+      }
+      case 'orderedList': {
+        const { ordered_list: ol, list_item: li } = s.schema.nodes;
+        toggleList(ol, li, value || '', {})(s, view.dispatch);
+        break;
+      }
+      case 'clear': {
+        autoSelectAll(view);
+        const { $from, $to } = view.state.selection;
+        view.dispatch(view.state.tr.removeMark($from.pos, $to.pos));
+        setListStyle(view, [{ key: 'fontsize', value: '' }, { key: 'color', value: '' }]);
+        break;
+      }
+      case 'link': {
+        const markType = marks.link;
+        const { from, to } = s.selection;
+        const result = findNodesWithSameMark(s.doc, from, to, markType);
+        if (result) {
+          if (value) addMark(view, marks.link.create({ href: value, title: value }), { from: result.from.pos, to: result.to.pos + 1 });
+          else view.dispatch(view.state.tr.removeMark(result.from.pos, result.to.pos + 1, markType));
+        } else if (markActive(s, markType)) {
+          if (value) addMark(view, marks.link.create({ href: value, title: value }));
+          else toggleMark(markType)(s, view.dispatch);
+        } else if (value) {
+          autoSelectAll(view);
+          toggleMark(markType, { href: value, title: value })(view.state, view.dispatch);
+        }
+        break;
+      }
+      case 'replace':
+        replaceText(view, value);
+        break;
+      case 'insert':
+        view.dispatch(view.state.tr.insertText(value));
+        break;
+    }
+    // Sync state after command
+    view.focus();
+    clearTimeout(window._changeTimer);
+    window._changeTimer = setTimeout(() => {
+      if (!editorView) return;
+      const html = editorView.dom.innerHTML;
+      if (html !== currentContent) { currentContent = html; postMessage({ type: 'change', html }); }
+      postMessage({ type: 'attrs', attrs: getTextAttrs(editorView) });
+    }, 50);
+  }
+
+  // ── Message handling ──
+  window.addEventListener('message', (e) => {
+    const data = e.data;
+    if (!data || !data.type) return;
+    switch (data.type) {
+      case 'init':
+        initEditor(data.content || '', data.editable !== false, data.placeholder || '');
+        break;
+      case 'update':
+        updateContent(data.content || '');
+        break;
+      case 'editable':
+        setEditable(data.editable);
+        break;
+      case 'command':
+        execCommand(data.payload);
+        break;
+      case 'focus':
+        if (editorView) editorView.focus();
+        break;
+    }
+  });
+
+  // Also support React Native WebView's postMessage (via window.ReactNativeWebView)
+  window.addEventListener('message', (e) => {
+    // RN WebView wraps messages differently
+    if (e.nativeEvent && e.nativeEvent.data) {
+      try {
+        const data = JSON.parse(e.nativeEvent.data);
+        if (data && data.type) {
+          // Already handled by the above listener for direct postMessage
+          // This handles RN WebView's specific message format
+        }
+      } catch (err) {}
+    }
+  });
+
+  // Signal ready
+  postMessage({ type: 'ready' });
+})();
+</script>
+</body>
+</html>
