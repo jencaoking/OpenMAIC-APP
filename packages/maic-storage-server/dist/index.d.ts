@@ -1,5 +1,5 @@
 /**
- * OpenMAIC 独立 Storage Server（PLAN.MD Phase 2）。
+ * OpenMAIC 独立 Storage Server（docs/mobile-storage-plan.md Phase 2）。
  *
  * 使用官方标准实现：
  * - `createRuntimeHttpHandler` from `@openmaic/storage/server`
@@ -33,7 +33,7 @@ import { type ConnectableQueryable } from '@openmaic/storage/server/reference';
 /**
  * 身份验证钩子：解析 `Authorization: Bearer <learnerKey>` 头。
  *
- * 符合 PLAN.MD 规范：
+ * 符合 docs/mobile-storage-plan.md 规范：
  * - 未认证请求返回 401 UNAUTHENTICATED
  * - learnerKey 为空字符串视为未认证
  */

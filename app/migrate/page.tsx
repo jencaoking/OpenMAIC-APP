@@ -15,7 +15,7 @@ import {
 import { getLearnerKey } from '@/lib/runtime/learner-key';
 
 /**
- * 数据迁移页面（PLAN.MD Phase 4 验收工具）。
+ * 数据迁移页面（docs/mobile-storage-plan.md Phase 4 验收工具）。
  *
  * 用途：
  * 1. 将本地 IndexedDB 中的 runtime sessions/records 迁移至 Storage Server

@@ -1,5 +1,5 @@
 /**
- * OpenMAIC 独立 Storage Server（PLAN.MD Phase 2）。
+ * OpenMAIC 独立 Storage Server（docs/mobile-storage-plan.md Phase 2）。
  *
  * 使用官方标准实现：
  * - `createRuntimeHttpHandler` from `@openmaic/storage/server`
@@ -39,12 +39,12 @@ const ALLOWED_ORIGINS = process.env.CORS_ORIGINS?.split(',').map((o) => o.trim()
   'http://localhost:8081',
 ];
 // ============================================================
-// 鉴权钩子（PLAN.MD 6. 核心协议契约规范）
+// 鉴权钩子（docs/mobile-storage-plan.md 6. 核心协议契约规范）
 // ============================================================
 /**
  * 身份验证钩子：解析 `Authorization: Bearer <learnerKey>` 头。
  *
- * 符合 PLAN.MD 规范：
+ * 符合 docs/mobile-storage-plan.md 规范：
  * - 未认证请求返回 401 UNAUTHENTICATED
  * - learnerKey 为空字符串视为未认证
  */

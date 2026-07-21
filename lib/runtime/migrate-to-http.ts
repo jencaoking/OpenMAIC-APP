@@ -1,5 +1,5 @@
 /**
- * IndexedDB → HttpRuntimeStore 一次性迁移脚本（PLAN.MD Phase 4）。
+ * IndexedDB → HttpRuntimeStore 一次性迁移脚本（docs/mobile-storage-plan.md Phase 4）。
  *
  * 策略：「只增不删」—— 本地 IndexedDB 数据在迁移完成并校验前绝不删除。
  * 迁移失败时保留本地数据，用户可重试。迁移成功后由用户手动清理。

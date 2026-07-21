@@ -1,5 +1,5 @@
 /**
- * 多端同步验证脚本（PLAN.MD Phase 4 验收点）。
+ * 多端同步验证脚本（docs/mobile-storage-plan.md Phase 4 验收点）。
  *
  * 验证 Web/Mobile 登录同一账号后，数据实时同步无延迟。
  * 验证多端并发写入同一 Session，seq 严格递增无冲突。

@@ -1,5 +1,5 @@
 /**
- * Web 端 HttpRuntimeStore 引导模块（PLAN.MD Phase 4）。
+ * Web 端 HttpRuntimeStore 引导模块（docs/mobile-storage-plan.md Phase 4）。
  *
  * 将 Web 端的 RuntimeStore 从浏览器 IndexedDB (BrowserRuntimeStore)
  * 切换为独立的 Storage Server (HttpRuntimeStore)，为多端数据同步奠定基础。

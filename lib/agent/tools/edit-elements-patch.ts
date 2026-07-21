@@ -1,7 +1,7 @@
 import type { EditIntent } from '@openmaic/renderer/editing';
 import type { PPTElement } from '@openmaic/dsl';
-import sanitizeHtml from 'sanitize-html';
 import { isExactContentEditable } from './edit-elements-content-contract';
+import { isSafeRichText } from '../shared/rich-text-sanitize';
 import {
   ALLOWED_EDIT_PROPS,
   buildElementInventory,
@@ -30,125 +30,6 @@ const SHAPE_TEXT_PATH_TO_INTENT_PROP = new Map([
 ]);
 
 const PARTIALLY_MERGED_STYLE_PROPS = new Set(['outline', 'shadow', 'filters']);
-
-const SAFE_CSS_VALUE =
-  /^(?!.*(?:\\|\/\*|@|url\s*\(|expression\s*\(|javascript\s*:|data\s*:|[{}]))[\s\S]+$/i;
-const SAFE_LAYOUT_VALUE =
-  /^-?\d+(?:\.\d+)?(?:px|pt|%|em|rem)?(?:\s+-?\d+(?:\.\d+)?(?:px|pt|%|em|rem)?){0,3}$/i;
-const SAFE_GRADIENT_VALUE =
-  /^(?!.*(?:\\|\/\*|@|url\s*\(|expression\s*\(|javascript\s*:|data\s*:|[{}]))(?:linear|radial)-gradient\([\s\S]+\)$/i;
-const SAFE_WARP_TRANSFORM =
-  /^translate\(-?\d+(?:\.\d+)?%,\s*-?\d+(?:\.\d+)?%\)\s+rotate\(-?\d+(?:\.\d+)?deg\)$/i;
-const SAFE_RICH_TEXT_OPTIONS: sanitizeHtml.IOptions = {
-  allowedTags: [
-    'p',
-    'div',
-    'br',
-    'span',
-    'mark',
-    'strong',
-    'b',
-    'em',
-    'i',
-    'u',
-    's',
-    'strike',
-    'sub',
-    'sup',
-    'code',
-    'pre',
-    'blockquote',
-    'ul',
-    'ol',
-    'li',
-    'a',
-  ],
-  allowedAttributes: {
-    a: ['href', 'title', 'target', 'rel', 'style'],
-    div: ['style', 'data-*'],
-    p: ['style', 'data-*'],
-    span: ['style', 'data-*'],
-    br: ['class'],
-    mark: ['data-index'],
-    ol: ['start', 'reversed', 'type', 'style'],
-    ul: ['style'],
-    li: ['value'],
-  },
-  allowedClasses: { br: ['ProseMirror-trailingBreak'] },
-  allowedSchemes: ['http', 'https', 'mailto', 'tel'],
-  allowProtocolRelative: false,
-  allowedStyles: {
-    '*': {
-      color: [SAFE_CSS_VALUE],
-      'background-color': [SAFE_CSS_VALUE],
-      background: [SAFE_GRADIENT_VALUE],
-      'background-clip': [SAFE_CSS_VALUE],
-      '-webkit-background-clip': [SAFE_CSS_VALUE],
-      'font-family': [SAFE_CSS_VALUE],
-      'font-size': [SAFE_CSS_VALUE],
-      'font-weight': [SAFE_CSS_VALUE],
-      'font-style': [SAFE_CSS_VALUE],
-      font: [SAFE_CSS_VALUE],
-      'text-decoration': [SAFE_CSS_VALUE],
-      'text-decoration-line': [SAFE_CSS_VALUE],
-      'text-align': [SAFE_CSS_VALUE],
-      'text-shadow': [SAFE_CSS_VALUE],
-      'line-height': [SAFE_CSS_VALUE],
-      'letter-spacing': [SAFE_CSS_VALUE],
-      'font-kerning': [SAFE_CSS_VALUE],
-      'font-variant': [SAFE_CSS_VALUE],
-      'text-transform': [SAFE_CSS_VALUE],
-      'vertical-align': [SAFE_CSS_VALUE],
-      'text-indent': [SAFE_CSS_VALUE],
-      margin: [SAFE_LAYOUT_VALUE],
-      'margin-left': [SAFE_LAYOUT_VALUE],
-      'margin-right': [SAFE_LAYOUT_VALUE],
-      'margin-top': [SAFE_LAYOUT_VALUE],
-      'margin-bottom': [SAFE_LAYOUT_VALUE],
-      'margin-block': [SAFE_CSS_VALUE],
-      'margin-block-end': [SAFE_CSS_VALUE],
-      opacity: [SAFE_CSS_VALUE],
-      display: [/^(?:none|block|inline|inline-block|flex|inline-flex)$/i],
-      position: [/^(?:relative|absolute)$/i],
-      left: [SAFE_LAYOUT_VALUE],
-      right: [SAFE_LAYOUT_VALUE],
-      top: [SAFE_LAYOUT_VALUE],
-      bottom: [SAFE_LAYOUT_VALUE],
-      width: [SAFE_LAYOUT_VALUE],
-      height: [SAFE_LAYOUT_VALUE],
-      'min-height': [SAFE_LAYOUT_VALUE],
-      padding: [SAFE_LAYOUT_VALUE],
-      'padding-top': [SAFE_LAYOUT_VALUE],
-      'padding-left': [SAFE_LAYOUT_VALUE],
-      'padding-right': [SAFE_LAYOUT_VALUE],
-      overflow: [/^(?:visible|hidden|clip)$/i],
-      'white-space': [/^(?:normal|nowrap|pre|pre-wrap|pre-line|break-spaces)$/i],
-      'tab-size': [SAFE_LAYOUT_VALUE],
-      transform: [SAFE_WARP_TRANSFORM],
-      'transform-origin': [/^center center$/i],
-      'box-sizing': [/^border-box$/i],
-      'list-style-type': [SAFE_CSS_VALUE],
-      visibility: [SAFE_CSS_VALUE],
-      'writing-mode': [SAFE_CSS_VALUE],
-      '-webkit-writing-mode': [SAFE_CSS_VALUE],
-      '-webkit-text-fill-color': [SAFE_CSS_VALUE],
-      '-webkit-text-stroke-width': [SAFE_CSS_VALUE],
-      '-webkit-text-stroke-color': [SAFE_CSS_VALUE],
-      'paint-order': [SAFE_CSS_VALUE],
-      'mask-image': [SAFE_GRADIENT_VALUE],
-      '-webkit-mask-image': [SAFE_GRADIENT_VALUE],
-      all: [SAFE_CSS_VALUE],
-    },
-  },
-};
-
-const CANONICAL_HTML_OPTIONS: sanitizeHtml.IOptions = {
-  allowedTags: false,
-  allowedAttributes: false,
-  allowedSchemes: ['http', 'https', 'mailto', 'tel', 'javascript', 'data', 'vbscript'],
-  allowProtocolRelative: true,
-  allowVulnerableTags: true,
-};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -201,12 +82,6 @@ function writeProperty(
   }
   parent[key] = structuredClone(value);
   return null;
-}
-
-function isSafeRichText(content: string): boolean {
-  return (
-    sanitizeHtml(content, SAFE_RICH_TEXT_OPTIONS) === sanitizeHtml(content, CANONICAL_HTML_OPTIONS)
-  );
 }
 
 function mappedPropsById(intents: EditIntent[]): Map<string, Record<string, unknown>> {
