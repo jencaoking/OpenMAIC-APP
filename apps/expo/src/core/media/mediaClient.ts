@@ -142,7 +142,7 @@ export async function fetchMediaToLocal(
   filename: string,
 ): Promise<string> {
   const FileSystem = await import('expo-file-system');
-  const cacheDir = FileSystem.default.cacheDirectory || '';
+  const cacheDir = (FileSystem as any).cacheDirectory || (FileSystem as any).default?.cacheDirectory || '';
   const localPath = `${cacheDir}${filename}`;
 
   // Check if already cached

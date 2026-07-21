@@ -102,7 +102,7 @@ export async function downloadVideo(
   filename: string,
 ): Promise<string> {
   const FileSystem = await import('expo-file-system');
-  const cacheDir = FileSystem.default.cacheDirectory || '';
+  const cacheDir = (FileSystem as any).cacheDirectory || (FileSystem as any).default?.cacheDirectory || '';
   const localPath = `${cacheDir}${filename}`;
 
   const downloadResult = await FileSystem.default.downloadAsync(url, localPath);

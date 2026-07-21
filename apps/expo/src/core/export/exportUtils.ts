@@ -93,7 +93,8 @@ export async function createClassroomZip(params: {
 
   // 5. Write to temp file
   const fileName = `${stageName.replace(/[^a-zA-Z0-9]/g, '_')}${CLASSROOM_ZIP_EXTENSION}`;
-  const tempUri = `${FileSystem.default.cacheDirectory}${fileName}`;
+  const cacheDir = (FileSystem as any).cacheDirectory || (FileSystem as any).default?.cacheDirectory || '';
+  const tempUri = `${cacheDir}${fileName}`;
 
   await FileSystem.writeAsStringAsync(tempUri, zipBase64, {
     encoding: FileSystem.EncodingType.Base64,
