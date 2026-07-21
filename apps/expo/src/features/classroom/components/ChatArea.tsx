@@ -16,32 +16,20 @@ export function ChatArea() {
           style={[styles.tab, activeTab === 'notes' && styles.tabActive]}
           onPress={() => setActiveTab('notes')}
         >
-          <Text style={[styles.tabIcon, activeTab === 'notes' && styles.tabIconActive]}>
-            📖
-          </Text>
-          <Text style={[styles.tabText, activeTab === 'notes' && styles.tabTextActive]}>
-            笔记
-          </Text>
+          <Text style={[styles.tabIcon, activeTab === 'notes' && styles.tabIconActive]}>📖</Text>
+          <Text style={[styles.tabText, activeTab === 'notes' && styles.tabTextActive]}>笔记</Text>
         </Pressable>
         <Pressable
           style={[styles.tab, activeTab === 'chat' && styles.tabActive]}
           onPress={() => setActiveTab('chat')}
         >
-          <Text style={[styles.tabIcon, activeTab === 'chat' && styles.tabIconActive]}>
-            💬
-          </Text>
-          <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>
-            聊天
-          </Text>
+          <Text style={[styles.tabIcon, activeTab === 'chat' && styles.tabIconActive]}>💬</Text>
+          <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>聊天</Text>
         </Pressable>
       </View>
 
       {/* Content */}
-      {activeTab === 'notes' ? (
-        <LectureNotesView />
-      ) : (
-        <ChatSessionList />
-      )}
+      {activeTab === 'notes' ? <LectureNotesView /> : <ChatSessionList />}
     </View>
   );
 }

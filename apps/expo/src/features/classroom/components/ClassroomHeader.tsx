@@ -23,7 +23,9 @@ export function ClassroomHeader({ title, subtitle, onBack, onPresent }: Classroo
       {/* Title */}
       <View style={styles.titleBlock}>
         {subtitle && <Text style={styles.label}>{subtitle}</Text>}
-        <Text style={styles.title} numberOfLines={1}>{title}</Text>
+        <Text style={styles.title} numberOfLines={1}>
+          {title}
+        </Text>
       </View>
 
       <View style={styles.spacer} />
@@ -37,15 +39,11 @@ export function ClassroomHeader({ title, subtitle, onBack, onPresent }: Classroo
 
       {/* Toggle Buttons */}
       <Pressable style={styles.toggleBtn} onPress={toggleSidebar}>
-        <Text style={[styles.toggleText, !sidebarCollapsed && styles.toggleActive]}>
-          ☰
-        </Text>
+        <Text style={[styles.toggleText, !sidebarCollapsed && styles.toggleActive]}>☰</Text>
       </Pressable>
 
       <Pressable style={styles.toggleBtn} onPress={toggleChatArea}>
-        <Text style={[styles.toggleText, !chatAreaCollapsed && styles.toggleActive]}>
-          💬
-        </Text>
+        <Text style={[styles.toggleText, !chatAreaCollapsed && styles.toggleActive]}>💬</Text>
       </Pressable>
     </View>
   );

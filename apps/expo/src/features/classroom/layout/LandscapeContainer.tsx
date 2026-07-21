@@ -10,18 +10,14 @@ interface LandscapeContainerProps {
 export function LandscapeContainer({ children }: LandscapeContainerProps) {
   useEffect(() => {
     // Lock to landscape on mount
-    ScreenOrientation.lockAsync(
-      ScreenOrientation.OrientationLock.LANDSCAPE
-    ).catch(() => {});
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE).catch(() => {});
 
     // Hide status bar in landscape
     StatusBar.setHidden(true, 'fade');
 
     return () => {
       // Restore portrait on unmount
-      ScreenOrientation.lockAsync(
-        ScreenOrientation.OrientationLock.PORTRAIT
-      ).catch(() => {});
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT).catch(() => {});
       StatusBar.setHidden(false, 'fade');
     };
   }, []);

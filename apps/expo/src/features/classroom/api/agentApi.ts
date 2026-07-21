@@ -41,7 +41,7 @@ export interface GeneratedAgent {
  * 调用 Agent 生成接口。
  */
 export async function generateAgentProfiles(
-  request: AgentGenerationRequest
+  request: AgentGenerationRequest,
 ): Promise<GeneratedAgent[]> {
   const response = await fetch(`${API_BASE}/api/generate/agent-profiles`, {
     method: 'POST',

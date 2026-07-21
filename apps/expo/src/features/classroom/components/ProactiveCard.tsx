@@ -89,12 +89,7 @@ export function ProactiveCard({
       {/* 倒计时 */}
       <View style={styles.countdownRow}>
         <View style={styles.countdownBar}>
-          <View
-            style={[
-              styles.countdownFill,
-              { width: `${(remaining / countdown) * 100}%` },
-            ]}
-          />
+          <View style={[styles.countdownFill, { width: `${(remaining / countdown) * 100}%` }]} />
         </View>
         <Text style={styles.countdownText}>{remaining}s</Text>
       </View>

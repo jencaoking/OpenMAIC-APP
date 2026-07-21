@@ -1,10 +1,6 @@
 import React from 'react';
 import { Pressable, type PressableProps } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
 interface AnimatedPressableProps extends PressableProps {
   /** 按下时的缩放比例 */

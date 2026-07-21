@@ -4,12 +4,7 @@ import { useClassroomStore } from '../store/classroomStore';
 import { useClassroomPlayback } from '../hooks/useClassroomPlayback';
 
 export function CanvasToolbar() {
-  const {
-    scenes,
-    currentSceneIndex,
-    engineMode,
-    speechProgress,
-  } = useClassroomStore();
+  const { scenes, currentSceneIndex, engineMode, speechProgress } = useClassroomStore();
 
   const { togglePlayPause, nextScene, prevScene } = useClassroomPlayback();
 
@@ -30,10 +25,7 @@ export function CanvasToolbar() {
 
       {/* Play/Pause */}
       <View style={styles.group}>
-        <Pressable
-          style={[styles.btn, isPlaying && styles.btnActive]}
-          onPress={togglePlayPause}
-        >
+        <Pressable style={[styles.btn, isPlaying && styles.btnActive]} onPress={togglePlayPause}>
           <Text style={[styles.btnText, isPlaying && styles.btnTextActive]}>
             {isPlaying ? '⏸' : '▶'}
           </Text>
@@ -58,12 +50,7 @@ export function CanvasToolbar() {
       {engineMode === 'playing' && speechProgress !== null && (
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: `${(speechProgress || 0) * 100}%` },
-              ]}
-            />
+            <View style={[styles.progressFill, { width: `${(speechProgress || 0) * 100}%` }]} />
           </View>
         </View>
       )}

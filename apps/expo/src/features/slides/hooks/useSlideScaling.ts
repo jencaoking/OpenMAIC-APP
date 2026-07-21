@@ -28,14 +28,8 @@ interface UseSlideScalingResult {
  * 计算幻灯片在容器中的缩放和定位。
  * 移植自 @openmaic/renderer 的 useViewportSize hook。
  */
-export function useSlideScaling(
-  options: UseSlideScalingOptions = {}
-): UseSlideScalingResult {
-  const {
-    viewportSize = 1000,
-    viewportRatio = 0.5625,
-    containerPadding = 16,
-  } = options;
+export function useSlideScaling(options: UseSlideScalingOptions = {}): UseSlideScalingResult {
+  const { viewportSize = 1000, viewportRatio = 0.5625, containerPadding = 16 } = options;
 
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 

@@ -176,7 +176,8 @@ export function getLiveActivityBridge(): LiveActivityBridge {
 }
 export const liveActivityBridge = {
   start: (attrs: LiveActivityAttributes) => getLiveActivityBridge().start(attrs),
-  update: (id: string, attrs: Partial<LiveActivityAttributes>) => getLiveActivityBridge().update(id, attrs),
+  update: (id: string, attrs: Partial<LiveActivityAttributes>) =>
+    getLiveActivityBridge().update(id, attrs),
   end: (id: string) => getLiveActivityBridge().end(id),
   getActive: () => getLiveActivityBridge().getActive(),
   endAll: () => getLiveActivityBridge().endAll(),

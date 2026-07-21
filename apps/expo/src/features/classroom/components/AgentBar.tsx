@@ -37,10 +37,7 @@ export function AgentBar({ onAgentSelect }: AgentBarProps) {
           .filter((a) => a.role === 'teacher' && selectedAgentIds.includes(a.id))
           .slice(0, 1)
           .map((a) => (
-            <View
-              key={a.id}
-              style={[styles.miniAvatar, { backgroundColor: a.color, zIndex: 3 }]}
-            >
+            <View key={a.id} style={[styles.miniAvatar, { backgroundColor: a.color, zIndex: 3 }]}>
               <Text style={styles.miniAvatarText}>{a.avatar}</Text>
             </View>
           ))}
@@ -132,10 +129,14 @@ export function AgentBar({ onAgentSelect }: AgentBarProps) {
 
 function getRoleLabel(role: string): string {
   switch (role) {
-    case 'teacher': return '教师';
-    case 'assistant': return '助教';
-    case 'student': return '学生';
-    default: return role;
+    case 'teacher':
+      return '教师';
+    case 'assistant':
+      return '助教';
+    case 'student':
+      return '学生';
+    default:
+      return role;
   }
 }
 

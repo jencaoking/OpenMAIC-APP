@@ -15,11 +15,7 @@ interface TeacherAvatarProps {
  * 教师头像组件。
  * 支持发言状态指示（绿色圆点 + 紫色光环）。
  */
-export function TeacherAvatar({
-  name = 'AI 教师',
-  avatar = '👨‍🏫',
-  size = 48,
-}: TeacherAvatarProps) {
+export function TeacherAvatar({ name = 'AI 教师', avatar = '👨‍🏫', size = 48 }: TeacherAvatarProps) {
   const { speakingAgentId, engineMode } = useClassroomStore();
   const isSpeaking = speakingAgentId === 'teacher' || engineMode === 'live';
 

@@ -14,15 +14,8 @@ interface GenerationPreviewProps {
  * 显示大纲流式生成进度和结果。
  */
 export function GenerationPreview({ requirement, onComplete, onBack }: GenerationPreviewProps) {
-  const {
-    outlines,
-    courseTitle,
-    step,
-    setStep,
-    addOutline,
-    setCourseTitle,
-    setLanguageDirective,
-  } = useGenerationStore();
+  const { outlines, courseTitle, step, setStep, addOutline, setCourseTitle, setLanguageDirective } =
+    useGenerationStore();
 
   const [localOutlines, setLocalOutlines] = useState<SceneOutline[]>([]);
 
@@ -49,7 +42,7 @@ export function GenerationPreview({ requirement, onComplete, onBack }: Generatio
       // onError
       (error) => {
         console.error('Generation error:', error);
-      }
+      },
     );
   };
 
@@ -108,9 +101,7 @@ export function GenerationPreview({ requirement, onComplete, onBack }: Generatio
       {step === 'review' && (
         <View style={styles.actions}>
           <Pressable style={styles.confirmBtn} onPress={handleConfirm}>
-            <Text style={styles.confirmText}>
-              确认并生成 ({localOutlines.length} 个场景)
-            </Text>
+            <Text style={styles.confirmText}>确认并生成 ({localOutlines.length} 个场景)</Text>
           </Pressable>
         </View>
       )}
@@ -120,11 +111,16 @@ export function GenerationPreview({ requirement, onComplete, onBack }: Generatio
 
 function getTypeLabel(type: string): string {
   switch (type) {
-    case 'slide': return '幻灯片';
-    case 'quiz': return '测验';
-    case 'interactive': return '互动';
-    case 'pbl': return 'PBL';
-    default: return type;
+    case 'slide':
+      return '幻灯片';
+    case 'quiz':
+      return '测验';
+    case 'interactive':
+      return '互动';
+    case 'pbl':
+      return 'PBL';
+    default:
+      return type;
   }
 }
 

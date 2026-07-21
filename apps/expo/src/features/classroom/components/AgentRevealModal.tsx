@@ -10,7 +10,14 @@ import Animated, {
 import type { AgentConfig } from '../types/agent';
 
 interface AgentRevealModalProps {
-  agents: Array<{ id: string; name: string; role: string; persona: string; avatar: string; color: string }>;
+  agents: Array<{
+    id: string;
+    name: string;
+    role: string;
+    persona: string;
+    avatar: string;
+    color: string;
+  }>;
   visible: boolean;
   onClose: () => void;
   onAllRevealed?: () => void;
@@ -20,19 +27,27 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 
 function getRoleIcon(role: string): string {
   switch (role) {
-    case 'teacher': return '👨‍🏫';
-    case 'assistant': return '🤝';
-    case 'student': return '🎓';
-    default: return '👤';
+    case 'teacher':
+      return '👨‍🏫';
+    case 'assistant':
+      return '🤝';
+    case 'student':
+      return '🎓';
+    default:
+      return '👤';
   }
 }
 
 function getRoleLabel(role: string): string {
   switch (role) {
-    case 'teacher': return '教师';
-    case 'assistant': return '助教';
-    case 'student': return '学生';
-    default: return role;
+    case 'teacher':
+      return '教师';
+    case 'assistant':
+      return '助教';
+    case 'student':
+      return '学生';
+    default:
+      return role;
   }
 }
 
@@ -40,7 +55,12 @@ function getRoleLabel(role: string): string {
  * Agent 揭示模态框。
  * 3D 翻转卡片动画，逐个揭示 Agent。
  */
-export function AgentRevealModal({ agents, visible, onClose, onAllRevealed }: AgentRevealModalProps) {
+export function AgentRevealModal({
+  agents,
+  visible,
+  onClose,
+  onAllRevealed,
+}: AgentRevealModalProps) {
   const [revealedCount, setRevealedCount] = useState(0);
   const [allDone, setAllDone] = useState(false);
 
@@ -97,13 +117,7 @@ export function AgentRevealModal({ agents, visible, onClose, onAllRevealed }: Ag
           {/* 进度点 */}
           <View style={styles.dots}>
             {agents.map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.dot,
-                  index < revealedCount && styles.dotActive,
-                ]}
-              />
+              <View key={index} style={[styles.dot, index < revealedCount && styles.dotActive]} />
             ))}
           </View>
 
@@ -132,23 +146,13 @@ function AgentCard({ agent, index, isRevealed, delay }: AgentCardProps) {
 
   useEffect(() => {
     if (isRevealed) {
-      rotateY.value = withDelay(
-        delay,
-        withSpring(0, { damping: 15, stiffness: 100 })
-      );
-      scale.value = withDelay(
-        delay,
-        withSpring(1, { damping: 12, stiffness: 150 })
-      );
+      rotateY.value = withDelay(delay, withSpring(0, { damping: 15, stiffness: 100 }));
+      scale.value = withDelay(delay, withSpring(1, { damping: 12, stiffness: 150 }));
     }
   }, [isRevealed]);
 
   const cardStyle = useAnimatedStyle(() => ({
-    transform: [
-      { perspective: 900 },
-      { rotateY: `${rotateY.value}deg` },
-      { scale: scale.value },
-    ],
+    transform: [{ perspective: 900 }, { rotateY: `${rotateY.value}deg` }, { scale: scale.value }],
   }));
 
   return (

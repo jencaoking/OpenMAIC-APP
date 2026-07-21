@@ -29,9 +29,7 @@ export function CanvasArea() {
 
         {/* Scene Number Badge */}
         {currentScene && (
-          <Text style={styles.sceneNumber}>
-            {String(currentSceneIndex + 1).padStart(2, '0')}
-          </Text>
+          <Text style={styles.sceneNumber}>{String(currentSceneIndex + 1).padStart(2, '0')}</Text>
         )}
 
         {/* Play Button (idle state) */}

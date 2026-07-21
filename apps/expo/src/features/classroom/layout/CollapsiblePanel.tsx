@@ -70,7 +70,7 @@ export function CollapsiblePanel({
         }
         panX.setValue(newWidth);
       },
-    })
+    }),
   ).current;
 
   const panelWidth = collapsed ? 0 : width;
@@ -88,10 +88,7 @@ export function CollapsiblePanel({
       <View style={styles.content}>{children}</View>
       {!collapsed && (
         <View
-          style={[
-            styles.handle,
-            side === 'right' ? styles.handleLeft : styles.handleRight,
-          ]}
+          style={[styles.handle, side === 'right' ? styles.handleLeft : styles.handleRight]}
           {...panResponder.panHandlers}
         />
       )}

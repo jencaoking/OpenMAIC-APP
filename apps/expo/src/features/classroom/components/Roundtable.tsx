@@ -7,13 +7,8 @@ import { SpeechBubble } from './SpeechBubble';
 import { ProactiveCard } from './ProactiveCard';
 
 export function Roundtable() {
-  const {
-    lectureSpeech,
-    liveSpeech,
-    speakingAgentId,
-    engineMode,
-    isStreaming,
-  } = useClassroomStore();
+  const { lectureSpeech, liveSpeech, speakingAgentId, engineMode, isStreaming } =
+    useClassroomStore();
 
   const [inputText, setInputText] = useState('');
   const [showDiscussion, setShowDiscussion] = useState(false);
@@ -34,11 +29,7 @@ export function Roundtable() {
         <View style={styles.chatCard}>
           {/* Speech Bubble */}
           {currentSpeech && (
-            <SpeechBubble
-              text={currentSpeech}
-              role={bubbleRole}
-              isStreaming={isStreaming}
-            />
+            <SpeechBubble text={currentSpeech} role={bubbleRole} isStreaming={isStreaming} />
           )}
 
           {/* Thinking Dots */}

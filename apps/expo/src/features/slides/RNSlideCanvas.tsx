@@ -63,12 +63,7 @@ export function RNSlideCanvas({ slide, scale: fixedScale }: RNSlideCanvasProps) 
           ]}
         >
           {elements.map((element, index) => (
-            <RNSlideElement
-              key={element.id}
-              element={element}
-              index={index}
-              theme={slide.theme}
-            />
+            <RNSlideElement key={element.id} element={element} index={index} theme={slide.theme} />
           ))}
         </View>
       </View>

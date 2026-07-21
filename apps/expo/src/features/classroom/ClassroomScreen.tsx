@@ -67,7 +67,7 @@ export function ClassroomScreen({ classroomId, title: propTitle, onBack }: Class
     <LandscapeContainer>
       <View style={styles.container}>
         <ClassroomHeader
-          title={propTitle || "量子力学基础"}
+          title={propTitle || '量子力学基础'}
           subtitle={headerSubtitle}
           onBack={onBack}
           onPresent={() => setIsPresenting(true)}

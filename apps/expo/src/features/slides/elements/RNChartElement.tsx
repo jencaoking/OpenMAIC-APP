@@ -19,13 +19,14 @@ export function RNChartElement({ element }: RNChartElementProps) {
     tooltip: { trigger: 'axis' },
     xAxis: chartType !== 'pie' ? { type: 'category', data: labels } : undefined,
     yAxis: chartType !== 'pie' ? { type: 'value' } : undefined,
-    series: [{
-      type: chartType === 'bar' ? 'bar' : chartType === 'line' ? 'line' : 'pie',
-      data: chartType === 'pie'
-        ? labels?.map((l, i) => ({ name: l, value: values?.[i] }))
-        : values,
-      ...(colors ? { color: colors } : {}),
-    }],
+    series: [
+      {
+        type: chartType === 'bar' ? 'bar' : chartType === 'line' ? 'line' : 'pie',
+        data:
+          chartType === 'pie' ? labels?.map((l, i) => ({ name: l, value: values?.[i] })) : values,
+        ...(colors ? { color: colors } : {}),
+      },
+    ],
     grid: chartType !== 'pie' ? { left: 40, right: 20, top: 40, bottom: 30 } : undefined,
   });
 

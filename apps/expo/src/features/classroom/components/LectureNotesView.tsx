@@ -75,9 +75,7 @@ export function LectureNotesView() {
                 <Text style={[styles.noteTitle, isCurrent && styles.noteTitleActive]}>
                   {note.title}
                 </Text>
-                {note.timestamp && (
-                  <Text style={styles.noteTime}>{note.timestamp}</Text>
-                )}
+                {note.timestamp && <Text style={styles.noteTime}>{note.timestamp}</Text>}
               </View>
               <Text style={styles.noteText} numberOfLines={3}>
                 {note.content}

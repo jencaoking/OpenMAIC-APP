@@ -24,8 +24,8 @@ export function RNShapeElement({ element }: RNShapeElementProps) {
   // 描边样式
   const strokeWidth = outline?.width ?? 0;
   const strokeColor = outline?.color ?? 'transparent';
-  const strokeDasharray = outline?.style === 'dashed' ? '8,4' : 
-                          outline?.style === 'dotted' ? '2,2' : undefined;
+  const strokeDasharray =
+    outline?.style === 'dashed' ? '8,4' : outline?.style === 'dotted' ? '2,2' : undefined;
 
   return (
     <View style={[styles.container, { opacity }]}>
@@ -41,7 +41,7 @@ export function RNShapeElement({ element }: RNShapeElementProps) {
         )}
         <Path
           d={path}
-          fill={gradient ? `url(#grad-${element.id})` : (fill || 'transparent')}
+          fill={gradient ? `url(#grad-${element.id})` : fill || 'transparent'}
           stroke={strokeColor}
           strokeWidth={strokeWidth}
           strokeDasharray={strokeDasharray}

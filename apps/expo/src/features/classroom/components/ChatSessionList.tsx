@@ -74,10 +74,14 @@ const DEMO_SESSIONS: ChatSession[] = [
 
 function getRoleColor(role: string): string {
   switch (role) {
-    case 'teacher': return '#3b82f6';
-    case 'user': return '#7c3aed';
-    case 'student': return '#6366f1';
-    default: return '#64748b';
+    case 'teacher':
+      return '#3b82f6';
+    case 'user':
+      return '#7c3aed';
+    case 'student':
+      return '#6366f1';
+    default:
+      return '#64748b';
   }
 }
 
@@ -111,8 +115,18 @@ export function ChatSessionList() {
               onPress={() => setExpandedId(isExpanded ? null : session.id)}
             >
               <View style={styles.sessionHeaderLeft}>
-                <View style={[styles.typeBadge, { backgroundColor: session.type === 'qa' ? '#eff6ff' : '#fef3c7' }]}>
-                  <Text style={[styles.typeText, { color: session.type === 'qa' ? '#3b82f6' : '#d97706' }]}>
+                <View
+                  style={[
+                    styles.typeBadge,
+                    { backgroundColor: session.type === 'qa' ? '#eff6ff' : '#fef3c7' },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.typeText,
+                      { color: session.type === 'qa' ? '#3b82f6' : '#d97706' },
+                    ]}
+                  >
                     {session.type === 'qa' ? 'Q&A' : '讨论'}
                   </Text>
                 </View>
@@ -132,9 +146,7 @@ export function ChatSessionList() {
                 {session.messages.map((msg) => (
                   <View key={msg.id} style={styles.messageRow}>
                     <View style={[styles.msgAvatar, { backgroundColor: getRoleColor(msg.role) }]}>
-                      <Text style={styles.msgAvatarText}>
-                        {msg.name.charAt(0)}
-                      </Text>
+                      <Text style={styles.msgAvatarText}>{msg.name.charAt(0)}</Text>
                     </View>
                     <View style={styles.msgContent}>
                       <View style={styles.msgHeader}>

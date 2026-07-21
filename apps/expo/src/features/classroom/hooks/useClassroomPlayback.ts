@@ -120,19 +120,22 @@ export function useClassroomPlayback() {
     }
   }, [engineMode]);
 
-  const goToScene = useCallback((index: number) => {
-    const engine = playbackEngineRef.current;
-    if (!engine) return;
+  const goToScene = useCallback(
+    (index: number) => {
+      const engine = playbackEngineRef.current;
+      if (!engine) return;
 
-    engine.goToScene(index);
+      engine.goToScene(index);
 
-    // 生成该场景的动作序列
-    const actions = generateSceneActions(index);
-    actionEngineRef.current?.setActions(actions);
-    if (engineMode === 'playing') {
-      actionEngineRef.current?.start();
-    }
-  }, [engineMode]);
+      // 生成该场景的动作序列
+      const actions = generateSceneActions(index);
+      actionEngineRef.current?.setActions(actions);
+      if (engineMode === 'playing') {
+        actionEngineRef.current?.start();
+      }
+    },
+    [engineMode],
+  );
 
   const togglePlayPause = useCallback(() => {
     if (engineMode === 'playing') {
@@ -169,28 +172,63 @@ function generateSceneActions(sceneIndex: number): Action[] {
     [
       { id: 'a1', type: 'speech', params: { text: '欢迎来到量子力学课程。' }, duration: 3000 },
       { id: 'a2', type: 'delay', params: {}, delay: 500 },
-      { id: 'a3', type: 'speech', params: { text: '量子力学是物理学的基础分支，研究微观粒子的行为规律。' }, duration: 4000 },
+      {
+        id: 'a3',
+        type: 'speech',
+        params: { text: '量子力学是物理学的基础分支，研究微观粒子的行为规律。' },
+        duration: 4000,
+      },
     ],
     // 场景 2
     [
-      { id: 'a4', type: 'speech', params: { text: '波粒二象性是量子力学的核心概念之一。' }, duration: 3000 },
+      {
+        id: 'a4',
+        type: 'speech',
+        params: { text: '波粒二象性是量子力学的核心概念之一。' },
+        duration: 3000,
+      },
       { id: 'a5', type: 'delay', params: {}, delay: 500 },
-      { id: 'a6', type: 'speech', params: { text: '光和物质同时具有波和粒子的双重性质。' }, duration: 4000 },
+      {
+        id: 'a6',
+        type: 'speech',
+        params: { text: '光和物质同时具有波和粒子的双重性质。' },
+        duration: 4000,
+      },
     ],
     // 场景 3
     [
-      { id: 'a7', type: 'speech', params: { text: '海森堡不确定性原理告诉我们，无法同时精确测量粒子的位置和动量。' }, duration: 5000 },
+      {
+        id: 'a7',
+        type: 'speech',
+        params: { text: '海森堡不确定性原理告诉我们，无法同时精确测量粒子的位置和动量。' },
+        duration: 5000,
+      },
     ],
     // 场景 4
     [
-      { id: 'a8', type: 'speech', params: { text: '量子叠加态是指系统可以同时处于多个状态。' }, duration: 4000 },
+      {
+        id: 'a8',
+        type: 'speech',
+        params: { text: '量子叠加态是指系统可以同时处于多个状态。' },
+        duration: 4000,
+      },
       { id: 'a9', type: 'discussion', params: { prompt: '大家对叠加态有什么疑问？' } },
     ],
     // 场景 5
     [
-      { id: 'a10', type: 'speech', params: { text: '薛定谔的猫是最著名的思想实验。' }, duration: 3000 },
+      {
+        id: 'a10',
+        type: 'speech',
+        params: { text: '薛定谔的猫是最著名的思想实验。' },
+        duration: 3000,
+      },
       { id: 'a11', type: 'delay', params: {}, delay: 500 },
-      { id: 'a12', type: 'speech', params: { text: '一只猫在盒子里，同时处于活着和死了的叠加态。' }, duration: 4000 },
+      {
+        id: 'a12',
+        type: 'speech',
+        params: { text: '一只猫在盒子里，同时处于活着和死了的叠加态。' },
+        duration: 4000,
+      },
     ],
   ];
 

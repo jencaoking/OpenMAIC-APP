@@ -33,7 +33,7 @@ export async function generateSceneOutlines(
   request: GenerationRequest,
   onOutline: (outline: SceneOutline) => void,
   onDone: (result: GenerationResult) => void,
-  onError: (error: Error) => void
+  onError: (error: Error) => void,
 ): Promise<void> {
   try {
     const response = await fetch(`${API_BASE}/api/generate/scene-outlines-stream`, {

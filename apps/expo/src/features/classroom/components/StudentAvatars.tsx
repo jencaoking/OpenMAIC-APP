@@ -28,10 +28,7 @@ const DEFAULT_STUDENTS: Student[] = [
  * 学生头像列表。
  * 水平滚动显示，支持发言/思考状态指示。
  */
-export function StudentAvatars({
-  students = DEFAULT_STUDENTS,
-  size = 32,
-}: StudentAvatarsProps) {
+export function StudentAvatars({ students = DEFAULT_STUDENTS, size = 32 }: StudentAvatarsProps) {
   return (
     <ScrollView
       horizontal
@@ -54,9 +51,7 @@ export function StudentAvatars({
               student.isThinking && styles.avatarThinking,
             ]}
           >
-            <Text style={[styles.avatarText, { fontSize: size * 0.35 }]}>
-              {student.avatar}
-            </Text>
+            <Text style={[styles.avatarText, { fontSize: size * 0.35 }]}>{student.avatar}</Text>
           </View>
 
           {/* 发言指示 */}

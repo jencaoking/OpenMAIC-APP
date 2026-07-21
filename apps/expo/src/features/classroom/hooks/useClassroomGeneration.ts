@@ -50,7 +50,7 @@ export function useClassroomGeneration() {
         // onError
         (error) => {
           throw error;
-        }
+        },
       );
 
       if (outlines.length === 0) {
@@ -83,7 +83,10 @@ export function useClassroomGeneration() {
           const actionsResult = await generateSceneActions(outlines[i], contentResult);
 
           // TODO: 保存到本地存储
-          console.log(`Scene ${i + 1} generated:`, { content: contentResult, actions: actionsResult });
+          console.log(`Scene ${i + 1} generated:`, {
+            content: contentResult,
+            actions: actionsResult,
+          });
         } catch (error) {
           console.error(`Failed to generate scene ${i + 1}:`, error);
           // 继续生成其他场景
@@ -96,7 +99,6 @@ export function useClassroomGeneration() {
 
       // 跳转到第一个场景
       classroomStore.setCurrentSceneIndex(0);
-
     } catch (error) {
       generationStore.setError(error instanceof Error ? error.message : String(error));
       generationStore.setStep('error');

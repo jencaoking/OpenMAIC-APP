@@ -61,10 +61,7 @@ export function GenerationFlow() {
       )}
 
       {flowStep === 'classroom' && (
-        <ClassroomScreen
-          title={courseTitle}
-          onBack={handleBackToPreview}
-        />
+        <ClassroomScreen title={courseTitle} onBack={handleBackToPreview} />
       )}
     </LandscapeContainer>
   );

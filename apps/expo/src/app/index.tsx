@@ -86,9 +86,7 @@ const HomePage: React.FC<HomePageProps> = ({ pendingDeepLink, onDeepLinkConsumed
       {currentScreen === 'stress' && <DslStressTestScreen onBack={handleBack} />}
       {currentScreen === 'chat' && <SessionChatScreen sessionId={selectedSessionId} />}
       {currentScreen === 'quiz' && <QuizScreen quizId={selectedQuizId} />}
-      {currentScreen === 'classroom' && (
-        <ClassroomScreen onBack={handleBack} />
-      )}
+      {currentScreen === 'classroom' && <ClassroomScreen onBack={handleBack} />}
     </>
   );
 };

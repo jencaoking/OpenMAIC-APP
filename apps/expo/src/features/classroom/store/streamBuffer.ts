@@ -98,7 +98,7 @@ export class StreamBuffer {
       const charsToShow = Math.min(this.charsPerTick, remaining);
       this.displayText += this.buffer.slice(
         this.displayText.length,
-        this.displayText.length + charsToShow
+        this.displayText.length + charsToShow,
       );
 
       this.callbacks.onTextUpdate?.(this.displayText);

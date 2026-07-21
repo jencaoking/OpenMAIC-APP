@@ -14,11 +14,7 @@ interface SpeechBubbleProps {
  * 对话气泡组件。
  * 支持打字动画效果。
  */
-export function SpeechBubble({
-  text,
-  role = 'teacher',
-  isStreaming = false,
-}: SpeechBubbleProps) {
+export function SpeechBubble({ text, role = 'teacher', isStreaming = false }: SpeechBubbleProps) {
   const cursorOpacity = useRef(new Animated.Value(1)).current;
 
   // 打字光标闪烁动画
@@ -36,7 +32,7 @@ export function SpeechBubble({
             duration: 500,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       );
       animation.start();
       return () => animation.stop();
@@ -56,9 +52,7 @@ export function SpeechBubble({
       <Text style={[styles.text, { color: textColor }]} numberOfLines={0}>
         {text}
         {isStreaming && (
-          <Animated.Text style={[styles.cursor, { opacity: cursorOpacity }]}>
-            ▌
-          </Animated.Text>
+          <Animated.Text style={[styles.cursor, { opacity: cursorOpacity }]}>▌</Animated.Text>
         )}
       </Text>
     </View>

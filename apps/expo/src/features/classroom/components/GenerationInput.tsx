@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 import { useGenerationStore } from '../store/generationStore';
 
 interface GenerationInputProps {
@@ -53,7 +61,10 @@ export function GenerationInput({ onGenerate, isGenerating = false }: Generation
           </View>
 
           <Pressable
-            style={[styles.generateBtn, (!requirement.trim() || isGenerating) && styles.generateBtnDisabled]}
+            style={[
+              styles.generateBtn,
+              (!requirement.trim() || isGenerating) && styles.generateBtnDisabled,
+            ]}
             onPress={handleGenerate}
             disabled={!requirement.trim() || isGenerating}
           >

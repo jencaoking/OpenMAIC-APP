@@ -4,9 +4,9 @@
  */
 
 export interface VoiceDesign {
-  identity: string;   // 性别/年龄/角色 (如 "中年男性教授")
-  texture: string;    // 音高/音质 (如 "低沉共鸣的男中音")
-  delivery: string;   // 情感/语速 (如 "温暖沉稳带有温柔权威感")
+  identity: string; // 性别/年龄/角色 (如 "中年男性教授")
+  texture: string; // 音高/音质 (如 "低沉共鸣的男中音")
+  delivery: string; // 情感/语速 (如 "温暖沉稳带有温柔权威感")
 }
 
 export interface TTSProvider {

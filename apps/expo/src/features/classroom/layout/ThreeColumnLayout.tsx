@@ -48,9 +48,7 @@ export function ThreeColumnLayout({ sidebar, main, chat }: ThreeColumnLayoutProp
       </CollapsiblePanel>
 
       {/* Main Content */}
-      <View style={[styles.main, { width: mainWidth }]}>
-        {main}
-      </View>
+      <View style={[styles.main, { width: mainWidth }]}>{main}</View>
 
       {/* Right Chat Area */}
       <CollapsiblePanel

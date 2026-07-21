@@ -32,7 +32,8 @@ export const DEMO_SLIDES: Slide[] = [
         width: 800,
         height: 120,
         rotate: 0,
-        content: '<p style="font-size:18px;color:#64748b;line-height:1.6;">量子力学是物理学的一个基础分支，研究微观粒子（如电子、光子、原子）的行为规律。与经典力学不同，量子力学描述的是概率性的世界。</p>',
+        content:
+          '<p style="font-size:18px;color:#64748b;line-height:1.6;">量子力学是物理学的一个基础分支，研究微观粒子（如电子、光子、原子）的行为规律。与经典力学不同，量子力学描述的是概率性的世界。</p>',
         defaultColor: '#64748b',
         defaultFontName: 'Inter',
         fill: 'transparent',
@@ -79,7 +80,8 @@ export const DEMO_SLIDES: Slide[] = [
         width: 800,
         height: 200,
         rotate: 0,
-        content: '<p style="font-size:18px;color:#64748b;line-height:1.8;">光和物质同时具有波和粒子的双重性质。双缝实验表明，光在未被观测时表现为波，被观测时表现为粒子。</p><br><p style="font-size:16px;color:#7c3aed;font-weight:600;">核心实验：双缝干涉实验</p>',
+        content:
+          '<p style="font-size:18px;color:#64748b;line-height:1.8;">光和物质同时具有波和粒子的双重性质。双缝实验表明，光在未被观测时表现为波，被观测时表现为粒子。</p><br><p style="font-size:16px;color:#7c3aed;font-weight:600;">核心实验：双缝干涉实验</p>',
         defaultColor: '#64748b',
         defaultFontName: 'Inter',
         fill: 'transparent',
@@ -113,7 +115,8 @@ export const DEMO_SLIDES: Slide[] = [
         width: 800,
         height: 200,
         rotate: 0,
-        content: '<p style="font-size:18px;color:#64748b;line-height:1.8;">海森堡不确定性原理：无法同时精确测量粒子的位置和动量。</p><br><p style="font-size:20px;color:#1e293b;font-weight:700;text-align:center;">Δx · Δp ≥ ℏ/2</p>',
+        content:
+          '<p style="font-size:18px;color:#64748b;line-height:1.8;">海森堡不确定性原理：无法同时精确测量粒子的位置和动量。</p><br><p style="font-size:20px;color:#1e293b;font-weight:700;text-align:center;">Δx · Δp ≥ ℏ/2</p>',
         defaultColor: '#64748b',
         defaultFontName: 'Inter',
         fill: 'transparent',
@@ -147,7 +150,8 @@ export const DEMO_SLIDES: Slide[] = [
         width: 800,
         height: 200,
         rotate: 0,
-        content: '<p style="font-size:18px;color:#64748b;line-height:1.8;">叠加态是指量子系统可以同时处于多个状态的线性组合中。</p><br><p style="font-size:20px;color:#1e293b;font-weight:700;text-align:center;">|ψ⟩ = α|0⟩ + β|1⟩</p><br><p style="font-size:14px;color:#94a3b8;text-align:center;">其中 |α|² + |β|² = 1</p>',
+        content:
+          '<p style="font-size:18px;color:#64748b;line-height:1.8;">叠加态是指量子系统可以同时处于多个状态的线性组合中。</p><br><p style="font-size:20px;color:#1e293b;font-weight:700;text-align:center;">|ψ⟩ = α|0⟩ + β|1⟩</p><br><p style="font-size:14px;color:#94a3b8;text-align:center;">其中 |α|² + |β|² = 1</p>',
         defaultColor: '#64748b',
         defaultFontName: 'Inter',
         fill: 'transparent',
@@ -181,7 +185,8 @@ export const DEMO_SLIDES: Slide[] = [
         width: 800,
         height: 250,
         rotate: 0,
-        content: '<p style="font-size:18px;color:#64748b;line-height:1.8;">著名的思想实验：一只猫在盒子里，同时处于"活着"和"死了"的叠加态。只有当盒子被打开（观测）时，叠加态才会坍缩到一个确定的状态。</p>',
+        content:
+          '<p style="font-size:18px;color:#64748b;line-height:1.8;">著名的思想实验：一只猫在盒子里，同时处于"活着"和"死了"的叠加态。只有当盒子被打开（观测）时，叠加态才会坍缩到一个确定的状态。</p>',
         defaultColor: '#64748b',
         defaultFontName: 'Inter',
         fill: 'transparent',

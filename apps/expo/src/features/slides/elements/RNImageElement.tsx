@@ -24,18 +24,11 @@ export function RNImageElement({ element }: RNImageElementProps) {
         style={[
           styles.imageWrapper,
           {
-            transform: [
-              { scaleX: flipH ? -1 : 1 },
-              { scaleY: flipV ? -1 : 1 },
-            ],
+            transform: [{ scaleX: flipH ? -1 : 1 }, { scaleY: flipV ? -1 : 1 }],
           },
         ]}
       >
-        <Image
-          source={{ uri: src }}
-          style={styles.image}
-          resizeMode="contain"
-        />
+        <Image source={{ uri: src }} style={styles.image} resizeMode="contain" />
       </View>
     </View>
   );

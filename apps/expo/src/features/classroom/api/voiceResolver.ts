@@ -28,7 +28,7 @@ export function resolveAgentVoice(
   agent: AgentConfig,
   agentIndex: number,
   enabledProviders: TTSProvider[],
-  overrides?: AgentVoiceOverrides
+  overrides?: AgentVoiceOverrides,
 ): ResolvedVoice | null {
   if (enabledProviders.length === 0) return null;
 
@@ -81,9 +81,7 @@ export function resolveAgentVoice(
  */
 export function pickNarratorAgent(agents: AgentConfig[]): AgentConfig | null {
   // 优先选择有 voiceDesign 的教师
-  const teacherWithVoice = agents.find(
-    (a) => a.role === 'teacher' && a.voiceDesign
-  );
+  const teacherWithVoice = agents.find((a) => a.role === 'teacher' && a.voiceDesign);
   if (teacherWithVoice) return teacherWithVoice;
 
   // 回退到任意教师
@@ -118,7 +116,7 @@ export function getEnabledProviders(): TTSProvider[] {
 export function resolveAgentVoiceOptions(
   agent: AgentConfig,
   agentIndex: number,
-  overrides?: AgentVoiceOverrides
+  overrides?: AgentVoiceOverrides,
 ): {
   providerId: string;
   voiceId: string;
@@ -142,8 +140,10 @@ export function resolveAgentVoiceOptions(
 /**
  * 构建 VoiceDesign 提示词。
  */
-function buildVoiceDesignPrompt(design: { identity: string; texture: string; delivery: string }): string {
-  return [design.identity, design.texture, design.delivery]
-    .filter(Boolean)
-    .join(', ');
+function buildVoiceDesignPrompt(design: {
+  identity: string;
+  texture: string;
+  delivery: string;
+}): string {
+  return [design.identity, design.texture, design.delivery].filter(Boolean).join(', ');
 }

@@ -17,13 +17,8 @@ interface PresentationModeProps {
  * 控制按钮浮动在底部。
  */
 export function PresentationMode({ onExit }: PresentationModeProps) {
-  const {
-    scenes,
-    currentSceneIndex,
-    engineMode,
-    lectureSpeech,
-    speakingAgentId,
-  } = useClassroomStore();
+  const { scenes, currentSceneIndex, engineMode, lectureSpeech, speakingAgentId } =
+    useClassroomStore();
 
   const { togglePlayPause, nextScene, prevScene } = useClassroomPlayback();
 
@@ -40,12 +35,8 @@ export function PresentationMode({ onExit }: PresentationModeProps) {
 
       {/* 场景信息 */}
       <View style={styles.sceneInfo}>
-        <Text style={styles.sceneNumber}>
-          {String(currentSceneIndex + 1).padStart(2, '0')}
-        </Text>
-        <Text style={styles.sceneTitle}>
-          {scenes[currentSceneIndex]?.title || ''}
-        </Text>
+        <Text style={styles.sceneNumber}>{String(currentSceneIndex + 1).padStart(2, '0')}</Text>
+        <Text style={styles.sceneTitle}>{scenes[currentSceneIndex]?.title || ''}</Text>
       </View>
 
       {/* 底部浮动控制栏 */}
@@ -76,9 +67,7 @@ export function PresentationMode({ onExit }: PresentationModeProps) {
           onPress={prevScene}
           disabled={isFirst}
         >
-          <Text style={[styles.controlText, isFirst && styles.controlTextDisabled]}>
-            ◀
-          </Text>
+          <Text style={[styles.controlText, isFirst && styles.controlTextDisabled]}>◀</Text>
         </Pressable>
 
         <Pressable style={styles.playBtn} onPress={togglePlayPause}>
@@ -90,9 +79,7 @@ export function PresentationMode({ onExit }: PresentationModeProps) {
           onPress={nextScene}
           disabled={isLast}
         >
-          <Text style={[styles.controlText, isLast && styles.controlTextDisabled]}>
-            ▶
-          </Text>
+          <Text style={[styles.controlText, isLast && styles.controlTextDisabled]}>▶</Text>
         </Pressable>
       </View>
     </View>

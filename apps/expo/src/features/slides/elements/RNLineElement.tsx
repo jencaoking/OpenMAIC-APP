@@ -16,8 +16,8 @@ export function RNLineElement({ element }: RNLineElementProps) {
 
   const strokeWidth = outline?.width ?? 2;
   const strokeColor = outline?.color ?? '#000000';
-  const strokeDasharray = outline?.style === 'dashed' ? '8,4' : 
-                          outline?.style === 'dotted' ? '2,2' : undefined;
+  const strokeDasharray =
+    outline?.style === 'dashed' ? '8,4' : outline?.style === 'dotted' ? '2,2' : undefined;
 
   return (
     <View
