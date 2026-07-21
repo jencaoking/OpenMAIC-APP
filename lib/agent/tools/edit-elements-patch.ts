@@ -1,7 +1,7 @@
 import type { EditIntent } from '@openmaic/renderer/editing';
 import type { PPTElement } from '@openmaic/dsl';
 import { isExactContentEditable } from './edit-elements-content-contract';
-import { isSafeRichText } from '../shared/rich-text-sanitize';
+import { isSafeRichText } from '../../shared/rich-text-sanitize';
 import {
   ALLOWED_EDIT_PROPS,
   buildElementInventory,

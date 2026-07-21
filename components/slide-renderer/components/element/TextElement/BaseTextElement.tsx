@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import type { PPTTextElement } from '@openmaic/dsl';
 import { useElementShadow } from '../hooks/useElementShadow';
 import { ElementOutline } from '../ElementOutline';
-import { sanitizeRichTextForRender } from '../../shared/rich-text-sanitize';
+import { sanitizeRichTextForRender } from '@/lib/shared/rich-text-sanitize';
 
 export interface BaseTextElementProps {
   elementInfo: PPTTextElement;
