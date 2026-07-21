@@ -28,6 +28,11 @@ export interface LaserOptions {
   duration?: number;
 }
 
+export interface ZoomTarget {
+  elementId: string;
+  scale: number;
+}
+
 interface TeachingEffectsProps {
   /** Canvas dimensions for percentage-based coordinate conversion */
   canvasWidth: number;
@@ -46,6 +51,9 @@ interface TeachingEffectsProps {
   /** Laser state */
   laserElementId?: string;
   laserOptions?: LaserOptions | null;
+
+  /** Zoom state */
+  zoomTarget?: ZoomTarget | null;
 }
 
 /**
@@ -367,8 +375,77 @@ function LaserOverlay({
 }
 
 /**
+ * Zoom wrapper — scales the canvas around an element center.
+ * Port of Web's ZoomWrapper.tsx.
+ */
+function ZoomWrapper({
+  children,
+  zoomTarget,
+  elementPositions,
+  canvasWidth,
+  canvasHeight,
+}: {
+  children: React.ReactNode;
+  zoomTarget?: ZoomTarget | null;
+  elementPositions: Record<string, { left: number; top: number; width: number; height: number }>;
+  canvasWidth: number;
+  canvasHeight: number;
+}) {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const center = useMemo(() => {
+    if (!zoomTarget) return null;
+    const pos = elementPositions[zoomTarget.elementId];
+    if (!pos) return null;
+    return {
+      x: ((pos.left + pos.width / 2) / canvasWidth) * 100,
+      y: ((pos.top + pos.height / 2) / canvasHeight) * 100,
+    };
+  }, [zoomTarget, elementPositions, canvasWidth, canvasHeight]);
+
+  useEffect(() => {
+    if (!zoomTarget) {
+      // Animate back to scale 1
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: false,
+        stiffness: 200,
+        damping: 25,
+      }).start();
+      return;
+    }
+
+    // Animate to target scale
+    Animated.spring(scaleAnim, {
+      toValue: zoomTarget.scale,
+      useNativeDriver: false,
+      stiffness: 200,
+      damping: 25,
+    }).start();
+  }, [zoomTarget, scaleAnim]);
+
+  if (!zoomTarget || !center) {
+    return <>{children}</>;
+  }
+
+  return (
+    <Animated.View
+      style={[
+        styles.zoomWrapper,
+        {
+          transformOrigin: `${center.x}% ${center.y}%`,
+          transform: [{ scale: scaleAnim }],
+        },
+      ]}
+    >
+      {children}
+    </Animated.View>
+  );
+}
+
+/**
  * Main teaching effects component.
- * Renders Spotlight, Highlight, and Laser overlays.
+ * Renders Spotlight, Highlight, Laser, and Zoom effects.
  */
 export function TeachingEffects({
   canvasWidth,
@@ -380,6 +457,7 @@ export function TeachingEffects({
   highlightOptions,
   laserElementId,
   laserOptions,
+  zoomTarget,
 }: TeachingEffectsProps) {
   return (
     <View style={[styles.container, { width: canvasWidth, height: canvasHeight }]} pointerEvents="none">
@@ -410,6 +488,12 @@ export function TeachingEffects({
     </View>
   );
 }
+
+/**
+ * Standalone ZoomWrapper for wrapping canvas content.
+ * Use this to wrap the slide content for zoom effect.
+ */
+export { ZoomWrapper };
 
 const styles = StyleSheet.create({
   container: {
@@ -464,5 +548,9 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
+  },
+  zoomWrapper: {
+    width: '100%',
+    height: '100%',
   },
 });

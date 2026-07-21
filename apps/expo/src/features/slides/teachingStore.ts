@@ -27,6 +27,11 @@ export interface LaserOptions {
   duration?: number;
 }
 
+export interface ZoomTarget {
+  elementId: string;
+  scale: number;
+}
+
 interface TeachingState {
   // Spotlight
   spotlightElementId: string;
@@ -40,6 +45,9 @@ interface TeachingState {
   laserElementId: string;
   laserOptions: LaserOptions | null;
 
+  // Zoom
+  zoomTarget: ZoomTarget | null;
+
   // Actions
   setSpotlight: (elementId: string, options?: SpotlightOptions) => void;
   clearSpotlight: () => void;
@@ -47,6 +55,8 @@ interface TeachingState {
   clearHighlight: () => void;
   setLaser: (elementId: string, options?: LaserOptions) => void;
   clearLaser: () => void;
+  setZoom: (elementId: string, scale: number) => void;
+  clearZoom: () => void;
   clearAllEffects: () => void;
 }
 
@@ -62,6 +72,9 @@ export const useTeachingStore = create<TeachingState>((set) => ({
   // Laser
   laserElementId: '',
   laserOptions: null,
+
+  // Zoom
+  zoomTarget: null,
 
   // Actions
   setSpotlight: (elementId, options = {}) =>
@@ -115,6 +128,16 @@ export const useTeachingStore = create<TeachingState>((set) => ({
       laserOptions: null,
     }),
 
+  setZoom: (elementId, scale) =>
+    set({
+      zoomTarget: { elementId, scale },
+    }),
+
+  clearZoom: () =>
+    set({
+      zoomTarget: null,
+    }),
+
   clearAllEffects: () =>
     set({
       spotlightElementId: '',
@@ -123,5 +146,6 @@ export const useTeachingStore = create<TeachingState>((set) => ({
       highlightOptions: null,
       laserElementId: '',
       laserOptions: null,
+      zoomTarget: null,
     }),
 }));
