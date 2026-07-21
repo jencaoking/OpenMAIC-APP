@@ -11,6 +11,8 @@ import { RNLatexElement } from './elements/RNLatexElement';
 import { RNChartElement } from './elements/RNChartElement';
 import { RNInteractiveScene } from './elements/RNInteractiveScene';
 import type { InteractiveContent } from './interactiveTypes';
+import { PBLRenderer } from './pbl';
+import type { PBLContent } from './pbl/pblTypes';
 import { useTextEditorStore } from './editor/textEditorStore';
 
 interface RNSlideElementProps {
@@ -67,6 +69,8 @@ export function RNSlideElement({
         return <RNChartElement element={element} />;
       case 'interactive':
         return <RNInteractiveScene element={element as unknown as InteractiveContent} />;
+      case 'pbl':
+        return <PBLRenderer content={element as unknown as PBLContent} sceneId={element.id} />;
       case ElementTypes.VIDEO:
       case ElementTypes.AUDIO:
         return <View style={styles.placeholder} />;
