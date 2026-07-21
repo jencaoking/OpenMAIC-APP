@@ -9,6 +9,8 @@ import { RNTableElement } from './elements/RNTableElement';
 import { RNCodeElement } from './elements/RNCodeElement';
 import { RNLatexElement } from './elements/RNLatexElement';
 import { RNChartElement } from './elements/RNChartElement';
+import { RNInteractiveScene } from './elements/RNInteractiveScene';
+import type { InteractiveContent } from './interactiveTypes';
 import { useTextEditorStore } from './editor/textEditorStore';
 
 interface RNSlideElementProps {
@@ -63,6 +65,8 @@ export function RNSlideElement({
         return <RNLatexElement element={element} />;
       case ElementTypes.CHART:
         return <RNChartElement element={element} />;
+      case 'interactive':
+        return <RNInteractiveScene element={element as unknown as InteractiveContent} />;
       case ElementTypes.VIDEO:
       case ElementTypes.AUDIO:
         return <View style={styles.placeholder} />;
