@@ -2,18 +2,17 @@
  * Export Utilities for Mobile.
  *
  * ZIP creation logic using jszip.
+ * Uses expo-file-system for file operations.
  */
 
 import JSZip from 'jszip';
 import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
+import { Linking, Platform } from 'react-native';
 import type {
   ClassroomManifest,
-  ManifestStage,
-  ManifestScene,
   MediaIndexEntry,
 } from './exportTypes';
-import { CLASSROOM_ZIP_FORMAT_VERSION } from './exportTypes';
+import { CLASSROOM_ZIP_FORMAT_VERSION, CLASSROOM_ZIP_EXTENSION } from './exportTypes';
 
 /**
  * Create a classroom ZIP file.
@@ -104,21 +103,16 @@ export async function createClassroomZip(params: {
 }
 
 /**
- * Share the exported ZIP file.
+ * Open the exported ZIP file (triggers system share sheet on iOS/Android).
  */
 export async function shareClassroomZip(fileUri: string): Promise<boolean> {
-  const isAvailable = await Sharing.isAvailableAsync();
-  if (!isAvailable) {
-    throw new Error('Sharing is not available on this device');
+  try {
+    await Linking.openURL(fileUri);
+    return true;
+  } catch (err) {
+    console.warn('Failed to open file:', err);
+    return false;
   }
-
-  await Sharing.shareAsync(fileUri, {
-    mimeType: 'application/zip',
-    dialogTitle: 'Export Classroom',
-    UTI: 'public.zip-archive',
-  });
-
-  return true;
 }
 
 /**
