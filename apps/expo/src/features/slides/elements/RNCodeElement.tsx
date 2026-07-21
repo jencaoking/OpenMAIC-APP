@@ -1,46 +1,88 @@
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import React, { useRef, useCallback, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import type { PPTCodeElement } from '@openmaic/dsl';
+import { getCodeHighlightHtml } from './code-highlight-html';
 
 interface RNCodeElementProps {
   element: PPTCodeElement;
 }
 
 /**
- * 代码块元素渲染器。
- * PPTCodeElement 使用 lines (CodeLine[]) 和 language 字段。
+ * Code element renderer with Shiki syntax highlighting.
+ *
+ * Uses a WebView to run Shiki WASM (same as Web side) for 1:1 fidelity.
+ * Renders the complete code block UI (header with dots, file name, language badge,
+ * line numbers, highlighted code) inside the WebView.
  */
 export function RNCodeElement({ element }: RNCodeElementProps) {
-  const { language, lines, showLineNumbers } = element;
+  const webViewRef = useRef<WebView>(null);
+  const isReady = useRef(false);
+  const pendingInit = useRef(true);
 
-  const bgColor = '#1e1e1e';
-  const textColor = '#d4d4d4';
+  const { language, lines, fileName, showLineNumbers = true, fontSize = 14 } = element;
 
-  // 将 CodeLine[] 转换为文本
-  const codeText = lines.map((line) => line.content).join('\n');
+  // Send message to WebView
+  const sendToWebView = useCallback((message: Record<string, unknown>) => {
+    if (!webViewRef.current) return;
+    webViewRef.current.postMessage(JSON.stringify(message));
+  }, []);
+
+  // Handle messages from WebView
+  const handleMessage = useCallback((event: WebViewMessageEvent) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      if (data?.type === 'ready') {
+        isReady.current = true;
+        pendingInit.current = false;
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }, []);
+
+  // Send initial config when WebView is ready
+  useEffect(() => {
+    if (!isReady.current) return;
+    sendToWebView({
+      type: 'init',
+      language: language || 'text',
+      lines: lines || [],
+      showLineNumbers,
+      fontSize,
+      fileName: fileName || '',
+    });
+  }, [isReady.current, language, lines, showLineNumbers, fontSize, fileName, sendToWebView]);
+
+  // Sync language changes
+  useEffect(() => {
+    if (!isReady.current) return;
+    sendToWebView({ type: 'language', language: language || 'text' });
+  }, [language, sendToWebView]);
+
+  // Sync line changes
+  useEffect(() => {
+    if (!isReady.current) return;
+    sendToWebView({ type: 'lines', lines: lines || [] });
+  }, [lines, sendToWebView]);
+
+  const html = getCodeHighlightHtml();
 
   return (
-    <View style={[styles.container, { backgroundColor: bgColor }]}>
-      {/* 语言标签 */}
-      {language && (
-        <View style={styles.header}>
-          <Text style={styles.language}>{language}</Text>
-        </View>
-      )}
-
-      {/* 代码内容 */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <ScrollView style={styles.codeScroll}>
-          <Text style={[styles.code, { color: textColor }]} selectable>
-            {showLineNumbers
-              ? codeText
-                  .split('\n')
-                  .map((line: string, i: number) => `${i + 1}  ${line}`)
-                  .join('\n')
-              : codeText}
-          </Text>
-        </ScrollView>
-      </ScrollView>
+    <View style={styles.container}>
+      <WebView
+        ref={webViewRef}
+        style={styles.webview}
+        source={{ html, baseUrl: '' }}
+        onMessage={handleMessage}
+        javaScriptEnabled
+        domStorageEnabled={false}
+        bounces={false}
+        scrollEnabled={false}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        originWhitelist={['*']}
+      />
     </View>
   );
 }
@@ -51,25 +93,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
   },
-  header: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(255,255,255,0.1)',
-  },
-  language: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#9ca3af',
-    textTransform: 'uppercase',
-  },
-  codeScroll: {
+  webview: {
     flex: 1,
-  },
-  code: {
-    fontFamily: 'monospace',
-    fontSize: 12,
-    lineHeight: 18,
-    padding: 12,
+    backgroundColor: 'transparent',
   },
 });

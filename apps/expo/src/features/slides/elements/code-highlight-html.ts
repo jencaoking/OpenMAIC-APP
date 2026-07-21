@@ -1,0 +1,123 @@
+/**
+ * Self-contained HTML for Shiki code highlighting in a WebView.
+ *
+ * Uses Shiki WASM from CDN with github-light theme and 17 languages.
+ * Matches the Web's BaseCodeElement visual design exactly.
+ */
+
+let cachedHtml: string | null = null;
+
+export function getCodeHighlightHtml(): string {
+  if (cachedHtml) return cachedHtml;
+  cachedHtml = CODE_HIGHLIGHT_HTML;
+  return cachedHtml;
+}
+
+const CODE_HIGHLIGHT_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:transparent}
+.container{width:100%;height:100%;display:flex;flex-direction:column;border-radius:8px;border:1px solid #d1d5db;background:#fafbfc;font-family:"JetBrains Mono","Fira Code","SF Mono","Cascadia Code",ui-monospace,SFMono-Regular,"Liberation Mono",Menlo,Monaco,Consolas,monospace;overflow:hidden}
+.header{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 12px;background:#f8f9fa;border-bottom:1px solid #e5e7eb;flex-shrink:0}
+.header-left{display:flex;align-items:center;gap:8px}
+.dots{display:flex;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%}
+.dot-red{background:#ff5f57}
+.dot-yellow{background:#febc2e}
+.dot-green{background:#28c840}
+.file-name{margin-left:8px;color:#6b7280;font-size:11px;letter-spacing:0.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
+.lang-badge{color:#9ca3af;font-size:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500}
+.code-body{flex:1;overflow:auto;background:#fafbfc;color:#24292e;-webkit-user-select:none;user-select:none;padding:8px 0}
+.code-line{display:flex;line-height:1.6;font-size:inherit;white-space:pre}
+.line-number{width:3.5em;text-align:right;padding:0 16px 0 8px;color:#9ca3af;user-select:none;flex-shrink:0}
+.line-content{flex:1;padding-right:16px;white-space:pre;tab-size:4}
+.token.comment,.token.prolog,.token.doctype,.token.cdata{color:#6a737d}
+.token.punctuation{color:#24292e}
+.token.property,.token.tag,.token.boolean,.token.number,.token.constant,.token.symbol,.token.deleted{color:#005cc5}
+.token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:#22863a}
+.token.operator,.token.entity,.token.url{color:#d73a49}
+.token.atrule,.token.attr-value,.token.keyword{color:#d73a49}
+.token.function,.token.class-name{color:#6f42c1}
+.token.regex,.token.important,.token.variable{color:#e36209}
+</style>
+</head>
+<body>
+<div class="container" id="container">
+  <div class="header" id="header">
+    <div class="header-left">
+      <div class="dots">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
+      <span class="file-name" id="file-name"></span>
+    </div>
+    <span class="lang-badge" id="lang-badge"></span>
+  </div>
+  <div class="code-body" id="code-body"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/shiki@3.15.0/dist/index.js"><\/script>
+<script>
+(function(){
+var codeBody=document.getElementById('code-body');
+var fileNameEl=document.getElementById('file-name');
+var langBadgeEl=document.getElementById('lang-badge');
+var highlighter=null;
+var currentLang='text';
+var currentLines=[];
+var showLineNumbers=true;
+var fontSize=14;
+var LANG_DISPLAY={python:'Python',javascript:'JavaScript',typescript:'TypeScript',json:'JSON',go:'Go',rust:'Rust',java:'Java',c:'C','cpp':'C++',html:'HTML',css:'CSS',bash:'Bash',sql:'SQL',yaml:'YAML',markdown:'Markdown',jsx:'JSX',tsx:'TSX'};
+function escapeHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+async function initHighlighter(){
+if(highlighter)return highlighter;
+try{highlighter=await shiki.createHighlighter({themes:['github-light'],langs:['python','javascript','typescript','json','go','rust','java','c','cpp','html','css','bash','sql','yaml','markdown','jsx','tsx']})}catch(e){highlighter={codeToHtml:function(c){return'<pre><code>'+escapeHtml(c)+'</code></pre>'},getLoadedLanguages:function(){return[]}}}
+return highlighter;
+}
+function highlightCode(code,lang){
+if(!highlighter)return escapeHtml(code);
+var loaded=highlighter.getLoadedLanguages();
+var useLang=loaded.indexOf(lang)>=0?lang:'text';
+try{return highlighter.codeToHtml(code,{lang:useLang,theme:'github-light'})}catch(e){return'<pre><code>'+escapeHtml(code)+'</code></pre>'}
+}
+function parseShikiLines(html){
+var m=html.match(/<code>([\\s\\S]*?)<\\/code>/);
+if(!m)return[];
+var parts=m[1].split(/<span class="line">/);
+var lines=[];
+for(var i=0;i<parts.length;i++){var p=parts[i];if(!p)continue;var ei=p.lastIndexOf('</span>');if(ei!==-1)lines.push(p.substring(0,ei))}
+return lines;
+}
+function render(){
+var code=currentLines.map(function(l){return l.content}).join('\\n');
+var html=highlightCode(code,currentLang);
+var parsed=parseShikiLines(html);
+if(parsed.length===0)parsed=currentLines.map(function(l){return escapeHtml(l.content)});
+var result='';
+for(var i=0;i<currentLines.length;i++){
+var lh=parsed[i]||escapeHtml(currentLines[i].content);
+var ln=showLineNumbers?'<span class="line-number">'+(i+1)+'</span>':'';
+result+='<div class="code-line">'+ln+'<span class="line-content">'+lh+'</span></div>';
+}
+codeBody.innerHTML=result;
+codeBody.style.fontSize=fontSize+'px';
+}
+function updateUI(){langBadgeEl.textContent=LANG_DISPLAY[currentLang]||currentLang}
+function postMsg(m){window.ReactNativeWebView&&window.ReactNativeWebView.postMessage(JSON.stringify(m))}
+window.addEventListener('message',function(e){
+var d=e.data;if(!d||!d.type)return;
+switch(d.type){
+case'init':initHighlighter().then(function(){currentLang=d.language||'text';currentLines=d.lines||[];showLineNumbers=d.showLineNumbers!==false;fontSize=d.fontSize||14;if(d.fileName)fileNameEl.textContent=d.fileName;updateUI();render();postMsg({type:'ready'})});break;
+case'update':currentLines=d.lines||[];render();break;
+case'language':currentLang=d.language||'text';updateUI();render();break;
+case'lines':currentLines=d.lines||[];render();break;
+}
+});
+})();
+<\/script>
+</body>
+</html>`;
