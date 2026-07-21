@@ -4,12 +4,20 @@ import { ElementTypes } from '@openmaic/dsl';
 /**
  * 演示幻灯片数据，用于测试 RN 渲染器。
  */
+const DEFAULT_THEME = {
+  backgroundColor: '#ffffff',
+  themeColors: ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'],
+  fontColor: '#333333',
+  fontName: 'Inter',
+};
+
 export const DEMO_SLIDES: Slide[] = [
   {
     id: 'slide-1',
     viewportSize: 1000,
     viewportRatio: 0.5625,
-    background: { color: '#ffffff' },
+    theme: DEFAULT_THEME,
+    background: { type: 'solid', color: '#ffffff' },
     elements: [
       {
         id: 'el-1',
@@ -50,6 +58,7 @@ export const DEMO_SLIDES: Slide[] = [
         path: 'M 4 0 L 4 280',
         viewBox: [8, 280],
         opacity: 1,
+        fixedRatio: false,
       },
     ],
   },
@@ -57,7 +66,8 @@ export const DEMO_SLIDES: Slide[] = [
     id: 'slide-2',
     viewportSize: 1000,
     viewportRatio: 0.5625,
-    background: { color: '#ffffff' },
+    theme: DEFAULT_THEME,
+    background: { type: 'solid', color: '#ffffff' },
     elements: [
       {
         id: 'el-4',
@@ -92,7 +102,8 @@ export const DEMO_SLIDES: Slide[] = [
     id: 'slide-3',
     viewportSize: 1000,
     viewportRatio: 0.5625,
-    background: { color: '#ffffff' },
+    theme: DEFAULT_THEME,
+    background: { type: 'solid', color: '#ffffff' },
     elements: [
       {
         id: 'el-6',
@@ -127,7 +138,8 @@ export const DEMO_SLIDES: Slide[] = [
     id: 'slide-4',
     viewportSize: 1000,
     viewportRatio: 0.5625,
-    background: { color: '#ffffff' },
+    theme: DEFAULT_THEME,
+    background: { type: 'solid', color: '#ffffff' },
     elements: [
       {
         id: 'el-8',
@@ -162,7 +174,8 @@ export const DEMO_SLIDES: Slide[] = [
     id: 'slide-5',
     viewportSize: 1000,
     viewportRatio: 0.5625,
-    background: { color: '#ffffff' },
+    theme: DEFAULT_THEME,
+    background: { type: 'solid', color: '#ffffff' },
     elements: [
       {
         id: 'el-10',

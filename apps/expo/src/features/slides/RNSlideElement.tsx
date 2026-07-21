@@ -46,6 +46,9 @@ export function RNSlideElement({ element, index, theme }: RNSlideElementProps) {
 
   if (!renderElement) return null;
 
+  // 从 PPTElement 联合类型中安全提取公共字段
+  const el = element as unknown as Record<string, unknown>;
+
   return (
     <View
       style={[
@@ -54,9 +57,9 @@ export function RNSlideElement({ element, index, theme }: RNSlideElementProps) {
           left: element.left,
           top: element.top,
           width: element.width,
-          height: element.height,
+          height: (el.height as number) ?? 100,
           zIndex: index + 1,
-          opacity: element.opacity ?? 1,
+          opacity: (el.opacity as number) ?? 1,
         },
       ]}
     >
@@ -64,7 +67,7 @@ export function RNSlideElement({ element, index, theme }: RNSlideElementProps) {
         style={[
           styles.rotateWrapper,
           {
-            transform: [{ rotate: `${element.rotate ?? 0}deg` }],
+            transform: [{ rotate: `${(el.rotate as number) ?? 0}deg` }],
           },
         ]}
       >

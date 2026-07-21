@@ -12,19 +12,29 @@ interface RNChartElementProps {
  * 使用 WebView + ECharts 渲染图表。
  */
 export function RNChartElement({ element }: RNChartElementProps) {
-  const { chartType, title, labels, values, colors } = element;
+  const { chartType, data, themeColors } = element;
+  const { labels, series } = data;
 
   const option = JSON.stringify({
-    title: title ? { text: title, textStyle: { fontSize: 14 } } : undefined,
     tooltip: { trigger: 'axis' },
-    xAxis: chartType !== 'pie' ? { type: 'category', data: labels } : undefined,
-    yAxis: chartType !== 'pie' ? { type: 'value' } : undefined,
+    xAxis: chartType !== 'pie' ? { type: 'category' as const, data: labels } : undefined,
+    yAxis: chartType !== 'pie' ? { type: 'value' as const } : undefined,
     series: [
       {
-        type: chartType === 'bar' ? 'bar' : chartType === 'line' ? 'line' : 'pie',
+        type:
+          chartType === 'bar'
+            ? ('bar' as const)
+            : chartType === 'line'
+              ? ('line' as const)
+              : ('pie' as const),
         data:
-          chartType === 'pie' ? labels?.map((l, i) => ({ name: l, value: values?.[i] })) : values,
-        ...(colors ? { color: colors } : {}),
+          chartType === 'pie'
+            ? labels?.map((l: string, i: number) => ({
+                name: l,
+                value: series?.[0]?.[i] ?? 0,
+              }))
+            : series?.[0],
+        ...(themeColors ? { color: themeColors } : {}),
       },
     ],
     grid: chartType !== 'pie' ? { left: 40, right: 20, top: 40, bottom: 30 } : undefined,

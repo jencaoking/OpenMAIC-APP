@@ -8,15 +8,16 @@ interface RNCodeElementProps {
 
 /**
  * 代码块元素渲染器。
- * 移植自 Web 端 BaseCodeElement。
- *
- * 使用深色背景 + 等宽字体渲染代码。
+ * PPTCodeElement 使用 lines (CodeLine[]) 和 language 字段。
  */
 export function RNCodeElement({ element }: RNCodeElementProps) {
-  const { content, language, theme } = element;
+  const { language, lines, showLineNumbers } = element;
 
-  const bgColor = theme === 'dark' ? '#1e1e1e' : '#f5f5f5';
-  const textColor = theme === 'dark' ? '#d4d4d4' : '#333333';
+  const bgColor = '#1e1e1e';
+  const textColor = '#d4d4d4';
+
+  // 将 CodeLine[] 转换为文本
+  const codeText = lines.map((line) => line.content).join('\n');
 
   return (
     <View style={[styles.container, { backgroundColor: bgColor }]}>
@@ -31,7 +32,12 @@ export function RNCodeElement({ element }: RNCodeElementProps) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <ScrollView style={styles.codeScroll}>
           <Text style={[styles.code, { color: textColor }]} selectable>
-            {content || ''}
+            {showLineNumbers
+              ? codeText
+                  .split('\n')
+                  .map((line: string, i: number) => `${i + 1}  ${line}`)
+                  .join('\n')
+              : codeText}
           </Text>
         </ScrollView>
       </ScrollView>

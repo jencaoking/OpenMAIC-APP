@@ -8,50 +8,51 @@ interface RNTableElementProps {
 
 /**
  * 表格元素渲染器。
- * 移植自 Web 端 BaseTableElement。
- *
- * 使用 flexbox 布局实现表格。
+ * PPTTableElement 使用 data: TableCell[][]，不是 cols/rows。
  */
 export function RNTableElement({ element }: RNTableElementProps) {
-  const { cols, rows, style, data } = element;
+  const { data, colWidths } = element;
 
   if (!data || data.length === 0) return null;
 
-  const colWidth = element.width / cols;
+  const totalCols = data[0]?.length ?? 0;
 
   return (
-    <View style={[styles.container, { width: element.width, height: element.height }]}>
+    <View style={styles.container}>
       {data.map((row, rowIndex) => (
         <View key={rowIndex} style={styles.row}>
-          {row.map((cell, colIndex) => (
-            <View
-              key={colIndex}
-              style={[
-                styles.cell,
-                {
-                  width: colWidth,
-                  backgroundColor: cell?.style?.backgroundColor || '#ffffff',
-                  borderBottomWidth: rowIndex < data.length - 1 ? 1 : 0,
-                  borderRightWidth: colIndex < cols - 1 ? 1 : 0,
-                },
-              ]}
-            >
-              <Text
+          {row.map((cell, colIndex) => {
+            const colWidth = colWidths?.[colIndex] ?? 1 / totalCols;
+            return (
+              <View
+                key={cell.id}
                 style={[
-                  styles.cellText,
+                  styles.cell,
                   {
-                    color: cell?.style?.color || '#333333',
-                    fontWeight: cell?.style?.bold ? '700' : '400',
-                    fontStyle: cell?.style?.italic ? 'italic' : 'normal',
-                    textAlign: cell?.style?.align || 'left',
+                    flex: colWidth,
+                    backgroundColor: cell.style?.backcolor || '#ffffff',
+                    borderBottomWidth: rowIndex < data.length - 1 ? 1 : 0,
+                    borderRightWidth: colIndex < totalCols - 1 ? 1 : 0,
                   },
                 ]}
-                numberOfLines={0}
               >
-                {cell?.text || ''}
-              </Text>
-            </View>
-          ))}
+                <Text
+                  style={[
+                    styles.cellText,
+                    {
+                      color: cell.style?.color || '#333333',
+                      fontWeight: cell.style?.bold ? '700' : '400',
+                      fontStyle: cell.style?.em ? 'italic' : 'normal',
+                      textAlign: cell.style?.align || 'left',
+                    },
+                  ]}
+                  numberOfLines={0}
+                >
+                  {cell.text || ''}
+                </Text>
+              </View>
+            );
+          })}
         </View>
       ))}
     </View>

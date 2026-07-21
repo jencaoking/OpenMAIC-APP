@@ -9,10 +9,10 @@ interface RNLatexElementProps {
 
 /**
  * LaTeX 元素渲染器。
- * 使用 WebView + KaTeX 渲染 LaTeX 公式。
+ * PPTLatexElement 使用 latex 字段（不是 content）。
  */
 export function RNLatexElement({ element }: RNLatexElementProps) {
-  const { content, color, fontSize } = element;
+  const { latex, color } = element;
 
   const html = `
     <!DOCTYPE html>
@@ -31,19 +31,19 @@ export function RNLatexElement({ element }: RNLatexElementProps) {
           background: transparent;
           overflow: hidden;
         }
-        .katex { font-size: ${fontSize || 24}px; color: ${color || '#333333'}; }
+        .katex { font-size: 24px; color: ${color || '#333333'}; }
       </style>
     </head>
     <body>
       <div id="math"></div>
       <script>
         try {
-          katex.render(${JSON.stringify(content || '')}, document.getElementById('math'), {
+          katex.render(${JSON.stringify(latex || '')}, document.getElementById('math'), {
             throwOnError: false,
             displayMode: true
           });
         } catch(e) {
-          document.getElementById('math').textContent = ${JSON.stringify(content || '')};
+          document.getElementById('math').textContent = ${JSON.stringify(latex || '')};
         }
       </script>
     </body>
