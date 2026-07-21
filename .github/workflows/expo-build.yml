@@ -36,7 +36,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '22'
+  CI: '1'
+  NODE_VERSION: '20'
   EAS_VERSION: latest
   EXPO_DIR: apps/expo
   APK_OUTPUT_DIR: ${{ github.workspace }}/apk-build
