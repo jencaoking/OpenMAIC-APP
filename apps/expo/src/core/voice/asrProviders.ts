@@ -66,7 +66,7 @@ async function transcribeOpenAIWhisper(
 
   // Create FormData with audio file
   const formData = new FormData();
-  const blob = new Blob([audioData], { type: mimeType });
+  const blob = new Blob([audioData.buffer as ArrayBuffer], { type: mimeType });
   formData.append('file', blob, 'audio.webm');
   formData.append('model', config.modelId || 'gpt-4o-mini-transcribe');
 
@@ -202,7 +202,7 @@ async function transcribeAzureASR(
   }
 
   const formData = new FormData();
-  const blob = new Blob([audioData], { type: mimeType });
+  const blob = new Blob([audioData.buffer as ArrayBuffer], { type: mimeType });
   formData.append('audio', blob, 'recording.webm');
 
   const localeMap: Record<string, string> = {
@@ -258,7 +258,7 @@ async function transcribeLemonadeASR(
   );
 
   const formData = new FormData();
-  const blob = new Blob([audioData], { type: mimeType });
+  const blob = new Blob([audioData.buffer as ArrayBuffer], { type: mimeType });
   formData.append('file', blob, 'audio.wav');
   formData.append('model', config.modelId || ASR_PROVIDERS['lemonade-asr'].defaultModelId);
   formData.append('response_format', 'json');

@@ -140,7 +140,7 @@ export const RNProsemirrorEditor = forwardRef<RNProsemirrorEditorRef, RNProsemir
 
     return (
       <WebView
-        ref={webViewRef}
+        ref={webViewRef as any}
         style={styles.webview}
         originWhitelist={['*']}
         source={{ html, baseUrl: '' }}
@@ -152,8 +152,6 @@ export const RNProsemirrorEditor = forwardRef<RNProsemirrorEditorRef, RNProsemir
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
         pointerEvents={editable ? 'auto' : 'none'}
-        // Prevent WebView from stealing focus on Android
-        androidHardwareAccelerationDisabled={Platform.OS === 'android'}
       />
     );
   },

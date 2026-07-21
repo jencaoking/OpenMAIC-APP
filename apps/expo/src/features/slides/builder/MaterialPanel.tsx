@@ -6,7 +6,7 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
-import { useBuilderStore, type DslComponentType } from './builderStore';
+import { useBuilderStore, type DslComponentType, type IDslNode } from './builderStore';
 
 interface MaterialItem {
   type: DslComponentType;
@@ -89,11 +89,11 @@ export function MaterialPanel({ isOpen, onClose }: MaterialPanelProps) {
 
   const handleAddComponent = (item: MaterialItem) => {
     const newId = `node_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-    const newNode = {
+    const newNode: IDslNode = {
       type: item.type,
       id: newId,
       props: item.defaultProps || {},
-      children: item.defaultProps?.children || [],
+      children: (item.defaultProps?.children as (string | IDslNode)[]) || [],
     };
     addNode(selectedNodeId, newNode);
   };

@@ -67,10 +67,10 @@ export function RNSlideElement({
         return <RNLatexElement element={element} />;
       case ElementTypes.CHART:
         return <RNChartElement element={element} />;
-      case 'interactive':
+      case 'interactive' as any:
         return <RNInteractiveScene element={element as unknown as InteractiveContent} />;
-      case 'pbl':
-        return <PBLRenderer content={element as unknown as PBLContent} sceneId={element.id} />;
+      case 'pbl' as any:
+        return <PBLRenderer content={element as unknown as PBLContent} sceneId={(element as any).id} />;
       case ElementTypes.VIDEO:
       case ElementTypes.AUDIO:
         return <View style={styles.placeholder} />;

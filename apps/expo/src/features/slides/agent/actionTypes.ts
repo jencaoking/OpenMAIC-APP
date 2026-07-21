@@ -80,7 +80,7 @@ export function getActionLabel(action: Action): string {
     case 'discussion':
       return action.topic || 'Discussion';
     default:
-      return action.type;
+      return (action as any).type || 'unknown';
   }
 }
 

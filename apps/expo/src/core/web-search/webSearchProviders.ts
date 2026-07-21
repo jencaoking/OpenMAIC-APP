@@ -65,7 +65,7 @@ async function searchWithTavily(params: {
 }): Promise<WebSearchResult> {
   const { query, apiKey, maxResults = 5, baseUrl } = params;
   const trimmedQuery = query.slice(0, 400);
-  const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.tavily.defaultBaseUrl).replace(/\/$/, '')}/search`;
+  const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.tavily.defaultBaseUrl || '').replace(/\/$/, '')}/search`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -111,7 +111,7 @@ async function searchWithBocha(params: {
   baseUrl?: string;
 }): Promise<WebSearchResult> {
   const { query, apiKey, maxResults = 5, baseUrl } = params;
-  const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.bocha.defaultBaseUrl).replace(/\/$/, '')}/v1/web-search`;
+  const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.bocha.defaultBaseUrl || '').replace(/\/$/, '')}/v1/web-search`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -157,7 +157,7 @@ async function searchWithBrave(params: {
   baseUrl?: string;
 }): Promise<WebSearchResult> {
   const { query, apiKey, maxResults = 5, baseUrl } = params;
-  const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.brave.defaultBaseUrl).replace(/\/$/, '')}/res/v1/web/search`;
+  const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.brave.defaultBaseUrl || '').replace(/\/$/, '')}/res/v1/web/search`;
 
   const headers: Record<string, string> = {
     'Accept': 'application/json',
@@ -204,7 +204,7 @@ async function searchWithBaidu(params: {
   subSources?: BaiduSubSources;
 }): Promise<WebSearchResult> {
   const { query, apiKey, maxResults = 5, baseUrl, subSources } = params;
-  const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.baidu.defaultBaseUrl).replace(/\/$/, '')}/v2/ai_search/web_search`;
+  const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.baidu.defaultBaseUrl || '').replace(/\/$/, '')}/v2/ai_search/web_search`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -253,7 +253,7 @@ async function searchWithDoubao(params: {
   baseUrl?: string;
 }): Promise<WebSearchResult> {
   const { query, apiKey, maxResults = 5, baseUrl } = params;
-  const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.doubao.defaultBaseUrl).replace(/\/$/, '')}/search_api/web_search`;
+  const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.doubao.defaultBaseUrl || '').replace(/\/$/, '')}/search_api/web_search`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -298,7 +298,7 @@ async function searchWithMiniMax(params: {
   baseUrl?: string;
 }): Promise<WebSearchResult> {
   const { query, apiKey, maxResults = 5, baseUrl } = params;
-  const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.minimax.defaultBaseUrl).replace(/\/$/, '')}/v1/coding_plan/search`;
+  const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.minimax.defaultBaseUrl || '').replace(/\/$/, '')}/v1/coding_plan/search`;
 
   const res = await fetch(url, {
     method: 'POST',

@@ -107,7 +107,7 @@ function deleteNodeFromTree(nodes: DslSchema, id: string): DslSchema {
           ...node,
           children: node.children
             .filter((child) => typeof child === 'object' ? child.id !== id : true)
-            .map((child) => typeof child === 'object' ? { ...child, children: deleteNodeFromTree(child.children || [], id) } : child),
+            .map((child) => typeof child === 'object' ? { ...child, children: deleteNodeFromTree((child.children || []) as IDslNode[], id) } : child),
         };
       }
       return node;

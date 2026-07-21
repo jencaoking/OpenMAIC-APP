@@ -13,6 +13,7 @@ export interface TextCommandPayload {
     | 'fontname'
     | 'fontsize'
     | 'forecolor'
+    | 'align'
     | 'align-left'
     | 'align-center'
     | 'align-right'

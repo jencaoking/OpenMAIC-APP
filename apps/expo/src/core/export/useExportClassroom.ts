@@ -43,7 +43,12 @@ interface UseExportClassroomReturn {
 export function useExportClassroom(): UseExportClassroomReturn {
   const [exporting, setExporting] = useState(false);
 
-  const exportAndShare = useCallback(async (params) => {
+  const exportAndShare = useCallback(async (params: {
+    stageId: string;
+    stageName: string;
+    scenes: Array<{ id: string; type: string; title?: string; data: unknown }>;
+    mediaFiles?: Array<{ id: string; type: string; uri: string; mimeType: string }>;
+  }) => {
     setExporting(true);
     try {
       await exportAndShareClassroom(params);
@@ -52,7 +57,12 @@ export function useExportClassroom(): UseExportClassroomReturn {
     }
   }, []);
 
-  const exportToFile = useCallback(async (params) => {
+  const exportToFile = useCallback(async (params: {
+    stageId: string;
+    stageName: string;
+    scenes: Array<{ id: string; type: string; title?: string; data: unknown }>;
+    mediaFiles?: Array<{ id: string; type: string; uri: string; mimeType: string }>;
+  }) => {
     setExporting(true);
     try {
       return await createClassroomZip(params);
@@ -61,7 +71,7 @@ export function useExportClassroom(): UseExportClassroomReturn {
     }
   }, []);
 
-  const shareFile = useCallback(async (fileUri) => {
+  const shareFile = useCallback(async (fileUri: string) => {
     return await shareClassroomZip(fileUri);
   }, []);
 

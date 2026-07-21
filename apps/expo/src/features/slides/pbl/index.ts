@@ -30,5 +30,5 @@ export { usePBLStore } from './pblStore';
 export { PBLRenderer } from './PBLRenderer';
 export { PBLRoleSelection } from './PBLRoleSelection';
 export { PBLWorkspace } from './PBLWorkspace';
-export { PBLIssueboard } from './PBLIssueboard';
-export { PBLChat } from './PBLChat';
+export { PBLIssueboard as PBLIssueboardPanel } from './PBLIssueboard';
+export { PBLChat as PBLChatPanel } from './PBLChat';

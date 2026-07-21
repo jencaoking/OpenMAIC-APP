@@ -14,9 +14,9 @@ export function getTextStyleRN(style?: TableCellStyle): TextStyle {
   if (style.em) ts.fontStyle = 'italic';
   if (style.underline) ts.textDecorationLine = 'underline';
   if (style.strikethrough) {
-    ts.textDecorationLine = ts.textDecorationLine
+    ts.textDecorationLine = (ts.textDecorationLine
       ? `${ts.textDecorationLine} line-through`
-      : 'line-through';
+      : 'line-through') as any;
   }
   if (style.color) ts.color = style.color;
   if (style.backcolor) ts.backgroundColor = style.backcolor;

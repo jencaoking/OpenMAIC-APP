@@ -71,7 +71,7 @@ export function RNCodeElement({ element }: RNCodeElementProps) {
   return (
     <View style={styles.container}>
       <WebView
-        ref={webViewRef}
+        ref={webViewRef as any}
         style={styles.webview}
         source={{ html, baseUrl: '' }}
         onMessage={handleMessage}
