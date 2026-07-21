@@ -1,10 +1,10 @@
 import {
   getHiddenCells,
   getTextStyleRN,
-  calculateProgress,
   getTableSubThemeColor,
   buildBorderStyle,
 } from '../src/features/slides/elements/tableUtils';
+import { calculateProgress } from '../src/features/slides/pbl/pblTypes';
 
 describe('tableUtils', () => {
   describe('getHiddenCells', () => {

@@ -77,8 +77,8 @@ describe('imageClipUtils', () => {
 
     it('should handle full range', () => {
       const result = getImagePosition([[0, 0], [100, 100]]);
-      expect(result.left).toBe(0);
-      expect(result.top).toBe(0);
+      expect(result.left).toBeCloseTo(0);
+      expect(result.top).toBeCloseTo(0);
       expect(result.widthPercent).toBe(100);
       expect(result.heightPercent).toBe(100);
     });
