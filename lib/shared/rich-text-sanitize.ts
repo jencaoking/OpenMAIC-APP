@@ -21,6 +21,24 @@ const RICH_TEXT_ALLOWED_STYLES: Record<string, string[]> = [
   'padding', 'margin', 'text-indent',
 ];
 
+const DANGEROUS_PATTERNS = [
+  /<script\b/i,
+  /javascript:/i,
+  /on\w+\s*=/i,
+  /<iframe\b/i,
+  /<embed\b/i,
+  /<object\b/i,
+  /<form\b/i,
+  /<input\b/i,
+  /<button\b/i,
+  /<link\b/i,
+  /<svg\b/i,
+  /<foreignObject\b/i,
+  /<animate\b/i,
+  /<animateTransform\b/i,
+  /<animateMotion\b/i,
+];
+
 export function sanitizeRichTextForRender(html: string): string {
   return sanitizeHtml(html, {
     allowedTags: RICH_TEXT_ALLOWED_TAGS,
@@ -34,12 +52,10 @@ export function sanitizeRichTextForRender(html: string): string {
 }
 
 export function isSafeRichText(html: string): boolean {
-  const sanitized = sanitizeHtml(html, {
-    allowedTags: RICH_TEXT_ALLOWED_TAGS,
-    allowedAttributes: RICH_TEXT_ALLOWED_ATTRIBUTES,
-    allowedStyles: {
-      '*': RICH_TEXT_ALLOWED_STYLES,
-    },
-  });
-  return sanitized === html;
+  for (const pattern of DANGEROUS_PATTERNS) {
+    if (pattern.test(html)) {
+      return false;
+    }
+  }
+  return true;
 }
