@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, Easing } from 'react-native';
 import Svg, { Rect, Defs, Mask, Circle, Line } from 'react-native-svg';
 import type { PPTElement } from '@openmaic/dsl';
@@ -6,8 +6,8 @@ import type { PPTElement } from '@openmaic/dsl';
 /**
  * Teaching effects overlay for Mobile.
  *
- * Implements Spotlight (聚光灯) and Highlight (高亮) effects.
- * Port of Web's SpotlightOverlay.tsx and HighlightOverlay.tsx.
+ * Implements Spotlight (聚光灯), Highlight (高亮), and Laser (激光笔) effects.
+ * Port of Web's SpotlightOverlay.tsx, HighlightOverlay.tsx, and LaserOverlay.tsx.
  */
 
 export interface SpotlightOptions {
@@ -21,6 +21,11 @@ export interface HighlightOverlayOptions {
   opacity?: number;
   borderWidth?: number;
   animated?: boolean;
+}
+
+export interface LaserOptions {
+  color?: string;
+  duration?: number;
 }
 
 interface TeachingEffectsProps {
@@ -37,6 +42,10 @@ interface TeachingEffectsProps {
   /** Highlight state */
   highlightedElementIds?: string[];
   highlightOptions?: HighlightOverlayOptions | null;
+
+  /** Laser state */
+  laserElementId?: string;
+  laserOptions?: LaserOptions | null;
 }
 
 /**
@@ -192,8 +201,174 @@ function HighlightOverlay({
 }
 
 /**
+ * Laser pointer overlay — flies in from nearest corner to element center.
+ * Features a red dot with ring pulse animation.
+ * Port of Web's LaserOverlay.tsx.
+ */
+function LaserOverlay({
+  canvasWidth,
+  canvasHeight,
+  laserElementId,
+  laserOptions,
+  elementPositions,
+}: Pick<TeachingEffectsProps, 'canvasWidth' | 'canvasHeight' | 'laserElementId' | 'laserOptions' | 'elementPositions'>) {
+  const color = laserOptions?.color ?? '#ff3b30';
+  const duration = laserOptions?.duration ?? 3000;
+  const animX = useRef(new Animated.Value(0)).current;
+  const animY = useRef(new Animated.Value(0)).current;
+  const animOpacity = useRef(new Animated.Value(0)).current;
+  const ringScale = useRef(new Animated.Value(1)).current;
+  const ringOpacity = useRef(new Animated.Value(0.6)).current;
+
+  const center = useMemo(() => {
+    if (!laserElementId) return null;
+    const pos = elementPositions[laserElementId];
+    if (!pos) return null;
+    return {
+      x: ((pos.left + pos.width / 2) / canvasWidth) * 100,
+      y: ((pos.top + pos.height / 2) / canvasHeight) * 100,
+    };
+  }, [laserElementId, elementPositions, canvasWidth, canvasHeight]);
+
+  // Fly-in animation from nearest corner
+  useEffect(() => {
+    if (!center) {
+      animOpacity.setValue(0);
+      return;
+    }
+
+    const startX = center.x > 50 ? 105 : -5;
+    const startY = center.y > 50 ? 105 : -5;
+
+    animX.setValue(startX);
+    animY.setValue(startY);
+    animOpacity.setValue(0);
+
+    // Fly in
+    Animated.parallel([
+      Animated.timing(animX, {
+        toValue: center.x,
+        duration: 500,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: false,
+      }),
+      Animated.timing(animY, {
+        toValue: center.y,
+        duration: 500,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: false,
+      }),
+      Animated.timing(animOpacity, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: false,
+      }),
+    ]).start();
+
+    // Ring pulse animation (loops)
+    const pulseAnim = Animated.loop(
+      Animated.sequence([
+        Animated.parallel([
+          Animated.timing(ringScale, {
+            toValue: 2.8,
+            duration: 1500,
+            easing: Easing.out(Easing.quad),
+            useNativeDriver: false,
+          }),
+          Animated.timing(ringOpacity, {
+            toValue: 0,
+            duration: 1500,
+            easing: Easing.out(Easing.quad),
+            useNativeDriver: false,
+          }),
+        ]),
+        Animated.delay(300),
+        Animated.parallel([
+          Animated.timing(ringScale, {
+            toValue: 1,
+            duration: 0,
+            useNativeDriver: false,
+          }),
+          Animated.timing(ringOpacity, {
+            toValue: 0.6,
+            duration: 0,
+            useNativeDriver: false,
+          }),
+        ]),
+      ]),
+    );
+    pulseAnim.start();
+
+    // Auto-hide after duration
+    const hideTimer = setTimeout(() => {
+      Animated.timing(animOpacity, {
+        toValue: 0,
+        duration: 250,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: false,
+      }).start();
+    }, duration);
+
+    return () => {
+      pulseAnim.stop();
+      clearTimeout(hideTimer);
+    };
+  }, [center, duration, animX, animY, animOpacity, ringScale, ringOpacity]);
+
+  if (!center) return null;
+
+  return (
+    <Animated.View
+      style={[
+        styles.laserContainer,
+        {
+          left: animX.interpolate({
+            inputRange: [0, 100],
+            outputRange: ['0%', '100%'],
+          }),
+          top: animY.interpolate({
+            inputRange: [0, 100],
+            outputRange: ['0%', '100%'],
+          }),
+          opacity: animOpacity,
+        },
+      ]}
+      pointerEvents="none"
+    >
+      <View style={styles.laserDotWrapper}>
+        {/* Ring pulse */}
+        <Animated.View
+          style={[
+            styles.laserRing,
+            {
+              borderColor: color,
+              transform: [{ scale: ringScale }],
+              opacity: ringOpacity,
+            },
+          ]}
+        />
+        {/* Light core */}
+        <View
+          style={[
+            styles.laserCore,
+            {
+              backgroundColor: color,
+              shadowColor: color,
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.6,
+              shadowRadius: 8,
+              elevation: 8,
+            },
+          ]}
+        />
+      </View>
+    </Animated.View>
+  );
+}
+
+/**
  * Main teaching effects component.
- * Renders Spotlight and Highlight overlays.
+ * Renders Spotlight, Highlight, and Laser overlays.
  */
 export function TeachingEffects({
   canvasWidth,
@@ -203,6 +378,8 @@ export function TeachingEffects({
   elementPositions,
   highlightedElementIds,
   highlightOptions,
+  laserElementId,
+  laserOptions,
 }: TeachingEffectsProps) {
   return (
     <View style={[styles.container, { width: canvasWidth, height: canvasHeight }]} pointerEvents="none">
@@ -219,6 +396,15 @@ export function TeachingEffects({
       <HighlightOverlay
         highlightedElementIds={highlightedElementIds}
         highlightOptions={highlightOptions}
+        elementPositions={elementPositions}
+      />
+
+      {/* Laser pointer effect (flies in from corner) */}
+      <LaserOverlay
+        canvasWidth={canvasWidth}
+        canvasHeight={canvasHeight}
+        laserElementId={laserElementId}
+        laserOptions={laserOptions}
         elementPositions={elementPositions}
       />
     </View>
@@ -254,5 +440,29 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     borderRadius: 4,
+  },
+  laserContainer: {
+    position: 'absolute',
+    zIndex: 101,
+  },
+  laserDotWrapper: {
+    width: 10,
+    height: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: -5,
+    marginTop: -5,
+  },
+  laserRing: {
+    position: 'absolute',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    borderWidth: 1.5,
+  },
+  laserCore: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
 });

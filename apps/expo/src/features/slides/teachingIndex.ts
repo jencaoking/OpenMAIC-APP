@@ -1,5 +1,5 @@
 export { TeachingEffects } from './TeachingEffects';
-export type { SpotlightOptions, HighlightOverlayOptions } from './TeachingEffects';
+export type { SpotlightOptions, HighlightOverlayOptions, LaserOptions } from './TeachingEffects';
 
 export { useTeachingStore } from './teachingStore';
-export type { SpotlightOptions as StoreSpotlightOptions, HighlightOverlayOptions as StoreHighlightOverlayOptions, LaserOptions } from './teachingStore';
+export type { SpotlightOptions as StoreSpotlightOptions, HighlightOverlayOptions as StoreHighlightOverlayOptions, LaserOptions as StoreLaserOptions } from './teachingStore';
