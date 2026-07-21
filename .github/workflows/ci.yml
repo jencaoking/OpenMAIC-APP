@@ -10,10 +10,15 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  NODE_VERSION: '20'
+
 jobs:
-  check:
-    name: Lint, Typecheck & Unit Tests
+  # ==================== Web Quality Checks ====================
+  web-check:
+    name: Web - Lint, Typecheck & Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -21,10 +26,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Prettier
         run: pnpm check
@@ -38,7 +44,7 @@ jobs:
       - name: i18n Key Alignment
         run: pnpm check:i18n-keys
 
-      - name: Unit Tests
+      - name: Unit Tests (root)
         run: pnpm test
 
       - name: Unit Tests (importer)
@@ -50,9 +56,11 @@ jobs:
       - name: Unit Tests (storage)
         run: pnpm --filter @openmaic/storage test
 
-  e2e:
-    name: E2E Tests
+  # ==================== Mobile (Expo) Quality Checks ====================
+  expo-check:
+    name: Mobile - Typecheck & Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -60,10 +68,46 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript TypeCheck (Expo)
+        working-directory: apps/expo
+        run: pnpm run typecheck
+
+      - name: Jest Unit Tests (Expo)
+        working-directory: apps/expo
+        run: npx jest --passWithNoTests --coverage --ci
+
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: expo-coverage
+          path: apps/expo/coverage/
+          retention-days: 7
+
+  # ==================== E2E Tests ====================
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [web-check]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers
         run: pnpm exec playwright install chromium --with-deps
@@ -77,3 +121,30 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  # ==================== Build Verification ====================
+  build-verify:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [web-check, expo-check]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Web
+        run: pnpm build
+
+      - name: Verify Expo Build (dry run)
+        working-directory: apps/expo
+        run: npx expo export --platform web --output-dir /tmp/expo-export
+        continue-on-error: true
