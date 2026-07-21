@@ -18,6 +18,7 @@ interface SessionListScreenProps {
   onStartChat: (sessionId: string) => void;
   onStartQuiz: () => void;
   onStartClassroom?: () => void;
+  onShowSettings?: () => void;
 }
 
 function formatDate(dateString: string): string {
@@ -94,6 +95,7 @@ const SessionListScreen: React.FC<SessionListScreenProps> = ({
   onStartChat,
   onStartQuiz,
   onStartClassroom,
+  onShowSettings,
 }) => {
   const { state, fetchSessions } = useSessionStore();
   const { sessions, status, error } = state;
@@ -138,6 +140,16 @@ const SessionListScreen: React.FC<SessionListScreenProps> = ({
           <Pressable style={styles.stressButton} onPress={onShowStressTest}>
             <Text style={styles.stressButtonText}>压力测试</Text>
           </Pressable>
+          {onShowSettings && (
+            <Pressable
+              style={styles.settingsButton}
+              onPress={onShowSettings}
+              accessibilityRole="button"
+              accessibilityLabel="设置"
+            >
+              <Text style={styles.settingsButtonText}>⚙ 设置</Text>
+            </Pressable>
+          )}
           <Pressable style={styles.addButton} onPress={onAddSession}>
             <Text style={styles.addButtonText}>+ 新建</Text>
           </Pressable>
@@ -254,6 +266,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#7c3aed',
+  },
+  settingsButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 8,
+  },
+  settingsButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
   },
   loadingContainer: {
     flex: 1,
