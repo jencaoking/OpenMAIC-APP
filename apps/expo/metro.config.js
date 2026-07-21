@@ -16,6 +16,11 @@ const path = require('path');
 
 const config = getDefaultConfig(__dirname);
 
+// 添加 WASM 文件支持（expo-sqlite 需要）
+if (!config.resolver.assetExts.includes('wasm')) {
+  config.resolver.assetExts.push('wasm');
+}
+
 const nodeStubPath = path.resolve(__dirname, 'plugins', 'node-stubs');
 
 config.resolver.extraNodeModules = {
@@ -28,6 +33,7 @@ config.resolver.extraNodeModules = {
 };
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {
+  // 处理 node: 协议模块
   if (moduleName.startsWith('node:')) {
     const stubName = moduleName.replace('node:', '');
     const stubPath = path.join(nodeStubPath, `${stubName}.js`);
@@ -42,6 +48,25 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       type: 'sourceFile',
     };
   }
+
+  // 处理 expo-sqlite WASM 文件（pnpm 嵌套路径问题）
+  if (platform === 'web' && moduleName.includes('wa-sqlite.wasm')) {
+    const wasmPath = path.resolve(
+      __dirname,
+      'node_modules',
+      'expo-sqlite',
+      'web',
+      'wa-sqlite',
+      'wa-sqlite.wasm'
+    );
+    if (require('fs').existsSync(wasmPath)) {
+      return {
+        filePath: wasmPath,
+        type: 'asset',
+      };
+    }
+  }
+
   return context.resolveRequest(context, moduleName, platform);
 };
 
