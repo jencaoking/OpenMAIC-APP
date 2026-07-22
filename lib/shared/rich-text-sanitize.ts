@@ -70,6 +70,11 @@ const DANGEROUS_PATTERNS = [
   /<animate\b/i,
   /<animateTransform\b/i,
   /<animateMotion\b/i,
+  // CSS-based attacks
+  /\\75rl/i, // CSS escape for url()
+  /position\s*:\s*fixed/i,
+  /position\s*:\s*absolute/i,
+  /position\s*:\s*sticky/i,
 ];
 
 export function sanitizeRichTextForRender(html: string): string {
