@@ -36,7 +36,7 @@ const RICH_TEXT_ALLOWED_ATTRIBUTES: Record<string, string[]> = {
   img: ['src', 'alt', 'width', 'height'],
 };
 
-const RICH_TEXT_ALLOWED_STYLES: Record<string, string[]> = [
+const RICH_TEXT_ALLOWED_STYLES: string[] = [
   'color',
   'background-color',
   'font-size',
