@@ -1,42 +1,112 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import Svg, { Line } from 'react-native-svg';
-import type { PPTLineElement } from '@openmaic/dsl';
+import Svg, { Path, Defs, Marker, Circle } from 'react-native-svg';
+import type { PPTLineElement, LinePoint } from '@openmaic/dsl';
 
 interface RNLineElementProps {
   element: PPTLineElement;
 }
 
 /**
- * 线条元素渲染器。
- * PPTLineElement 使用 start/end 坐标，不是 width/height。
+ * Line element renderer with endpoint markers.
+ *
+ * Port of Web's BaseLineElement + LinePointMarker.
+ * Supports dot and arrow markers at line endpoints.
  */
 export function RNLineElement({ element }: RNLineElementProps) {
-  const { start, end, color, style } = element;
+  const { start, end, color, style, width: lineWidth = 2, points } = element;
 
-  const strokeWidth = 2;
   const strokeColor = color || '#333333';
-  const strokeDasharray = style === 'dashed' ? '8,4' : style === 'dotted' ? '2,2' : undefined;
+  const strokeDasharray =
+    style === 'dashed' ? '8,4' : style === 'dotted' ? '2,2' : undefined;
 
-  // 计算 SVG viewBox
-  const minX = Math.min(start[0], end[0]);
-  const minY = Math.min(start[1], end[1]);
-  const maxX = Math.max(start[0], end[0]);
-  const maxY = Math.max(start[1], end[1]);
-  const svgWidth = Math.max(maxX - minX + 10, 10);
-  const svgHeight = Math.max(maxY - minY + 10, 10);
+  // Calculate SVG viewBox
+  const svgWidth = useMemo(() => {
+    const w = Math.abs(start[0] - end[0]);
+    return w < 24 ? 24 : w;
+  }, [start, end]);
+
+  const svgHeight = useMemo(() => {
+    const h = Math.abs(start[1] - end[1]);
+    return h < 24 ? 24 : h;
+  }, [start, end]);
+
+  // Calculate path coordinates relative to viewBox
+  const x1 = start[0];
+  const y1 = start[1];
+  const x2 = end[0];
+  const y2 = end[1];
+
+  // Marker size based on line width
+  const markerSize = Math.max(lineWidth * 1.5, 3);
+
+  // Check if we have endpoints
+  const hasStartMarker = points && points[0] && points[0] !== '';
+  const hasEndMarker = points && points[1] && points[1] !== '';
+
+  // Build path for the line
+  const pathD = `M ${x1} ${y1} L ${x2} ${y2}`;
 
   return (
     <View style={styles.container}>
-      <Svg width={svgWidth} height={svgHeight}>
-        <Line
-          x1={start[0] - minX + 5}
-          y1={start[1] - minY + 5}
-          x2={end[0] - minX + 5}
-          y2={end[1] - minY + 5}
+      <Svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`}>
+        <Defs>
+          {/* Start marker */}
+          {hasStartMarker && (
+            <Marker
+              id={`marker-start-${element.id}`}
+              markerUnits="userSpaceOnUse"
+              orient="auto"
+              markerWidth={markerSize * 3}
+              markerHeight={markerSize * 3}
+              refX={markerSize * 1.5}
+              refY={markerSize * 1.5}
+            >
+              {points![0] === 'dot' ? (
+                <Circle cx={markerSize * 1.5} cy={markerSize * 1.5} r={markerSize * 0.8} fill={strokeColor} />
+              ) : (
+                <Path
+                  d="M0,0 L10,5 0,10 Z"
+                  fill={strokeColor}
+                  transform={`scale(${markerSize * 0.3}, ${markerSize * 0.3}) rotate(180, 5, 5)`}
+                />
+              )}
+            </Marker>
+          )}
+
+          {/* End marker */}
+          {hasEndMarker && (
+            <Marker
+              id={`marker-end-${element.id}`}
+              markerUnits="userSpaceOnUse"
+              orient="auto"
+              markerWidth={markerSize * 3}
+              markerHeight={markerSize * 3}
+              refX={markerSize * 1.5}
+              refY={markerSize * 1.5}
+            >
+              {points![1] === 'dot' ? (
+                <Circle cx={markerSize * 1.5} cy={markerSize * 1.5} r={markerSize * 0.8} fill={strokeColor} />
+              ) : (
+                <Path
+                  d="M0,0 L10,5 0,10 Z"
+                  fill={strokeColor}
+                  transform={`scale(${markerSize * 0.3}, ${markerSize * 0.3}) rotate(0, 5, 5)`}
+                />
+              )}
+            </Marker>
+          )}
+        </Defs>
+
+        {/* The line path with markers */}
+        <Path
+          d={pathD}
           stroke={strokeColor}
-          strokeWidth={strokeWidth}
+          strokeWidth={lineWidth}
           strokeDasharray={strokeDasharray}
+          fill="none"
+          markerStart={hasStartMarker ? `url(#marker-start-${element.id})` : undefined}
+          markerEnd={hasEndMarker ? `url(#marker-end-${element.id})` : undefined}
         />
       </Svg>
     </View>
@@ -44,7 +114,5 @@ export function RNLineElement({ element }: RNLineElementProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    // 线条默认居中
-  },
+  container: {},
 });
