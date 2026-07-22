@@ -16,7 +16,9 @@ describe('AgentPanel module', () => {
   it('should add message', () => {
     const { useAgentStore } = require('../src/features/slides/agent/agentStore');
     useAgentStore.getState().clearMessages();
-    useAgentStore.getState().addMessage({ id: '1', role: 'user', content: 'Hello', timestamp: Date.now() });
+    useAgentStore
+      .getState()
+      .addMessage({ id: '1', role: 'user', content: 'Hello', timestamp: Date.now() });
     // Must call getState() again to get updated state
     expect(useAgentStore.getState().messages).toHaveLength(1);
   });
