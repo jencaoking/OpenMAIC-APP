@@ -24,6 +24,12 @@ export interface TtsQueueConfig {
   prefetchCount: number;
   /** 请求超时（ms），默认 8000。 */
   requestTimeoutMs: number;
+  /** TTS provider ID (for multi-provider support). */
+  providerId?: string;
+  /** TTS model ID. */
+  modelId?: string;
+  /** TTS voice. */
+  voice?: string;
 }
 
 export interface TtsQueueCallbacks {
