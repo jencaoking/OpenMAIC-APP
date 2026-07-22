@@ -1,6 +1,4 @@
 import React from 'react';
-import { DslBuilder } from '../src/features/slides/builder/DslBuilder';
-import { useBuilderStore } from '../src/features/slides/builder/builderStore';
 
 // Mock react-native
 jest.mock('react-native', () => ({
@@ -12,24 +10,27 @@ jest.mock('react-native', () => ({
   StyleSheet: { create: (s: any) => s },
 }));
 
+const { DslBuilder } = require('../src/features/slides/builder/DslBuilder');
+const { useBuilderStore } = require('../src/features/slides/builder/builderStore');
+
 describe('DslBuilder', () => {
   beforeEach(() => {
     useBuilderStore.getState().clear();
   });
 
   it('should render when open', () => {
-    const element = React.createElement(DslBuilder, {
+    const result = DslBuilder({
       isOpen: true,
       onClose: () => {},
     });
-    expect(element).toBeTruthy();
+    expect(result).toBeTruthy();
   });
 
-  it('should not render when closed', () => {
-    const element = React.createElement(DslBuilder, {
+  it('should return null when closed', () => {
+    const result = DslBuilder({
       isOpen: false,
       onClose: () => {},
     });
-    expect(element).toBeNull();
+    expect(result).toBeNull();
   });
 });

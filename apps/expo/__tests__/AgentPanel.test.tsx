@@ -1,6 +1,4 @@
 import React from 'react';
-import { AgentPanel } from '../src/features/slides/agent/AgentPanel';
-import { useAgentStore } from '../src/features/slides/agent/agentStore';
 
 // Mock react-native
 jest.mock('react-native', () => ({
@@ -14,28 +12,31 @@ jest.mock('react-native', () => ({
   Platform: { OS: 'ios' },
 }));
 
+const { AgentPanel } = require('../src/features/slides/agent/AgentPanel');
+const { useAgentStore } = require('../src/features/slides/agent/agentStore');
+
 describe('AgentPanel', () => {
   beforeEach(() => {
     useAgentStore.getState().clearMessages();
   });
 
   it('should render when visible', () => {
-    const element = React.createElement(AgentPanel, {
+    const result = AgentPanel({
       sceneId: 's1',
       sceneContext: {},
       visible: true,
       onClose: () => {},
     });
-    expect(element).toBeTruthy();
+    expect(result).toBeTruthy();
   });
 
-  it('should not render when not visible', () => {
-    const element = React.createElement(AgentPanel, {
+  it('should return null when not visible', () => {
+    const result = AgentPanel({
       sceneId: 's1',
       sceneContext: {},
       visible: false,
       onClose: () => {},
     });
-    expect(element).toBeNull();
+    expect(result).toBeNull();
   });
 });
