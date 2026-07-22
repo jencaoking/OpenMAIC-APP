@@ -29,3 +29,7 @@ out/
 
 # SVG arc helper (vendored declaration)
 lib/export/svg-arc-to-cubic-bezier.d.ts
+
+# HTML files with embedded scripts (Prettier can't parse)
+apps/expo/src/features/slides/elements/*.html
+apps/expo/src/features/slides/editor/*.html

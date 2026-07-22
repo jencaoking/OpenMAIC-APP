@@ -7,17 +7,17 @@ describe('AgentPanel module', () => {
 
   it('should manage agent state', () => {
     const { useAgentStore } = require('../src/features/slides/agent/agentStore');
-    const store = useAgentStore.getState();
-    store.clearMessages();
-    expect(store.messages).toHaveLength(0);
-    expect(store.status).toBe('idle');
+    useAgentStore.getState().clearMessages();
+    const state = useAgentStore.getState();
+    expect(state.messages).toHaveLength(0);
+    expect(state.status).toBe('idle');
   });
 
   it('should add message', () => {
     const { useAgentStore } = require('../src/features/slides/agent/agentStore');
-    const store = useAgentStore.getState();
-    store.clearMessages();
-    store.addMessage({ id: '1', role: 'user', content: 'Hello', timestamp: Date.now() });
-    expect(store.messages).toHaveLength(1);
+    useAgentStore.getState().clearMessages();
+    useAgentStore.getState().addMessage({ id: '1', role: 'user', content: 'Hello', timestamp: Date.now() });
+    // Must call getState() again to get updated state
+    expect(useAgentStore.getState().messages).toHaveLength(1);
   });
 });

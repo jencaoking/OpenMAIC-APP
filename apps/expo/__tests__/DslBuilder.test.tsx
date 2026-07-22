@@ -7,35 +7,34 @@ describe('DslBuilder module', () => {
 
   it('should manage DSL tree state', () => {
     const { useBuilderStore } = require('../src/features/slides/builder/builderStore');
-    const store = useBuilderStore.getState();
-    store.clear();
-    expect(store.dslTree).toHaveLength(1);
-    expect(store.dslTree[0].type).toBe('View');
+    useBuilderStore.getState().clear();
+    const tree = useBuilderStore.getState().dslTree;
+    expect(tree).toHaveLength(1);
+    expect(tree[0].type).toBe('View');
   });
 
   it('should add and remove nodes', () => {
     const { useBuilderStore } = require('../src/features/slides/builder/builderStore');
-    const store = useBuilderStore.getState();
-    store.clear();
+    useBuilderStore.getState().clear();
     const node = { type: 'Text', id: 'test-1', props: {}, children: ['Hello'] };
-    store.addNode(null, node);
-    expect(store.dslTree).toHaveLength(2);
-    store.deleteNode('test-1');
-    expect(store.dslTree).toHaveLength(1);
+    useBuilderStore.getState().addNode(null, node);
+    // Must call getState() again to get updated state
+    expect(useBuilderStore.getState().dslTree).toHaveLength(2);
+    useBuilderStore.getState().deleteNode('test-1');
+    expect(useBuilderStore.getState().dslTree).toHaveLength(1);
   });
 
   it('should undo and redo', () => {
     const { useBuilderStore } = require('../src/features/slides/builder/builderStore');
-    const store = useBuilderStore.getState();
-    store.clear();
-    store.saveToHistory();
+    useBuilderStore.getState().clear();
+    useBuilderStore.getState().saveToHistory();
     const node = { type: 'Text', id: 'test-1', props: {}, children: ['Hello'] };
-    store.addNode(null, node);
-    store.saveToHistory();
-    expect(store.dslTree).toHaveLength(2);
-    store.undo();
-    expect(store.dslTree).toHaveLength(1);
-    store.redo();
-    expect(store.dslTree).toHaveLength(2);
+    useBuilderStore.getState().addNode(null, node);
+    useBuilderStore.getState().saveToHistory();
+    expect(useBuilderStore.getState().dslTree).toHaveLength(2);
+    useBuilderStore.getState().undo();
+    expect(useBuilderStore.getState().dslTree).toHaveLength(1);
+    useBuilderStore.getState().redo();
+    expect(useBuilderStore.getState().dslTree).toHaveLength(2);
   });
 });

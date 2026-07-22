@@ -57,7 +57,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       'expo-sqlite',
       'web',
       'wa-sqlite',
-      'wa-sqlite.wasm'
+      'wa-sqlite.wasm',
     );
     if (require('fs').existsSync(wasmPath)) {
       return {
