@@ -36,23 +36,23 @@ const RICH_TEXT_ALLOWED_ATTRIBUTES: Record<string, string[]> = {
   img: ['src', 'alt', 'width', 'height'],
 };
 
-const RICH_TEXT_ALLOWED_STYLES: string[] = [
-  'color',
-  'background-color',
-  'font-size',
-  'font-family',
-  'font-weight',
-  'font-style',
-  'text-decoration',
-  'text-align',
-  'vertical-align',
-  'line-height',
-  'letter-spacing',
-  'word-spacing',
-  'padding',
-  'margin',
-  'text-indent',
-];
+const RICH_TEXT_ALLOWED_STYLES: { [prop: string]: RegExp[] } = {
+  color: [/.*/],
+  'background-color': [/.*/],
+  'font-size': [/.*/],
+  'font-family': [/.*/],
+  'font-weight': [/.*/],
+  'font-style': [/.*/],
+  'text-decoration': [/.*/],
+  'text-align': [/.*/],
+  'vertical-align': [/.*/],
+  'line-height': [/.*/],
+  'letter-spacing': [/.*/],
+  'word-spacing': [/.*/],
+  padding: [/.*/],
+  margin: [/.*/],
+  'text-indent': [/.*/],
+};
 
 const DANGEROUS_PATTERNS = [
   /<script\b/i,
