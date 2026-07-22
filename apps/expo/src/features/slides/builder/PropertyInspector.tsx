@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useBuilderStore } from './builderStore';
 
 interface PropertyInspectorProps {
@@ -20,7 +13,8 @@ interface PropertyInspectorProps {
  * Port of Web's PropertyInspector component.
  */
 export function PropertyInspector({ isOpen, onClose }: PropertyInspectorProps) {
-  const { selectedNodeId, getNodeById, updateNode, updateNodeProps, selectNode } = useBuilderStore();
+  const { selectedNodeId, getNodeById, updateNode, updateNodeProps, selectNode } =
+    useBuilderStore();
   const selectedNode = selectedNodeId ? getNodeById(selectedNodeId) : null;
 
   if (!isOpen || !selectedNode) return null;

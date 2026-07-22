@@ -2,10 +2,7 @@ import React, { useRef, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { PPTTextElement } from '@openmaic/dsl';
 import { RNProsemirrorEditor, type RNProsemirrorEditorRef } from '../editor/RNProsemirrorEditor';
-import {
-  registerActiveTextEditor,
-  type TextCommandPayload,
-} from '../editor/activeEditorRegistry';
+import { registerActiveTextEditor, type TextCommandPayload } from '../editor/activeEditorRegistry';
 import { useTextEditorStore } from '../editor/textEditorStore';
 
 interface RNTextElementProps {
@@ -32,46 +29,43 @@ export function RNTextElement({ element, editable = false, onContentChange }: RN
     vAlign === 'middle' ? 'center' : vAlign === 'bottom' ? 'flex-end' : 'flex-start';
 
   // Register the editor runner for command routing
-  const runCommand = useCallback(
-    (payload: TextCommandPayload) => {
-      if (!editorRef.current) return;
+  const runCommand = useCallback((payload: TextCommandPayload) => {
+    if (!editorRef.current) return;
 
-      // Map TextCommandPayload to editor commands
-      switch (payload.command) {
-        case 'bold':
-          editorRef.current.execCommand('bold');
-          break;
-        case 'em':
-          editorRef.current.execCommand('em');
-          break;
-        case 'underline':
-          editorRef.current.execCommand('underline');
-          break;
-        case 'fontname':
-          editorRef.current.execCommand('fontname', payload.value);
-          break;
-        case 'fontsize':
-          editorRef.current.execCommand('fontsize', payload.value);
-          break;
-        case 'forecolor':
-          editorRef.current.execCommand('color', payload.value);
-          break;
-        case 'align-left':
-          editorRef.current.execCommand('align', 'left');
-          break;
-        case 'align-center':
-          editorRef.current.execCommand('align', 'center');
-          break;
-        case 'align-right':
-          editorRef.current.execCommand('align', 'right');
-          break;
-        case 'bulletList':
-          editorRef.current.execCommand('bulletList');
-          break;
-      }
-    },
-    [],
-  );
+    // Map TextCommandPayload to editor commands
+    switch (payload.command) {
+      case 'bold':
+        editorRef.current.execCommand('bold');
+        break;
+      case 'em':
+        editorRef.current.execCommand('em');
+        break;
+      case 'underline':
+        editorRef.current.execCommand('underline');
+        break;
+      case 'fontname':
+        editorRef.current.execCommand('fontname', payload.value);
+        break;
+      case 'fontsize':
+        editorRef.current.execCommand('fontsize', payload.value);
+        break;
+      case 'forecolor':
+        editorRef.current.execCommand('color', payload.value);
+        break;
+      case 'align-left':
+        editorRef.current.execCommand('align', 'left');
+        break;
+      case 'align-center':
+        editorRef.current.execCommand('align', 'center');
+        break;
+      case 'align-right':
+        editorRef.current.execCommand('align', 'right');
+        break;
+      case 'bulletList':
+        editorRef.current.execCommand('bulletList');
+        break;
+    }
+  }, []);
 
   // Register/unregister when editing
   useEffect(() => {

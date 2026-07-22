@@ -8,10 +8,7 @@
 import JSZip from 'jszip';
 import * as FileSystem from 'expo-file-system';
 import { Linking, Platform } from 'react-native';
-import type {
-  ClassroomManifest,
-  MediaIndexEntry,
-} from './exportTypes';
+import type { ClassroomManifest, MediaIndexEntry } from './exportTypes';
 import { CLASSROOM_ZIP_FORMAT_VERSION, CLASSROOM_ZIP_EXTENSION } from './exportTypes';
 
 /**
@@ -93,7 +90,8 @@ export async function createClassroomZip(params: {
 
   // 5. Write to temp file
   const fileName = `${stageName.replace(/[^a-zA-Z0-9]/g, '_')}${CLASSROOM_ZIP_EXTENSION}`;
-  const cacheDir = (FileSystem as any).cacheDirectory || (FileSystem as any).default?.cacheDirectory || '';
+  const cacheDir =
+    (FileSystem as any).cacheDirectory || (FileSystem as any).default?.cacheDirectory || '';
   const tempUri = `${cacheDir}${fileName}`;
 
   await FileSystem.writeAsStringAsync(tempUri, zipBase64, {

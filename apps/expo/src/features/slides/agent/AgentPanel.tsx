@@ -136,9 +136,7 @@ function MessageBubble({ message }: { message: AgentMessage }) {
         <Text style={styles.userText}>{message.content}</Text>
       ) : (
         <View>
-          {message.content ? (
-            <Text style={styles.assistantText}>{message.content}</Text>
-          ) : null}
+          {message.content ? <Text style={styles.assistantText}>{message.content}</Text> : null}
 
           {/* Tool calls */}
           {message.toolCalls?.map((tc) => (
@@ -173,7 +171,11 @@ function ToolCard({ toolName, args }: { toolName: string; args: Record<string, u
   }
 }
 
-function ToolResultCard({ result }: { result: { content: string; details?: Record<string, unknown> } }) {
+function ToolResultCard({
+  result,
+}: {
+  result: { content: string; details?: Record<string, unknown> };
+}) {
   return (
     <View style={styles.toolResult}>
       <Text style={styles.toolResultText} numberOfLines={3}>

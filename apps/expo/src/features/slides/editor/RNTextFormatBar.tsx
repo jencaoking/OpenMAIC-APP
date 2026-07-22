@@ -104,7 +104,8 @@ export function RNTextFormatBar({ elementId }: RNTextFormatBarProps) {
     [elementId],
   );
 
-  const currentFontLabel = FONTS.find((f) => f.value === attrs.fontname)?.label || attrs.fontname || 'Default';
+  const currentFontLabel =
+    FONTS.find((f) => f.value === attrs.fontname)?.label || attrs.fontname || 'Default';
 
   return (
     <View style={styles.container}>
@@ -114,10 +115,7 @@ export function RNTextFormatBar({ elementId }: RNTextFormatBarProps) {
         contentContainerStyle={styles.scrollContent}
       >
         {/* Font picker */}
-        <TouchableOpacity
-          style={styles.fontPicker}
-          onPress={() => setFontPickerOpen(true)}
-        >
+        <TouchableOpacity style={styles.fontPicker} onPress={() => setFontPickerOpen(true)}>
           <Text style={styles.fontPickerText} numberOfLines={1}>
             {currentFontLabel}
           </Text>
@@ -176,7 +174,11 @@ export function RNTextFormatBar({ elementId }: RNTextFormatBarProps) {
         <ToggleButton label="Italic" active={attrs.em} onPress={() => run({ command: 'em' })}>
           <ItalicIcon />
         </ToggleButton>
-        <ToggleButton label="Underline" active={attrs.underline} onPress={() => run({ command: 'underline' })}>
+        <ToggleButton
+          label="Underline"
+          active={attrs.underline}
+          onPress={() => run({ command: 'underline' })}
+        >
           <UnderlineIcon />
         </ToggleButton>
 
@@ -185,7 +187,15 @@ export function RNTextFormatBar({ elementId }: RNTextFormatBarProps) {
           style={styles.colorButton}
           onPress={() => {
             // Cycle through a preset color palette
-            const colors = ['#000000', '#ff0000', '#00ff00', '#0000ff', '#ff6600', '#9933ff', '#00cccc'];
+            const colors = [
+              '#000000',
+              '#ff0000',
+              '#00ff00',
+              '#0000ff',
+              '#ff6600',
+              '#9933ff',
+              '#00cccc',
+            ];
             const currentIdx = colors.indexOf(attrs.color);
             const nextColor = colors[(currentIdx + 1) % colors.length];
             run({ command: 'forecolor', value: nextColor });
@@ -238,10 +248,7 @@ export function RNTextFormatBar({ elementId }: RNTextFormatBarProps) {
               {FONTS.map((f) => (
                 <TouchableOpacity
                   key={f.value || '__default__'}
-                  style={[
-                    styles.modalItem,
-                    attrs.fontname === f.value && styles.modalItemActive,
-                  ]}
+                  style={[styles.modalItem, attrs.fontname === f.value && styles.modalItemActive]}
                   onPress={() => {
                     run({ command: 'fontname', value: f.value });
                     setFontPickerOpen(false);
@@ -395,5 +402,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
-

@@ -34,12 +34,7 @@ export function DslRenderer({ node, isSelected, onSelect }: DslRendererProps) {
               typeof child === 'string' ? (
                 <Text key={i}>{child}</Text>
               ) : (
-                <DslRenderer
-                  key={child.id}
-                  node={child}
-                  isSelected={false}
-                  onSelect={() => {}}
-                />
+                <DslRenderer key={child.id} node={child} isSelected={false} onSelect={() => {}} />
               ),
             )}
           </View>
@@ -83,26 +78,23 @@ export function DslRenderer({ node, isSelected, onSelect }: DslRendererProps) {
 
       case 'ScrollView':
         return (
-          <ScrollView
-            style={[style as any, { maxHeight: 200 }, isSelected && styles.selected]}
-          >
+          <ScrollView style={[style as any, { maxHeight: 200 }, isSelected && styles.selected]}>
             {children?.map((child, i) =>
               typeof child === 'string' ? (
                 <Text key={i}>{child}</Text>
               ) : (
-                <DslRenderer
-                  key={child.id}
-                  node={child}
-                  isSelected={false}
-                  onSelect={() => {}}
-                />
+                <DslRenderer key={child.id} node={child} isSelected={false} onSelect={() => {}} />
               ),
             )}
           </ScrollView>
         );
 
       default:
-        return <View style={styles.placeholder}><Text>Unknown</Text></View>;
+        return (
+          <View style={styles.placeholder}>
+            <Text>Unknown</Text>
+          </View>
+        );
     }
   };
 

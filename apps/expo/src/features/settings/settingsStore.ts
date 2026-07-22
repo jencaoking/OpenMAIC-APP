@@ -37,11 +37,7 @@ import type {
   VideoProviderId,
   WebSearchProviderId,
 } from './types';
-import {
-  PROVIDERS,
-  TTS_PROVIDERS,
-  ASR_PROVIDERS,
-} from './constants';
+import { PROVIDERS, TTS_PROVIDERS, ASR_PROVIDERS } from './constants';
 
 /** 持久化到 SecureStore 的 key 名（命名空间：openmaic_）。 */
 const STORAGE_KEY = 'openmaic_settings_v1';
@@ -262,10 +258,7 @@ export interface SettingsState {
   /** 切换当前 LLM 提供商下的模型。 */
   setModel: (modelId: string) => void;
   /** 更新单个 LLM 提供商的配置（Partial 合并）。 */
-  setProviderConfig: (
-    providerId: ProviderId,
-    config: Partial<ProviderSettings>,
-  ) => void;
+  setProviderConfig: (providerId: ProviderId, config: Partial<ProviderSettings>) => void;
   /** 替换整个 providersConfig。 */
   setProvidersConfig: (config: ProvidersConfig) => void;
 
@@ -273,38 +266,23 @@ export interface SettingsState {
   /** 切换 TTS 提供商。 */
   setTTSProvider: (providerId: TTSProviderId) => void;
   /** 更新单个 TTS 提供商的配置（Partial 合并）。 */
-  setTTSProviderConfig: (
-    providerId: TTSProviderId,
-    config: Partial<TTSProviderConfig>,
-  ) => void;
+  setTTSProviderConfig: (providerId: TTSProviderId, config: Partial<TTSProviderConfig>) => void;
   /** 新增一个自定义 TTS 提供商（以 `custom-tts-` 前缀）。 */
-  addCustomTTSProvider: (
-    providerId: `custom-tts-${string}`,
-    config: TTSProviderConfig,
-  ) => void;
+  addCustomTTSProvider: (providerId: `custom-tts-${string}`, config: TTSProviderConfig) => void;
 
   // ===== Actions: ASR =====
   /** 切换 ASR 提供商。 */
   setASRProvider: (providerId: ASRProviderId) => void;
   /** 更新单个 ASR 提供商的配置（Partial 合并）。 */
-  setASRProviderConfig: (
-    providerId: ASRProviderId,
-    config: Partial<ASRProviderConfig>,
-  ) => void;
+  setASRProviderConfig: (providerId: ASRProviderId, config: Partial<ASRProviderConfig>) => void;
   /** 新增一个自定义 ASR 提供商（以 `custom-asr-` 前缀）。 */
-  addCustomASRProvider: (
-    providerId: `custom-asr-${string}`,
-    config: ASRProviderConfig,
-  ) => void;
+  addCustomASRProvider: (providerId: `custom-asr-${string}`, config: ASRProviderConfig) => void;
 
   // ===== Actions: PDF =====
   /** 切换 PDF 提供商。 */
   setPDFProvider: (providerId: PDFProviderId) => void;
   /** 更新单个 PDF 提供商的配置（Partial 合并）。 */
-  setPDFProviderConfig: (
-    providerId: PDFProviderId,
-    config: Partial<GenericProviderConfig>,
-  ) => void;
+  setPDFProviderConfig: (providerId: PDFProviderId, config: Partial<GenericProviderConfig>) => void;
 
   // ===== Actions: Image =====
   /** 切换图片生成提供商。 */

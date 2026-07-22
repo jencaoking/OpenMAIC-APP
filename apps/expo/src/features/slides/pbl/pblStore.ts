@@ -5,11 +5,7 @@
  */
 
 import { create } from 'zustand';
-import type {
-  PBLProjectConfig,
-  PBLChatMessage,
-  PBLIssue,
-} from './pblTypes';
+import type { PBLProjectConfig, PBLChatMessage, PBLIssue } from './pblTypes';
 import { getActiveIssue } from './pblTypes';
 
 interface PBLState {

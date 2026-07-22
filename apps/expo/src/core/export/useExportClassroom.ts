@@ -43,33 +43,39 @@ interface UseExportClassroomReturn {
 export function useExportClassroom(): UseExportClassroomReturn {
   const [exporting, setExporting] = useState(false);
 
-  const exportAndShare = useCallback(async (params: {
-    stageId: string;
-    stageName: string;
-    scenes: Array<{ id: string; type: string; title?: string; data: unknown }>;
-    mediaFiles?: Array<{ id: string; type: string; uri: string; mimeType: string }>;
-  }) => {
-    setExporting(true);
-    try {
-      await exportAndShareClassroom(params);
-    } finally {
-      setExporting(false);
-    }
-  }, []);
+  const exportAndShare = useCallback(
+    async (params: {
+      stageId: string;
+      stageName: string;
+      scenes: Array<{ id: string; type: string; title?: string; data: unknown }>;
+      mediaFiles?: Array<{ id: string; type: string; uri: string; mimeType: string }>;
+    }) => {
+      setExporting(true);
+      try {
+        await exportAndShareClassroom(params);
+      } finally {
+        setExporting(false);
+      }
+    },
+    [],
+  );
 
-  const exportToFile = useCallback(async (params: {
-    stageId: string;
-    stageName: string;
-    scenes: Array<{ id: string; type: string; title?: string; data: unknown }>;
-    mediaFiles?: Array<{ id: string; type: string; uri: string; mimeType: string }>;
-  }) => {
-    setExporting(true);
-    try {
-      return await createClassroomZip(params);
-    } finally {
-      setExporting(false);
-    }
-  }, []);
+  const exportToFile = useCallback(
+    async (params: {
+      stageId: string;
+      stageName: string;
+      scenes: Array<{ id: string; type: string; title?: string; data: unknown }>;
+      mediaFiles?: Array<{ id: string; type: string; uri: string; mimeType: string }>;
+    }) => {
+      setExporting(true);
+      try {
+        return await createClassroomZip(params);
+      } finally {
+        setExporting(false);
+      }
+    },
+    [],
+  );
 
   const shareFile = useCallback(async (fileUri: string) => {
     return await shareClassroomZip(fileUri);

@@ -58,11 +58,7 @@ export function RNTableElement({ element }: RNTableElementProps) {
   const borderConfig = useMemo(() => buildBorderStyle(outline), [outline]);
 
   // Build border style for each cell side
-  const getCellBorder = (
-    rowIdx: number,
-    colIdx: number,
-    cell: TableCell,
-  ): ViewStyle => {
+  const getCellBorder = (rowIdx: number, colIdx: number, cell: TableCell): ViewStyle => {
     // Per-cell borders take priority
     if (cell.borders) {
       const b = cell.borders;
@@ -92,7 +88,11 @@ export function RNTableElement({ element }: RNTableElementProps) {
   };
 
   // Get background color for a cell based on theme and position
-  const getCellBg = (rowIdx: number, colIdx: number, cellBackcolor?: string): string | undefined => {
+  const getCellBg = (
+    rowIdx: number,
+    colIdx: number,
+    cellBackcolor?: string,
+  ): string | undefined => {
     if (cellBackcolor) return cellBackcolor;
     if (!theme) return undefined;
 
@@ -134,19 +134,14 @@ export function RNTableElement({ element }: RNTableElementProps) {
           : safeCellMinHeight;
 
         return (
-          <View
-            key={rowIdx}
-            style={[styles.row, { minHeight: rowHeight }]}
-          >
+          <View key={rowIdx} style={[styles.row, { minHeight: rowHeight }]}>
             {(Array.isArray(row) ? row : []).map((cell, colIdx) => {
               // Skip positions occupied by a previous merge
               if (hiddenCells.has(`${rowIdx}_${colIdx}`)) return null;
               if (!cell) return null;
 
-              const colspan =
-                Number.isFinite(cell.colspan) && cell.colspan > 0 ? cell.colspan : 1;
-              const rowspan =
-                Number.isFinite(cell.rowspan) && cell.rowspan > 0 ? cell.rowspan : 1;
+              const colspan = Number.isFinite(cell.colspan) && cell.colspan > 0 ? cell.colspan : 1;
+              const rowspan = Number.isFinite(cell.rowspan) && cell.rowspan > 0 ? cell.rowspan : 1;
 
               // Compute cell width based on colspan
               const colWidth = tableColWidths[colIdx] ?? 1 / totalCols;
@@ -180,10 +175,7 @@ export function RNTableElement({ element }: RNTableElementProps) {
                     rowspan > 1 ? { borderBottomWidth: 0 } : undefined,
                   ]}
                 >
-                  <Text
-                    style={[styles.cellText, cellTextStyle]}
-                    numberOfLines={0}
-                  >
+                  <Text style={[styles.cellText, cellTextStyle]} numberOfLines={0}>
                     {cell.text || ''}
                   </Text>
                 </View>

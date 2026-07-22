@@ -66,7 +66,10 @@ function SpotlightOverlay({
   spotlightElementId,
   spotlightOptions,
   elementPositions,
-}: Pick<TeachingEffectsProps, 'canvasWidth' | 'canvasHeight' | 'spotlightElementId' | 'spotlightOptions' | 'elementPositions'>) {
+}: Pick<
+  TeachingEffectsProps,
+  'canvasWidth' | 'canvasHeight' | 'spotlightElementId' | 'spotlightOptions' | 'elementPositions'
+>) {
   const active = !!spotlightElementId && !!spotlightOptions;
   const dimness = spotlightOptions?.dimness ?? 0.7;
 
@@ -114,12 +117,7 @@ function SpotlightOverlay({
         </Defs>
 
         {/* Dimmed Background */}
-        <Rect
-          width="100"
-          height="100"
-          fill={`rgba(0,0,0,${dimness})`}
-          mask={`url(#${maskId})`}
-        />
+        <Rect width="100" height="100" fill={`rgba(0,0,0,${dimness})`} mask={`url(#${maskId})`} />
 
         {/* White border around spotlight area */}
         <Rect
@@ -219,7 +217,10 @@ function LaserOverlay({
   laserElementId,
   laserOptions,
   elementPositions,
-}: Pick<TeachingEffectsProps, 'canvasWidth' | 'canvasHeight' | 'laserElementId' | 'laserOptions' | 'elementPositions'>) {
+}: Pick<
+  TeachingEffectsProps,
+  'canvasWidth' | 'canvasHeight' | 'laserElementId' | 'laserOptions' | 'elementPositions'
+>) {
   const color = laserOptions?.color ?? '#ff3b30';
   const duration = laserOptions?.duration ?? 3000;
   const animX = useRef(new Animated.Value(0)).current;
@@ -460,7 +461,10 @@ export function TeachingEffects({
   zoomTarget,
 }: TeachingEffectsProps) {
   return (
-    <View style={[styles.container, { width: canvasWidth, height: canvasHeight }]} pointerEvents="none">
+    <View
+      style={[styles.container, { width: canvasWidth, height: canvasHeight }]}
+      pointerEvents="none"
+    >
       {/* Spotlight effect (dims background, highlights target) */}
       <SpotlightOverlay
         canvasWidth={canvasWidth}

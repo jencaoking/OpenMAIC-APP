@@ -7,11 +7,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useMediaGenerationStore } from './mediaStore';
-import type {
-  MediaGenerationRequest,
-  MediaTask,
-  MediaTaskStatus,
-} from './mediaTypes';
+import type { MediaGenerationRequest, MediaTask, MediaTaskStatus } from './mediaTypes';
 
 interface UseMediaGenerationOptions {
   /** Server base URL (e.g. 'https://openmaic.dev') */
@@ -100,10 +96,7 @@ export function useMediaGeneration(
     [storeRetryMedia],
   );
 
-  const getTask = useCallback(
-    (elementId: string) => storeGetTask(elementId),
-    [storeGetTask],
-  );
+  const getTask = useCallback((elementId: string) => storeGetTask(elementId), [storeGetTask]);
 
   const getTasksByStatus = useCallback(
     (status: MediaTaskStatus) => storeGetTasksByStatus(status),

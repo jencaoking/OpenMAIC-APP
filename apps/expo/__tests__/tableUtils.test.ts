@@ -14,14 +14,20 @@ describe('tableUtils', () => {
 
     it('should return empty set when no cells have colspan/rowspan', () => {
       const data = [
-        [{ id: '1', colspan: 1, rowspan: 1, text: 'A' }, { id: '2', colspan: 1, rowspan: 1, text: 'B' }],
+        [
+          { id: '1', colspan: 1, rowspan: 1, text: 'A' },
+          { id: '2', colspan: 1, rowspan: 1, text: 'B' },
+        ],
       ];
       expect(getHiddenCells(data)).toEqual(new Set());
     });
 
     it('should hide cells covered by colspan', () => {
       const data = [
-        [{ id: '1', colspan: 2, rowspan: 1, text: 'A' }, { id: '2', colspan: 1, rowspan: 1, text: 'B' }],
+        [
+          { id: '1', colspan: 2, rowspan: 1, text: 'A' },
+          { id: '2', colspan: 1, rowspan: 1, text: 'B' },
+        ],
       ];
       const hidden = getHiddenCells(data);
       expect(hidden.has('0_1')).toBe(true);
@@ -29,8 +35,14 @@ describe('tableUtils', () => {
 
     it('should hide cells covered by rowspan', () => {
       const data = [
-        [{ id: '1', colspan: 1, rowspan: 2, text: 'A' }, { id: '2', colspan: 1, rowspan: 1, text: 'B' }],
-        [{ id: '3', colspan: 1, rowspan: 1, text: 'C' }, { id: '4', colspan: 1, rowspan: 1, text: 'D' }],
+        [
+          { id: '1', colspan: 1, rowspan: 2, text: 'A' },
+          { id: '2', colspan: 1, rowspan: 1, text: 'B' },
+        ],
+        [
+          { id: '3', colspan: 1, rowspan: 1, text: 'C' },
+          { id: '4', colspan: 1, rowspan: 1, text: 'D' },
+        ],
       ];
       const hidden = getHiddenCells(data);
       expect(hidden.has('1_0')).toBe(true);
@@ -38,8 +50,14 @@ describe('tableUtils', () => {
 
     it('should handle combined colspan and rowspan', () => {
       const data = [
-        [{ id: '1', colspan: 2, rowspan: 2, text: 'A' }, { id: '2', colspan: 1, rowspan: 1, text: 'B' }],
-        [{ id: '3', colspan: 1, rowspan: 1, text: 'C' }, { id: '4', colspan: 1, rowspan: 1, text: 'D' }],
+        [
+          { id: '1', colspan: 2, rowspan: 2, text: 'A' },
+          { id: '2', colspan: 1, rowspan: 1, text: 'B' },
+        ],
+        [
+          { id: '3', colspan: 1, rowspan: 1, text: 'C' },
+          { id: '4', colspan: 1, rowspan: 1, text: 'D' },
+        ],
       ];
       const hidden = getHiddenCells(data);
       expect(hidden.has('0_1')).toBe(true);
@@ -70,7 +88,9 @@ describe('tableUtils', () => {
     });
 
     it('should convert strikethrough', () => {
-      expect(getTextStyleRN({ strikethrough: true })).toEqual({ textDecorationLine: 'line-through' });
+      expect(getTextStyleRN({ strikethrough: true })).toEqual({
+        textDecorationLine: 'line-through',
+      });
     });
 
     it('should combine underline and strikethrough', () => {

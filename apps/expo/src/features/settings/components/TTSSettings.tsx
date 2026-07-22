@@ -16,16 +16,7 @@
 
 import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import {
-  Button,
-  Input,
-  Label,
-  Switch,
-  Card,
-  SectionHeader,
-  IconButton,
-  colors,
-} from './ui';
+import { Button, Input, Label, Switch, Card, SectionHeader, IconButton, colors } from './ui';
 import { useSettingsStore } from '../settingsStore';
 import { TTS_PROVIDERS } from '../constants';
 import type { TTSProviderId } from '../types';
@@ -51,20 +42,14 @@ function resolveTtsTestUrl(): string {
 }
 
 /** 安全读取 providerOptions 中的字符串字段。 */
-function readOptString(
-  opts: Record<string, unknown> | undefined,
-  key: string,
-): string | null {
+function readOptString(opts: Record<string, unknown> | undefined, key: string): string | null {
   if (!opts) return null;
   const v = opts[key];
   return typeof v === 'string' ? v : null;
 }
 
 /** 安全读取 providerOptions 中的数字字段。 */
-function readOptNumber(
-  opts: Record<string, unknown> | undefined,
-  key: string,
-): number | null {
+function readOptNumber(opts: Record<string, unknown> | undefined, key: string): number | null {
   if (!opts) return null;
   const v = opts[key];
   return typeof v === 'number' && Number.isFinite(v) ? v : null;
@@ -115,13 +100,11 @@ export function TTSSettings({ selectedProviderId }: TTSSettingsProps) {
   const providerConfig = ttsProvidersConfig[selectedProviderId];
   const providerMeta = TTS_PROVIDERS[selectedProviderId];
   const isServerConfigured = !!providerConfig?.isServerConfigured;
-  const requiresApiKey =
-    providerConfig?.requiresApiKey ?? !providerConfig?.isBuiltIn;
+  const requiresApiKey = providerConfig?.requiresApiKey ?? !providerConfig?.isBuiltIn;
 
   // 从 providerOptions 读取音色/语速，回退到全局状态
   const providerOpts = providerConfig?.providerOptions ?? {};
-  const voice =
-    readOptString(providerOpts, 'voice') ?? globalTtsVoice ?? '';
+  const voice = readOptString(providerOpts, 'voice') ?? globalTtsVoice ?? '';
   const speed = readOptNumber(providerOpts, 'speed') ?? globalTtsSpeed;
 
   if (!providerConfig) {
@@ -170,9 +153,7 @@ export function TTSSettings({ selectedProviderId }: TTSSettingsProps) {
       }
     } catch (error) {
       setTestStatus('error');
-      setTestMessage(
-        `测试失败：${error instanceof Error ? error.message : String(error)}`,
-      );
+      setTestMessage(`测试失败：${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
@@ -204,9 +185,7 @@ export function TTSSettings({ selectedProviderId }: TTSSettingsProps) {
       {/* 服务器托管提示 */}
       {isServerConfigured && (
         <View style={styles.infoBox}>
-          <Text style={styles.infoText}>
-            此提供商由服务器统一配置，无需在此填写凭证。
-          </Text>
+          <Text style={styles.infoText}>此提供商由服务器统一配置，无需在此填写凭证。</Text>
         </View>
       )}
 
@@ -240,12 +219,8 @@ export function TTSSettings({ selectedProviderId }: TTSSettingsProps) {
             <Label>Base URL</Label>
             <Input
               value={providerConfig.baseUrl}
-              onChangeText={(text) =>
-                setTTSProviderConfig(selectedProviderId, { baseUrl: text })
-              }
-              placeholder={
-                providerConfig.customDefaultBaseUrl ?? 'http://localhost:8000/v1'
-              }
+              onChangeText={(text) => setTTSProviderConfig(selectedProviderId, { baseUrl: text })}
+              placeholder={providerConfig.customDefaultBaseUrl ?? 'http://localhost:8000/v1'}
               autoCapitalize="none"
               autoCorrect={false}
               spellCheck={false}
@@ -267,19 +242,10 @@ export function TTSSettings({ selectedProviderId }: TTSSettingsProps) {
                 return (
                   <Pressable
                     key={m.id}
-                    onPress={() =>
-                      setTTSProviderConfig(selectedProviderId, { modelId: m.id })
-                    }
+                    onPress={() => setTTSProviderConfig(selectedProviderId, { modelId: m.id })}
                     style={[styles.chip, active && styles.chipActive]}
                   >
-                    <Text
-                      style={[
-                        styles.chipText,
-                        active && styles.chipTextActive,
-                      ]}
-                    >
-                      {m.name}
-                    </Text>
+                    <Text style={[styles.chipText, active && styles.chipTextActive]}>{m.name}</Text>
                   </Pressable>
                 );
               })}
@@ -287,9 +253,7 @@ export function TTSSettings({ selectedProviderId }: TTSSettingsProps) {
           ) : (
             <Input
               value={providerConfig.modelId ?? ''}
-              onChangeText={(text) =>
-                setTTSProviderConfig(selectedProviderId, { modelId: text })
-              }
+              onChangeText={(text) => setTTSProviderConfig(selectedProviderId, { modelId: text })}
               placeholder="例如 tts-1"
               autoCapitalize="none"
               autoCorrect={false}
@@ -309,14 +273,7 @@ export function TTSSettings({ selectedProviderId }: TTSSettingsProps) {
                     onPress={() => updateProviderOption('voice', v.id)}
                     style={[styles.chip, active && styles.chipActive]}
                   >
-                    <Text
-                      style={[
-                        styles.chipText,
-                        active && styles.chipTextActive,
-                      ]}
-                    >
-                      {v.name}
-                    </Text>
+                    <Text style={[styles.chipText, active && styles.chipTextActive]}>{v.name}</Text>
                   </Pressable>
                 );
               })}
@@ -344,19 +301,11 @@ export function TTSSettings({ selectedProviderId }: TTSSettingsProps) {
                 style={StyleSheet.absoluteFill}
                 onPress={(e) => {
                   if (sliderWidth === 0) return;
-                  const x = Math.min(
-                    sliderWidth,
-                    Math.max(0, e.nativeEvent.locationX),
-                  );
+                  const x = Math.min(sliderWidth, Math.max(0, e.nativeEvent.locationX));
                   updateProviderOption('speed', ratioToSpeed(x / sliderWidth));
                 }}
               >
-                <View
-                  style={[
-                    styles.sliderFill,
-                    { width: `${speedToRatio(speed) * 100}%` },
-                  ]}
-                />
+                <View style={[styles.sliderFill, { width: `${speedToRatio(speed) * 100}%` }]} />
               </Pressable>
               <View
                 pointerEvents="none"
@@ -382,9 +331,7 @@ export function TTSSettings({ selectedProviderId }: TTSSettingsProps) {
           loading={testStatus === 'testing'}
           disabled={
             testStatus === 'testing' ||
-            (requiresApiKey &&
-              !providerConfig.apiKey.trim() &&
-              !isServerConfigured)
+            (requiresApiKey && !providerConfig.apiKey.trim() && !isServerConfigured)
           }
         >
           测试 TTS

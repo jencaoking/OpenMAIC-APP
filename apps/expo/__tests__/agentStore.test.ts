@@ -31,7 +31,9 @@ describe('agentStore', () => {
   });
 
   it('should clear messages', () => {
-    useAgentStore.getState().addMessage({ id: '1', role: 'user', content: 'Hi', timestamp: Date.now() });
+    useAgentStore
+      .getState()
+      .addMessage({ id: '1', role: 'user', content: 'Hi', timestamp: Date.now() });
     useAgentStore.getState().clearMessages();
     expect(useAgentStore.getState().messages).toHaveLength(0);
   });

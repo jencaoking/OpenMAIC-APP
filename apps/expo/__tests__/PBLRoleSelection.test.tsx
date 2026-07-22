@@ -13,9 +13,24 @@ jest.mock('react-native', () => ({
 describe('PBLRoleSelection', () => {
   const projectInfo = { title: 'Test Project', description: 'A test project' };
   const agents = [
-    { name: 'Developer', actor_role: 'Build features', role_division: 'development' as const, is_system_agent: false } as any,
-    { name: 'Designer', actor_role: 'Design UI', role_division: 'development' as const, is_system_agent: false } as any,
-    { name: 'System', actor_role: 'System agent', role_division: 'management' as const, is_system_agent: true } as any,
+    {
+      name: 'Developer',
+      actor_role: 'Build features',
+      role_division: 'development' as const,
+      is_system_agent: false,
+    } as any,
+    {
+      name: 'Designer',
+      actor_role: 'Design UI',
+      role_division: 'development' as const,
+      is_system_agent: false,
+    } as any,
+    {
+      name: 'System',
+      actor_role: 'System agent',
+      role_division: 'management' as const,
+      is_system_agent: true,
+    } as any,
   ];
 
   it('should render without crashing', () => {

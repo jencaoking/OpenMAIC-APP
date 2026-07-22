@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  Modal,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal } from 'react-native';
 import { useBuilderStore } from './builderStore';
 import { DslRenderer } from './DslRenderer';
 import { MaterialPanel } from './MaterialPanel';
@@ -69,14 +62,18 @@ export function DslBuilder({ isOpen, onClose, initialTree, onExport }: DslBuilde
           <View style={styles.headerActions}>
             <TouchableOpacity
               style={[styles.actionButton, !canUndo() && styles.actionButtonDisabled]}
-              onPress={() => { undo(); }}
+              onPress={() => {
+                undo();
+              }}
               disabled={!canUndo()}
             >
               <Text style={styles.actionText}>↩</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.actionButton, !canRedo() && styles.actionButtonDisabled]}
-              onPress={() => { redo(); }}
+              onPress={() => {
+                redo();
+              }}
               disabled={!canRedo()}
             >
               <Text style={styles.actionText}>↪</Text>
@@ -90,10 +87,7 @@ export function DslBuilder({ isOpen, onClose, initialTree, onExport }: DslBuilde
         {/* Body */}
         <View style={styles.body}>
           {/* Material Panel */}
-          <MaterialPanel
-            isOpen={isMaterialPanelOpen}
-            onClose={toggleMaterialPanel}
-          />
+          <MaterialPanel isOpen={isMaterialPanelOpen} onClose={toggleMaterialPanel} />
 
           {/* Canvas */}
           <View style={styles.canvasArea}>
@@ -112,7 +106,10 @@ export function DslBuilder({ isOpen, onClose, initialTree, onExport }: DslBuilde
           {/* Property Inspector */}
           <PropertyInspector
             isOpen={showPropertyPanel && !!selectedNodeId}
-            onClose={() => { setShowPropertyPanel(false); selectNode(null); }}
+            onClose={() => {
+              setShowPropertyPanel(false);
+              selectNode(null);
+            }}
           />
         </View>
       </View>

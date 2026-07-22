@@ -38,12 +38,7 @@ import type { ProviderConfigPanelProps } from './components/ProviderConfigPanel'
 import { ProviderListColumn } from './components/ProviderListColumn';
 import type { ProviderListItem } from './components/ProviderListColumn';
 import { colors, IconButton } from './components/ui';
-import type {
-  ProviderConfig,
-  ProviderId,
-  ProvidersConfig,
-  SettingsSection,
-} from './types';
+import type { ProviderConfig, ProviderId, ProvidersConfig, SettingsSection } from './types';
 
 /**
  * `SettingsScreen` 组件 props。
@@ -281,7 +276,9 @@ export function SettingsScreen({ onBack, initialSection }: SettingsScreenProps):
   const renderContent = (): ReactNode => {
     // general / token-plan 直接显示占位
     if (activeSection === 'general') {
-      return <PlaceholderPanel title={t('settings.systemSettings')} desc={t('settings.description')} />;
+      return (
+        <PlaceholderPanel title={t('settings.systemSettings')} desc={t('settings.description')} />
+      );
     }
     if (activeSection === 'token-plan') {
       return (
@@ -291,7 +288,9 @@ export function SettingsScreen({ onBack, initialSection }: SettingsScreenProps):
 
     // 不在 SECTIONS_WITH_PROVIDER_LIST 中的分区（理论不会到这里，仅兜底）
     if (!SECTIONS_WITH_PROVIDER_LIST.has(activeSection)) {
-      return <PlaceholderPanel title={t(`settings.${activeSection}`)} desc={t('settings.description')} />;
+      return (
+        <PlaceholderPanel title={t(`settings.${activeSection}`)} desc={t('settings.description')} />
+      );
     }
 
     // 列表层
@@ -474,17 +473,15 @@ function buildProviderListForSection(
 } {
   switch (section) {
     case 'providers': {
-      const list: ProviderListItem<string>[] = Object.entries(providersConfig).map(
-        ([id, cfg]) => {
-          const translationKey = `settings.providerNames.${id}`;
-          const translated = t(translationKey);
-          return {
-            id,
-            name: translated !== translationKey ? translated : cfg.name,
-            icon: cfg.icon,
-          };
-        },
-      );
+      const list: ProviderListItem<string>[] = Object.entries(providersConfig).map(([id, cfg]) => {
+        const translationKey = `settings.providerNames.${id}`;
+        const translated = t(translationKey);
+        return {
+          id,
+          name: translated !== translationKey ? translated : cfg.name,
+          icon: cfg.icon,
+        };
+      });
       return { providerList: list, configsLookup: providersConfig };
     }
     case 'pdf': {

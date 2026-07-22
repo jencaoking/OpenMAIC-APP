@@ -24,9 +24,7 @@ export function EditElementsUI({ args, result, isLoading }: EditElementsUIProps)
         {isLoading && <Text style={styles.status}>Editing...</Text>}
       </View>
 
-      {reason && (
-        <Text style={styles.reason}>{reason}</Text>
-      )}
+      {reason && <Text style={styles.reason}>{reason}</Text>}
 
       {patches && (
         <Text style={styles.patchCount}>

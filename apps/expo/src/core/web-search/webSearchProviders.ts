@@ -43,7 +43,13 @@ export async function searchWeb(params: {
     case 'brave':
       return await searchWithBrave({ query, apiKey: apiKey || undefined, maxResults, baseUrl });
     case 'baidu':
-      return await searchWithBaidu({ query, apiKey, maxResults, baseUrl, subSources: baiduSubSources });
+      return await searchWithBaidu({
+        query,
+        apiKey,
+        maxResults,
+        baseUrl,
+        subSources: baiduSubSources,
+      });
     case 'doubao':
       return await searchWithDoubao({ query, apiKey, maxResults, baseUrl });
     case 'minimax':
@@ -71,7 +77,7 @@ async function searchWithTavily(params: {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       query: trimmedQuery,
@@ -117,7 +123,7 @@ async function searchWithBocha(params: {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       query,
@@ -160,7 +166,7 @@ async function searchWithBrave(params: {
   const url = `${(baseUrl || WEB_SEARCH_PROVIDERS.brave.defaultBaseUrl || '').replace(/\/$/, '')}/res/v1/web/search`;
 
   const headers: Record<string, string> = {
-    'Accept': 'application/json',
+    Accept: 'application/json',
     'Accept-Encoding': 'gzip',
   };
   if (apiKey) {
@@ -210,7 +216,7 @@ async function searchWithBaidu(params: {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       query,
@@ -259,7 +265,7 @@ async function searchWithDoubao(params: {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       query,
@@ -304,7 +310,7 @@ async function searchWithMiniMax(params: {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       query,
@@ -357,7 +363,7 @@ async function searchWithSearxng(params: {
   const res = await fetch(`${url}?${params_.toString()}`, {
     method: 'GET',
     headers: {
-      'Accept': 'application/json',
+      Accept: 'application/json',
     },
   });
 

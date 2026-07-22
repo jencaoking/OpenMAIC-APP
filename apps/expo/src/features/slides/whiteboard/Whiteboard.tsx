@@ -1,12 +1,5 @@
 import React, { useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Modal,
-  Animated,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Animated } from 'react-native';
 import { useWhiteboardStore } from './whiteboardStore';
 import { WhiteboardCanvas } from './WhiteboardCanvas';
 import { WhiteboardHistory } from './WhiteboardHistory';
@@ -23,13 +16,7 @@ interface WhiteboardProps {
  * Overlay with pan/zoom canvas and history.
  */
 export function Whiteboard({ isOpen, onClose }: WhiteboardProps) {
-  const {
-    elements,
-    isClearing,
-    setClearing,
-    pushSnapshot,
-    clearElements,
-  } = useWhiteboardStore();
+  const { elements, isClearing, setClearing, pushSnapshot, clearElements } = useWhiteboardStore();
 
   const [historyOpen, setHistoryOpen] = useState(false);
   const [viewModified, setViewModified] = useState(false);
@@ -87,12 +74,7 @@ export function Whiteboard({ isOpen, onClose }: WhiteboardProps) {
   if (!isOpen) return null;
 
   return (
-    <Modal
-      visible={isOpen}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
-    >
+    <Modal visible={isOpen} transparent animationType="none" onRequestClose={onClose}>
       <Animated.View
         style={[
           styles.container,
@@ -126,10 +108,7 @@ export function Whiteboard({ isOpen, onClose }: WhiteboardProps) {
               <Text style={styles.headerButtonText}>🗑</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => setHistoryOpen(true)}
-            >
+            <TouchableOpacity style={styles.headerButton} onPress={() => setHistoryOpen(true)}>
               <Text style={styles.headerButtonText}>📋</Text>
               {useWhiteboardStore.getState().snapshots.length > 0 && (
                 <View style={styles.badge}>
@@ -158,10 +137,7 @@ export function Whiteboard({ isOpen, onClose }: WhiteboardProps) {
         </View>
 
         {/* History Panel */}
-        <WhiteboardHistory
-          isOpen={historyOpen}
-          onClose={() => setHistoryOpen(false)}
-        />
+        <WhiteboardHistory isOpen={historyOpen} onClose={() => setHistoryOpen(false)} />
       </Animated.View>
     </Modal>
   );

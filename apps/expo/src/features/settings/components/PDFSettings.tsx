@@ -20,17 +20,7 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import {
-  Button,
-  Input,
-  Label,
-  Switch,
-  Card,
-  SectionHeader,
-  IconButton,
-  Badge,
-  colors,
-} from './ui';
+import { Button, Input, Label, Switch, Card, SectionHeader, IconButton, Badge, colors } from './ui';
 import { useSettingsStore } from '../settingsStore';
 import { PDF_PROVIDERS } from '../constants';
 import type { PDFProviderId } from '../types';
@@ -51,10 +41,7 @@ function resolvePdfTestUrl(): string {
 }
 
 /** 安全读取 providerOptions 中的字符串字段。 */
-function readOptString(
-  opts: Record<string, unknown> | undefined,
-  key: string,
-): string | null {
+function readOptString(opts: Record<string, unknown> | undefined, key: string): string | null {
   if (!opts) return null;
   const v = opts[key];
   return typeof v === 'string' ? v : null;
@@ -84,9 +71,7 @@ export function PDFSettings({ selectedProviderId }: PDFSettingsProps) {
   const [showApiKey, setShowApiKey] = useState(false);
   const [showAccessKeyId, setShowAccessKeyId] = useState(false);
   const [showAccessKeySecret, setShowAccessKeySecret] = useState(false);
-  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>(
-    'idle',
-  );
+  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
   const [testMessage, setTestMessage] = useState('');
 
   const providerConfig = pdfProvidersConfig[selectedProviderId];
@@ -148,9 +133,7 @@ export function PDFSettings({ selectedProviderId }: PDFSettingsProps) {
       }
     } catch (error) {
       setTestStatus('error');
-      setTestMessage(
-        `测试失败：${error instanceof Error ? error.message : String(error)}`,
-      );
+      setTestMessage(`测试失败：${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
@@ -199,9 +182,7 @@ export function PDFSettings({ selectedProviderId }: PDFSettingsProps) {
       {/* 服务器托管提示 */}
       {isServerConfigured && (
         <View style={styles.infoBox}>
-          <Text style={styles.infoText}>
-            此提供商由服务器统一配置，无需在此填写凭证。
-          </Text>
+          <Text style={styles.infoText}>此提供商由服务器统一配置，无需在此填写凭证。</Text>
         </View>
       )}
 
@@ -270,18 +251,14 @@ export function PDFSettings({ selectedProviderId }: PDFSettingsProps) {
             <Label>Base URL</Label>
             <Input
               value={providerConfig.baseUrl}
-              onChangeText={(text) =>
-                setPDFProviderConfig(selectedProviderId, { baseUrl: text })
-              }
+              onChangeText={(text) => setPDFProviderConfig(selectedProviderId, { baseUrl: text })}
               placeholder="http://localhost:8888"
               autoCapitalize="none"
               autoCorrect={false}
               spellCheck={false}
               keyboardType="url"
             />
-            <Text style={styles.hint}>
-              MinerU 自托管服务的完整地址，例如 http://localhost:8888
-            </Text>
+            <Text style={styles.hint}>MinerU 自托管服务的完整地址，例如 http://localhost:8888</Text>
           </View>
         </Card>
       )}
@@ -316,9 +293,7 @@ export function PDFSettings({ selectedProviderId }: PDFSettingsProps) {
             <Label>Base URL</Label>
             <Input
               value={providerConfig.baseUrl}
-              onChangeText={(text) =>
-                setPDFProviderConfig(selectedProviderId, { baseUrl: text })
-              }
+              onChangeText={(text) => setPDFProviderConfig(selectedProviderId, { baseUrl: text })}
               placeholder="http://localhost:8000/v1"
               autoCapitalize="none"
               autoCorrect={false}

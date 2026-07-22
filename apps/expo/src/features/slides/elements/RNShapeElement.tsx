@@ -99,7 +99,15 @@ export function RNShapeElement({ element }: RNShapeElementProps) {
       style={[
         styles.container,
         opacity !== undefined ? { opacity } : undefined,
-        shadowStyle ? { shadowColor: shadow?.color || '#000', shadowOffset: { width: shadow?.h || 0, height: shadow?.v || 0 }, shadowOpacity: 0.3, shadowRadius: shadow?.blur || 0, elevation: 3 } : undefined,
+        shadowStyle
+          ? {
+              shadowColor: shadow?.color || '#000',
+              shadowOffset: { width: shadow?.h || 0, height: shadow?.v || 0 },
+              shadowOpacity: 0.3,
+              shadowRadius: shadow?.blur || 0,
+              elevation: 3,
+            }
+          : undefined,
       ]}
     >
       <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
@@ -138,12 +146,7 @@ export function RNShapeElement({ element }: RNShapeElementProps) {
               width="1"
               height="1"
             >
-              <SvgImage
-                href={pattern}
-                width="1"
-                height="1"
-                preserveAspectRatio="xMidYMid slice"
-              />
+              <SvgImage href={pattern} width="1" height="1" preserveAspectRatio="xMidYMid slice" />
             </Pattern>
           )}
         </Defs>

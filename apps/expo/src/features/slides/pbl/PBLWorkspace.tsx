@@ -84,9 +84,7 @@ export function PBLWorkspace({
           style={[styles.tab, activeTab === 'chat' && styles.tabActive]}
           onPress={() => setActiveTab('chat')}
         >
-          <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>
-            聊天
-          </Text>
+          <Text style={[styles.tabText, activeTab === 'chat' && styles.tabTextActive]}>聊天</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.resetButton} onPress={onReset}>
           <Text style={styles.resetButtonText}>重启</Text>

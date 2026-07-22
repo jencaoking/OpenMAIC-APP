@@ -460,11 +460,7 @@ export function ProviderConfigPanel({
           {!modelsLocked ? (
             <View style={styles.modelsActions}>
               {isBuiltIn && onResetToDefault ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onPress={() => setShowResetDialog(true)}
-                >
+                <Button variant="outline" size="sm" onPress={() => setShowResetDialog(true)}>
                   {t('settings.reset')}
                 </Button>
               ) : null}
@@ -554,19 +550,21 @@ interface ModelRowProps {
 /**
  * 单个模型行：显示名称、能力图标、上下文窗口，以及编辑/删除按钮。
  */
-function ModelRow({
-  model,
-  onEdit,
-  onDelete,
-  modelsLocked,
-  t,
-}: ModelRowProps): ReactNode {
+function ModelRow({ model, onEdit, onDelete, modelsLocked, t }: ModelRowProps): ReactNode {
   const capabilities: Array<{ key: string; label: string; glyph: string }> = [];
   if (model.capabilities?.vision) {
-    capabilities.push({ key: 'vision', label: t('settings.capabilities.vision'), glyph: '\u{1F441}' });
+    capabilities.push({
+      key: 'vision',
+      label: t('settings.capabilities.vision'),
+      glyph: '\u{1F441}',
+    });
   }
   if (model.capabilities?.tools) {
-    capabilities.push({ key: 'tools', label: t('settings.capabilities.tools'), glyph: '\u{1F527}' });
+    capabilities.push({
+      key: 'tools',
+      label: t('settings.capabilities.tools'),
+      glyph: '\u{1F527}',
+    });
   }
   if (model.capabilities?.streaming) {
     capabilities.push({

@@ -1,7 +1,4 @@
-import {
-  validatePatches,
-  patchesToIntents,
-} from '../src/features/slides/agent/tools/editElements';
+import { validatePatches, patchesToIntents } from '../src/features/slides/agent/tools/editElements';
 
 describe('editElementsTools', () => {
   describe('validatePatches', () => {
@@ -18,17 +15,13 @@ describe('editElementsTools', () => {
     });
 
     it('should reject invalid element index', () => {
-      const patches = [
-        { op: 'replace' as const, path: '/elements/5/content', value: 'new' },
-      ];
+      const patches = [{ op: 'replace' as const, path: '/elements/5/content', value: 'new' }];
       const result = validatePatches(patches, ['1', '2']);
       expect(result.valid).toBe(false);
     });
 
     it('should reject test with unknown id', () => {
-      const patches = [
-        { op: 'test' as const, path: '/elements/0/id', value: 'unknown' },
-      ];
+      const patches = [{ op: 'test' as const, path: '/elements/0/id', value: 'unknown' }];
       const result = validatePatches(patches, ['1', '2']);
       expect(result.valid).toBe(false);
     });
@@ -46,9 +39,7 @@ describe('editElementsTools', () => {
     });
 
     it('should skip test patches', () => {
-      const patches = [
-        { op: 'test' as const, path: '/elements/0/id', value: 'el1' },
-      ];
+      const patches = [{ op: 'test' as const, path: '/elements/0/id', value: 'el1' }];
       const intents = patchesToIntents(patches, ['el1']);
       expect(intents).toHaveLength(0);
     });

@@ -137,7 +137,7 @@ export interface MediaTask {
 // ============================================================================
 
 export const IMAGE_PROVIDERS: Record<ImageProviderId, ImageProviderConfig> = {
-  'seedream': {
+  seedream: {
     id: 'seedream',
     name: 'Seedream',
     requiresApiKey: true,
@@ -191,7 +191,7 @@ export const IMAGE_PROVIDERS: Record<ImageProviderId, ImageProviderConfig> = {
     models: [],
     supportedAspectRatios: ['16:9', '4:3', '1:1', '9:16'],
   },
-  'lemonade': {
+  lemonade: {
     id: 'lemonade',
     name: 'Lemonade',
     requiresApiKey: false,
@@ -202,7 +202,7 @@ export const IMAGE_PROVIDERS: Record<ImageProviderId, ImageProviderConfig> = {
 };
 
 export const VIDEO_PROVIDERS: Record<VideoProviderId, VideoProviderConfig> = {
-  'seedance': {
+  seedance: {
     id: 'seedance',
     name: 'Seedance',
     requiresApiKey: true,
@@ -210,7 +210,7 @@ export const VIDEO_PROVIDERS: Record<VideoProviderId, VideoProviderConfig> = {
     supportedAspectRatios: ['16:9', '4:3', '1:1', '9:16'],
     maxDuration: 10,
   },
-  'kling': {
+  kling: {
     id: 'kling',
     name: 'Kling',
     requiresApiKey: true,
@@ -218,7 +218,7 @@ export const VIDEO_PROVIDERS: Record<VideoProviderId, VideoProviderConfig> = {
     supportedAspectRatios: ['16:9', '4:3', '1:1', '9:16'],
     maxDuration: 10,
   },
-  'veo': {
+  veo: {
     id: 'veo',
     name: 'Veo',
     requiresApiKey: true,
@@ -226,7 +226,7 @@ export const VIDEO_PROVIDERS: Record<VideoProviderId, VideoProviderConfig> = {
     supportedAspectRatios: ['16:9', '4:3', '1:1', '9:16'],
     maxDuration: 8,
   },
-  'sora': {
+  sora: {
     id: 'sora',
     name: 'Sora',
     requiresApiKey: true,
@@ -250,7 +250,7 @@ export const VIDEO_PROVIDERS: Record<VideoProviderId, VideoProviderConfig> = {
     supportedAspectRatios: ['16:9', '4:3', '1:1', '9:16'],
     maxDuration: 10,
   },
-  'happyhorse': {
+  happyhorse: {
     id: 'happyhorse',
     name: 'HappyHorse',
     requiresApiKey: true,

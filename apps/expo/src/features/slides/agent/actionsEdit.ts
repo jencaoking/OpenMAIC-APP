@@ -27,11 +27,7 @@ export function removeById(actions: Action[], id: string): Action[] {
 /**
  * Move an action by ID in a direction.
  */
-export function moveByIdDir(
-  actions: Action[],
-  id: string,
-  direction: 'up' | 'down',
-): Action[] {
+export function moveByIdDir(actions: Action[], id: string, direction: 'up' | 'down'): Action[] {
   const idx = actions.findIndex((a) => a.id === id);
   if (idx === -1) return actions;
 
@@ -47,11 +43,7 @@ export function moveByIdDir(
 /**
  * Move an action by ID to a target index.
  */
-export function moveById(
-  actions: Action[],
-  id: string,
-  toIndex: number,
-): Action[] {
+export function moveById(actions: Action[], id: string, toIndex: number): Action[] {
   const idx = actions.findIndex((a) => a.id === id);
   if (idx === -1) return actions;
 
@@ -65,18 +57,14 @@ export function moveById(
  * Update speech text for an action.
  */
 export function setSpeechText(actions: Action[], id: string, text: string): Action[] {
-  return actions.map((a) =>
-    a.id === id && a.type === 'speech' ? { ...a, text } : a,
-  );
+  return actions.map((a) => (a.id === id && a.type === 'speech' ? { ...a, text } : a));
 }
 
 /**
  * Update discussion topic for an action.
  */
 export function setDiscussionTopic(actions: Action[], id: string, topic: string): Action[] {
-  return actions.map((a) =>
-    a.id === id && a.type === 'discussion' ? { ...a, topic } : a,
-  );
+  return actions.map((a) => (a.id === id && a.type === 'discussion' ? { ...a, topic } : a));
 }
 
 /**
@@ -84,9 +72,7 @@ export function setDiscussionTopic(actions: Action[], id: string, topic: string)
  */
 export function setElementId(actions: Action[], id: string, elementId: string): Action[] {
   return actions.map((a) =>
-    a.id === id && (a.type === 'spotlight' || a.type === 'laser')
-      ? { ...a, elementId }
-      : a,
+    a.id === id && (a.type === 'spotlight' || a.type === 'laser') ? { ...a, elementId } : a,
   );
 }
 

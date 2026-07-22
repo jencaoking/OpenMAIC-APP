@@ -50,10 +50,7 @@ function resolveVideoTestUrl(): string {
 }
 
 /** 安全读取 providerOptions 中的字符串字段。 */
-function readOptString(
-  opts: Record<string, unknown> | undefined,
-  key: string,
-): string | null {
+function readOptString(opts: Record<string, unknown> | undefined, key: string): string | null {
   if (!opts) return null;
   const v = opts[key];
   return typeof v === 'string' ? v : null;
@@ -83,9 +80,7 @@ export function VideoSettings({ selectedProviderId }: VideoSettingsProps) {
   const globalVideoModelId = useSettingsStore((s) => s.videoModelId);
 
   const [showApiKey, setShowApiKey] = useState(false);
-  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>(
-    'idle',
-  );
+  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
   const [testMessage, setTestMessage] = useState('');
 
   // 模型 CRUD Sheet 状态
@@ -103,8 +98,7 @@ export function VideoSettings({ selectedProviderId }: VideoSettingsProps) {
 
   // 从 providerOptions 读取激活模型，回退到全局状态
   const providerOpts = providerConfig?.providerOptions ?? undefined;
-  const activeModelId =
-    readOptString(providerOpts, 'activeModelId') ?? globalVideoModelId ?? '';
+  const activeModelId = readOptString(providerOpts, 'activeModelId') ?? globalVideoModelId ?? '';
 
   if (!providerConfig) {
     return (
@@ -201,9 +195,7 @@ export function VideoSettings({ selectedProviderId }: VideoSettingsProps) {
       }
     } catch (error) {
       setTestStatus('error');
-      setTestMessage(
-        `测试失败：${error instanceof Error ? error.message : String(error)}`,
-      );
+      setTestMessage(`测试失败：${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
@@ -230,9 +222,7 @@ export function VideoSettings({ selectedProviderId }: VideoSettingsProps) {
       {/* 服务器托管提示 */}
       {isServerConfigured && (
         <View style={styles.infoBox}>
-          <Text style={styles.infoText}>
-            此提供商由服务器统一配置，无需在此填写凭证。
-          </Text>
+          <Text style={styles.infoText}>此提供商由服务器统一配置，无需在此填写凭证。</Text>
         </View>
       )}
 
@@ -266,9 +256,7 @@ export function VideoSettings({ selectedProviderId }: VideoSettingsProps) {
             <Label>Base URL</Label>
             <Input
               value={providerConfig.baseUrl}
-              onChangeText={(text) =>
-                setVideoProviderConfig(selectedProviderId, { baseUrl: text })
-              }
+              onChangeText={(text) => setVideoProviderConfig(selectedProviderId, { baseUrl: text })}
               placeholder="http://localhost:8000/v1"
               autoCapitalize="none"
               autoCorrect={false}
@@ -299,10 +287,7 @@ export function VideoSettings({ selectedProviderId }: VideoSettingsProps) {
                 <View key={`${m.id}-${idx}`} style={styles.modelRow}>
                   <Pressable
                     onPress={() => setActiveModel(m.id)}
-                    style={({ pressed }) => [
-                      styles.modelRowInner,
-                      pressed && styles.buttonPressed,
-                    ]}
+                    style={({ pressed }) => [styles.modelRowInner, pressed && styles.buttonPressed]}
                   >
                     <View style={styles.radioOuter}>
                       {active ? <View style={styles.radioInner} /> : null}
@@ -313,11 +298,7 @@ export function VideoSettings({ selectedProviderId }: VideoSettingsProps) {
                     </View>
                   </Pressable>
                   <View style={styles.row}>
-                    <IconButton
-                      icon="edit"
-                      size={16}
-                      onPress={() => openEditModel(idx)}
-                    />
+                    <IconButton icon="edit" size={16} onPress={() => openEditModel(idx)} />
                     <IconButton
                       icon="trash"
                       size={16}
@@ -397,11 +378,7 @@ export function VideoSettings({ selectedProviderId }: VideoSettingsProps) {
             <Button variant="outline" onPress={() => setSheetOpen(false)} style={styles.flex1}>
               取消
             </Button>
-            <Button
-              onPress={handleSaveModel}
-              disabled={!modelForm.id.trim()}
-              style={styles.flex1}
-            >
+            <Button onPress={handleSaveModel} disabled={!modelForm.id.trim()} style={styles.flex1}>
               保存
             </Button>
           </View>

@@ -209,8 +209,7 @@ export function Button({
   const minHeight = BUTTON_MIN_HEIGHT[size];
   const containerVariant = BUTTON_VARIANT_STYLE[variant];
   const textVariant = BUTTON_TEXT_VARIANT_STYLE[variant];
-  const spinnerColor =
-    variant === 'outline' || variant === 'ghost' ? colors.primary : colors.white;
+  const spinnerColor = variant === 'outline' || variant === 'ghost' ? colors.primary : colors.white;
 
   return (
     <Pressable
@@ -496,12 +495,7 @@ export function AlertDialog({
           {title ? <Text style={styles.alertTitle}>{title}</Text> : null}
           {description ? <Text style={styles.alertDescription}>{description}</Text> : null}
           <View style={styles.alertActions}>
-            <Button
-              variant="outline"
-              size="md"
-              onPress={handleCancel}
-              style={styles.alertButton}
-            >
+            <Button variant="outline" size="md" onPress={handleCancel} style={styles.alertButton}>
               {cancelText}
             </Button>
             <Button

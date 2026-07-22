@@ -16,11 +16,7 @@ export type {
 export { CLASSROOM_ZIP_FORMAT_VERSION, CLASSROOM_ZIP_EXTENSION } from './exportTypes';
 
 // Utilities
-export {
-  createClassroomZip,
-  shareClassroomZip,
-  exportAndShareClassroom,
-} from './exportUtils';
+export { createClassroomZip, shareClassroomZip, exportAndShareClassroom } from './exportUtils';
 
 // Hook
 export { useExportClassroom } from './useExportClassroom';

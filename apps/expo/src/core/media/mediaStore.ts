@@ -6,11 +6,7 @@
  */
 
 import { create } from 'zustand';
-import type {
-  MediaTask,
-  MediaTaskStatus,
-  MediaGenerationRequest,
-} from './mediaTypes';
+import type { MediaTask, MediaTaskStatus, MediaGenerationRequest } from './mediaTypes';
 import {
   generateImage,
   generateVideo,
@@ -121,8 +117,7 @@ export const useMediaGenerationStore = create<MediaGenerationState>((set, get) =
 
   getTask: (elementId) => get().tasks[elementId],
 
-  getTasksByStatus: (status) =>
-    Object.values(get().tasks).filter((t) => t.status === status),
+  getTasksByStatus: (status) => Object.values(get().tasks).filter((t) => t.status === status),
 
   clearTasks: () => set({ tasks: {}, stageId: '' }),
 

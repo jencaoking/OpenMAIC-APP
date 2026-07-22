@@ -65,18 +65,12 @@ export async function generateImage(
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
-    throw new MediaApiError(
-      data.error || `Image API returned ${response.status}`,
-      data.errorCode,
-    );
+    throw new MediaApiError(data.error || `Image API returned ${response.status}`, data.errorCode);
   }
 
   const data = await response.json();
   if (!data.success) {
-    throw new MediaApiError(
-      data.error || 'Image generation failed',
-      data.errorCode,
-    );
+    throw new MediaApiError(data.error || 'Image generation failed', data.errorCode);
   }
 
   return data.result;
@@ -116,18 +110,12 @@ export async function generateVideo(
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
-    throw new MediaApiError(
-      data.error || `Video API returned ${response.status}`,
-      data.errorCode,
-    );
+    throw new MediaApiError(data.error || `Video API returned ${response.status}`, data.errorCode);
   }
 
   const data = await response.json();
   if (!data.success) {
-    throw new MediaApiError(
-      data.error || 'Video generation failed',
-      data.errorCode,
-    );
+    throw new MediaApiError(data.error || 'Video generation failed', data.errorCode);
   }
 
   return data.result;
@@ -137,12 +125,10 @@ export async function generateVideo(
  * Fetch a media URL as a local file path.
  * Downloads the file and saves it to the app's cache directory.
  */
-export async function fetchMediaToLocal(
-  url: string,
-  filename: string,
-): Promise<string> {
+export async function fetchMediaToLocal(url: string, filename: string): Promise<string> {
   const FileSystem = await import('expo-file-system');
-  const cacheDir = (FileSystem as any).cacheDirectory || (FileSystem as any).default?.cacheDirectory || '';
+  const cacheDir =
+    (FileSystem as any).cacheDirectory || (FileSystem as any).default?.cacheDirectory || '';
   const localPath = `${cacheDir}${filename}`;
 
   // Check if already cached
@@ -159,9 +145,10 @@ export async function fetchMediaToLocal(
 /**
  * Get aspect ratio dimensions
  */
-export function aspectRatioToDimensions(
-  aspectRatio: '16:9' | '4:3' | '1:1' | '9:16',
-): { width: number; height: number } {
+export function aspectRatioToDimensions(aspectRatio: '16:9' | '4:3' | '1:1' | '9:16'): {
+  width: number;
+  height: number;
+} {
   switch (aspectRatio) {
     case '16:9':
       return { width: 1024, height: 576 };

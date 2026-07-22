@@ -106,8 +106,15 @@ function deleteNodeFromTree(nodes: DslSchema, id: string): DslSchema {
         return {
           ...node,
           children: node.children
-            .filter((child) => typeof child === 'object' ? child.id !== id : true)
-            .map((child) => typeof child === 'object' ? { ...child, children: deleteNodeFromTree((child.children || []) as IDslNode[], id) } : child),
+            .filter((child) => (typeof child === 'object' ? child.id !== id : true))
+            .map((child) =>
+              typeof child === 'object'
+                ? {
+                    ...child,
+                    children: deleteNodeFromTree((child.children || []) as IDslNode[], id),
+                  }
+                : child,
+            ),
         };
       }
       return node;
@@ -163,9 +170,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     } else {
       set({
         dslTree: dslTree.map((n) =>
-          n.id === parentId
-            ? { ...n, children: [...(n.children || []), node] }
-            : n,
+          n.id === parentId ? { ...n, children: [...(n.children || []), node] } : n,
         ),
       });
     }
@@ -191,7 +196,14 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       set({
         dslTree: without.map((n) =>
           n.id === newParentId
-            ? { ...n, children: [...(n.children || []).slice(0, index), removed, ...(n.children || []).slice(index)] }
+            ? {
+                ...n,
+                children: [
+                  ...(n.children || []).slice(0, index),
+                  removed,
+                  ...(n.children || []).slice(index),
+                ],
+              }
             : n,
         ),
       });

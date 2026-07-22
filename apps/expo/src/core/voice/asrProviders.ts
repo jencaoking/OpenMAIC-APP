@@ -77,7 +77,7 @@ async function transcribeOpenAIWhisper(
   const response = await fetch(`${baseUrl}/audio/transcriptions`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${config.apiKey}`,
+      Authorization: `Bearer ${config.apiKey}`,
     },
     body: formData,
   });
@@ -131,18 +131,15 @@ async function transcribeQwenASR(
     };
   }
 
-  const response = await fetch(
-    `${baseUrl}/services/aigc/multimodal-generation/generation`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${config.apiKey}`,
-        'Content-Type': 'application/json; charset=utf-8',
-        'X-DashScope-Audio-Format': 'wav',
-      },
-      body: JSON.stringify(requestBody),
+  const response = await fetch(`${baseUrl}/services/aigc/multimodal-generation/generation`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${config.apiKey}`,
+      'Content-Type': 'application/json; charset=utf-8',
+      'X-DashScope-Audio-Format': 'wav',
     },
-  );
+    body: JSON.stringify(requestBody),
+  });
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => response.statusText);

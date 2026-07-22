@@ -32,7 +32,9 @@ describe('actionTypes', () => {
     });
 
     it('should return "Spotlight"', () => {
-      expect(getActionLabel({ id: '1', type: 'spotlight', elementId: '' } as any)).toBe('Spotlight');
+      expect(getActionLabel({ id: '1', type: 'spotlight', elementId: '' } as any)).toBe(
+        'Spotlight',
+      );
     });
 
     it('should return "Laser"', () => {

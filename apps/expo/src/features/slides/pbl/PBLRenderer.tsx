@@ -17,13 +17,7 @@ interface PBLRendererProps {
  * Manages PBL flow: Role Selection → Workspace.
  */
 export function PBLRenderer({ content, sceneId }: PBLRendererProps) {
-  const {
-    projectConfig,
-    selectedRole,
-    setProjectConfig,
-    selectRole,
-    resetRole,
-  } = usePBLStore();
+  const { projectConfig, selectedRole, setProjectConfig, selectRole, resetRole } = usePBLStore();
 
   // Initialize config from content
   useEffect(() => {

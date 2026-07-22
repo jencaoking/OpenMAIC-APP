@@ -5,11 +5,7 @@
  * Handles SSE streaming for agent responses.
  */
 
-import type {
-  AgentEvent,
-  AgentConfig,
-  AgentMessage,
-} from './agentTypes';
+import type { AgentEvent, AgentConfig, AgentMessage } from './agentTypes';
 
 /**
  * Send a message to the agent and receive streaming events.

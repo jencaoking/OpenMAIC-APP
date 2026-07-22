@@ -72,9 +72,7 @@ export const ASR_PROVIDERS: Record<string, ASRProviderConfig> = {
     name: 'Qwen ASR',
     requiresApiKey: true,
     defaultBaseUrl: 'https://dashscope.aliyuncs.com/api/v1',
-    models: [
-      { id: 'qwen3-asr-flash', name: 'Qwen3 ASR Flash' },
-    ],
+    models: [{ id: 'qwen3-asr-flash', name: 'Qwen3 ASR Flash' }],
     defaultModelId: 'qwen3-asr-flash',
     supportedLanguages: ['en', 'zh', 'ja', 'ko', 'auto'],
     supportedFormats: ['wav', 'mp3', 'webm'],

@@ -57,10 +57,7 @@ export function RNImageElement({ element }: RNImageElementProps) {
   } = element;
 
   // Compute image position within crop range
-  const imgPos = useMemo(
-    () => getImagePosition(clip?.range),
-    [clip?.range],
-  );
+  const imgPos = useMemo(() => getImagePosition(clip?.range), [clip?.range]);
 
   if (!src) return null;
 

@@ -1,7 +1,4 @@
-import {
-  getClipShape,
-  getImagePosition,
-} from '../src/features/slides/elements/imageClipUtils';
+import { getClipShape, getImagePosition } from '../src/features/slides/elements/imageClipUtils';
 
 describe('imageClipUtils', () => {
   describe('getClipShape', () => {
@@ -68,7 +65,10 @@ describe('imageClipUtils', () => {
     });
 
     it('should calculate position from range', () => {
-      const result = getImagePosition([[10, 10], [90, 90]]);
+      const result = getImagePosition([
+        [10, 10],
+        [90, 90],
+      ]);
       expect(result.left).toBeLessThan(0);
       expect(result.top).toBeLessThan(0);
       expect(result.widthPercent).toBeGreaterThan(100);
@@ -76,7 +76,10 @@ describe('imageClipUtils', () => {
     });
 
     it('should handle full range', () => {
-      const result = getImagePosition([[0, 0], [100, 100]]);
+      const result = getImagePosition([
+        [0, 0],
+        [100, 100],
+      ]);
       expect(result.left).toBeCloseTo(0);
       expect(result.top).toBeCloseTo(0);
       expect(result.widthPercent).toBe(100);

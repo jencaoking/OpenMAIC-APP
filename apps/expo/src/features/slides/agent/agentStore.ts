@@ -37,10 +37,7 @@ interface AgentState {
   clearMessages: () => void;
 
   // Agent interaction
-  sendMessage: (
-    text: string,
-    sceneContext: Record<string, unknown>,
-  ) => Promise<void>;
+  sendMessage: (text: string, sceneContext: Record<string, unknown>) => Promise<void>;
 }
 
 export const useAgentStore = create<AgentState>((set, get) => ({
@@ -115,7 +112,12 @@ export const useAgentStore = create<AgentState>((set, get) => ({
       let fullContent = '';
       const toolCalls: AgentToolCall[] = [];
 
-      for await (const event of streamAgentResponse(config, apiMessages, sceneContext, serverBaseUrl)) {
+      for await (const event of streamAgentResponse(
+        config,
+        apiMessages,
+        sceneContext,
+        serverBaseUrl,
+      )) {
         switch (event.type) {
           case 'text_delta':
             fullContent += (event.data as { text?: string }).text || '';
@@ -131,7 +133,11 @@ export const useAgentStore = create<AgentState>((set, get) => ({
             break;
 
           case 'tool_call_start': {
-            const td = event.data as { id?: string; name?: string; arguments?: Record<string, unknown> };
+            const td = event.data as {
+              id?: string;
+              name?: string;
+              arguments?: Record<string, unknown>;
+            };
             toolCalls.push({
               id: td.id || `tc_${Date.now()}`,
               name: (td.name || '') as AgentToolName,
@@ -142,7 +148,11 @@ export const useAgentStore = create<AgentState>((set, get) => ({
           }
 
           case 'tool_result': {
-            const tr = event.data as { toolCallId?: string; content?: string; details?: Record<string, unknown> };
+            const tr = event.data as {
+              toolCallId?: string;
+              content?: string;
+              details?: Record<string, unknown>;
+            };
             set((state) => {
               const msgs = [...state.messages];
               const last = msgs[msgs.length - 1];
@@ -150,11 +160,14 @@ export const useAgentStore = create<AgentState>((set, get) => ({
                 const results = last.toolResults || [];
                 msgs[msgs.length - 1] = {
                   ...last,
-                  toolResults: [...results, {
-                    toolCallId: tr.toolCallId || '',
-                    content: tr.content || '',
-                    details: tr.details,
-                  }],
+                  toolResults: [
+                    ...results,
+                    {
+                      toolCallId: tr.toolCallId || '',
+                      content: tr.content || '',
+                      details: tr.details,
+                    },
+                  ],
                 };
               }
               return { messages: msgs };

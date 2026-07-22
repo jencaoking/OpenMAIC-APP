@@ -40,9 +40,7 @@ export function PBLRoleSelection({ projectInfo, agents, onSelectRole }: PBLRoleS
               activeOpacity={0.7}
             >
               <View style={styles.agentAvatar}>
-                <Text style={styles.agentAvatarText}>
-                  {agent.name.charAt(0).toUpperCase()}
-                </Text>
+                <Text style={styles.agentAvatarText}>{agent.name.charAt(0).toUpperCase()}</Text>
               </View>
               <Text style={styles.agentName}>{agent.name}</Text>
               {agent.actor_role ? (
@@ -60,15 +58,21 @@ export function PBLRoleSelection({ projectInfo, agents, onSelectRole }: PBLRoleS
         <Text style={styles.guideTitle}>如何参与</Text>
         <View style={styles.guideSteps}>
           <View style={styles.guideStep}>
-            <View style={styles.stepNumber}><Text style={styles.stepNumberText}>1</Text></View>
+            <View style={styles.stepNumber}>
+              <Text style={styles.stepNumberText}>1</Text>
+            </View>
             <Text style={styles.stepText}>选择一个角色加入项目团队</Text>
           </View>
           <View style={styles.guideStep}>
-            <View style={styles.stepNumber}><Text style={styles.stepNumberText}>2</Text></View>
+            <View style={styles.stepNumber}>
+              <Text style={styles.stepNumberText}>2</Text>
+            </View>
             <Text style={styles.stepText}>在看板中查看任务分配</Text>
           </View>
           <View style={styles.guideStep}>
-            <View style={styles.stepNumber}><Text style={styles.stepNumberText}>3</Text></View>
+            <View style={styles.stepNumber}>
+              <Text style={styles.stepNumberText}>3</Text>
+            </View>
             <Text style={styles.stepText}>与 AI Agent 协作完成任务</Text>
           </View>
         </View>

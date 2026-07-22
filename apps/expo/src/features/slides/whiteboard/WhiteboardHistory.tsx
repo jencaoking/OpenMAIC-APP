@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Modal,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Modal, StyleSheet } from 'react-native';
 import { useWhiteboardStore } from './whiteboardStore';
 
 interface WhiteboardHistoryProps {
@@ -36,17 +29,8 @@ export function WhiteboardHistory({ isOpen, onClose }: WhiteboardHistoryProps) {
   if (!isOpen) return null;
 
   return (
-    <Modal
-      visible={isOpen}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
-      <TouchableOpacity
-        style={styles.overlay}
-        activeOpacity={1}
-        onPress={onClose}
-      >
+    <Modal visible={isOpen} transparent animationType="fade" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <View style={styles.panel} onStartShouldSetResponder={() => true}>
           {/* Header */}
           <View style={styles.header}>

@@ -16,12 +16,16 @@ describe('EditShell', () => {
   ];
 
   it('should render without crashing', () => {
-    const element = React.createElement(EditShell, {
-      sceneTitle: 'Test Scene',
-      scenes,
-      currentSceneId: 's1',
-      onSelectScene: () => {},
-    }, React.createElement('View'));
+    const element = React.createElement(
+      EditShell,
+      {
+        sceneTitle: 'Test Scene',
+        scenes,
+        currentSceneId: 's1',
+        onSelectScene: () => {},
+      },
+      React.createElement('View'),
+    );
     expect(element).toBeTruthy();
   });
 });

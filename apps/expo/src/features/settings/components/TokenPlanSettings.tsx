@@ -18,13 +18,7 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Linking, Platform } from 'react-native';
-import {
-  Button,
-  Card,
-  SectionHeader,
-  Badge,
-  colors,
-} from './ui';
+import { Button, Card, SectionHeader, Badge, colors } from './ui';
 import { useSettingsStore } from '../settingsStore';
 import { PROVIDERS } from '../constants';
 import type { ProviderId } from '../types';
@@ -103,10 +97,7 @@ export function TokenPlanSettings() {
 
       {/* 当前套餐展示 */}
       <Card style={styles.section}>
-        <SectionHeader
-          title="当前套餐"
-          action={<Badge variant="default">{planType}</Badge>}
-        />
+        <SectionHeader title="当前套餐" action={<Badge variant="default">{planType}</Badge>} />
         <View style={styles.planRow}>
           <View style={styles.flex1}>
             <Text style={styles.planName}>{planName}</Text>
@@ -140,9 +131,7 @@ export function TokenPlanSettings() {
             <Text style={[styles.usageRemaining, { color: progressColor }]}>
               剩余 {formatNumber(remaining)} Token
             </Text>
-            <Text style={styles.usagePercent}>
-              {Math.round(ratio * 100)}% 已用
-            </Text>
+            <Text style={styles.usagePercent}>{Math.round(ratio * 100)}% 已用</Text>
           </View>
         </View>
         <View style={styles.noticeBox}>
@@ -157,8 +146,7 @@ export function TokenPlanSettings() {
       <Card style={styles.section}>
         <SectionHeader title="升级套餐" />
         <Text style={styles.upgradeDesc}>
-          升级到更高套餐以获得更多 Token 配额、更高并发限制和优先支持。
-          点击下方按钮前往购买页面。
+          升级到更高套餐以获得更多 Token 配额、更高并发限制和优先支持。 点击下方按钮前往购买页面。
         </Text>
         <Button onPress={handleUpgrade} style={styles.upgradeButton}>
           立即升级
@@ -170,7 +158,8 @@ export function TokenPlanSettings() {
       <Card style={styles.section}>
         <SectionHeader title="平台说明" />
         <Text style={styles.platformText}>
-          当前运行平台：{Platform.OS}{'\n'}
+          当前运行平台：{Platform.OS}
+          {'\n'}
           {'\n'}
           Token 套餐由服务端统一管理，本地仅做展示。如需切换套餐或修改配额，
           请通过升级按钮联系服务商或登录管理后台。

@@ -1,12 +1,5 @@
 import React, { useCallback } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
 import { useEditStore } from './editStore';
 
 interface SceneThumb {
@@ -86,10 +79,7 @@ export function SlideNavRail({
         {scenes.map((scene) => (
           <TouchableOpacity
             key={scene.id}
-            style={[
-              styles.sceneItem,
-              scene.id === currentSceneId && styles.sceneItemActive,
-            ]}
+            style={[styles.sceneItem, scene.id === currentSceneId && styles.sceneItemActive]}
             onPress={() => onSelectScene(scene.id)}
             onLongPress={() => handleLongPress(scene.id)}
           >
@@ -97,10 +87,7 @@ export function SlideNavRail({
               <Text style={styles.sceneIndex}>{scene.index + 1}</Text>
             </View>
             <Text
-              style={[
-                styles.sceneTitle,
-                scene.id === currentSceneId && styles.sceneTitleActive,
-              ]}
+              style={[styles.sceneTitle, scene.id === currentSceneId && styles.sceneTitleActive]}
               numberOfLines={1}
             >
               {scene.title || `Scene ${scene.index + 1}`}

@@ -61,11 +61,7 @@ export function PBLChat({
         contentContainerStyle={styles.messagesContent}
       >
         {messages.map((msg) => (
-          <MessageBubble
-            key={msg.id}
-            message={msg}
-            isUser={msg.agent_name === userRole}
-          />
+          <MessageBubble key={msg.id} message={msg} isUser={msg.agent_name === userRole} />
         ))}
         {isLoading && (
           <View style={styles.loadingContainer}>
@@ -110,9 +106,7 @@ export function PBLChat({
 function MessageBubble({ message, isUser }: { message: PBLChatMessage; isUser: boolean }) {
   return (
     <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.agentBubble]}>
-      {!isUser && (
-        <Text style={styles.agentName}>{message.agent_name}</Text>
-      )}
+      {!isUser && <Text style={styles.agentName}>{message.agent_name}</Text>}
       <Text style={[styles.messageText, isUser ? styles.userText : styles.agentText]}>
         {message.message}
       </Text>

@@ -1,11 +1,5 @@
 import React, { useRef, useState, useCallback, useMemo } from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  PanResponder,
-  Dimensions,
-} from 'react-native';
+import { View, StyleSheet, Animated, PanResponder, Dimensions } from 'react-native';
 import type { PPTElement } from '@openmaic/dsl';
 import { RNSlideElement } from '../RNSlideElement';
 
@@ -112,11 +106,7 @@ export function WhiteboardCanvas({
       >
         {/* Elements */}
         {elements.map((element, index) => (
-          <RNSlideElement
-            key={element.id}
-            element={element}
-            index={index}
-          />
+          <RNSlideElement key={element.id} element={element} index={index} />
         ))}
 
         {/* Empty state */}

@@ -15,16 +15,7 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import {
-  Button,
-  Input,
-  Label,
-  Switch,
-  Card,
-  SectionHeader,
-  IconButton,
-  colors,
-} from './ui';
+import { Button, Input, Label, Switch, Card, SectionHeader, IconButton, colors } from './ui';
 import { useSettingsStore } from '../settingsStore';
 import { WEB_SEARCH_PROVIDERS } from '../constants';
 import type { WebSearchProviderId } from '../types';
@@ -62,14 +53,10 @@ export interface WebSearchSettingsProps {
  */
 export function WebSearchSettings({ selectedProviderId }: WebSearchSettingsProps) {
   const webSearchProvidersConfig = useSettingsStore((s) => s.webSearchProvidersConfig);
-  const setWebSearchProviderConfig = useSettingsStore(
-    (s) => s.setWebSearchProviderConfig,
-  );
+  const setWebSearchProviderConfig = useSettingsStore((s) => s.setWebSearchProviderConfig);
 
   const [showApiKey, setShowApiKey] = useState(false);
-  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>(
-    'idle',
-  );
+  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
   const [testMessage, setTestMessage] = useState('');
 
   const providerConfig = webSearchProvidersConfig[selectedProviderId];
@@ -118,9 +105,7 @@ export function WebSearchSettings({ selectedProviderId }: WebSearchSettingsProps
       }
     } catch (error) {
       setTestStatus('error');
-      setTestMessage(
-        `测试失败：${error instanceof Error ? error.message : String(error)}`,
-      );
+      setTestMessage(`测试失败：${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
@@ -154,9 +139,7 @@ export function WebSearchSettings({ selectedProviderId }: WebSearchSettingsProps
       {/* 服务器托管提示 */}
       {isServerConfigured && (
         <View style={styles.infoBox}>
-          <Text style={styles.infoText}>
-            此提供商由服务器统一配置，无需在此填写凭证。
-          </Text>
+          <Text style={styles.infoText}>此提供商由服务器统一配置，无需在此填写凭证。</Text>
         </View>
       )}
 

@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 
 interface ActionPickerProps {
   onSelect: (type: string) => void;
@@ -26,17 +20,8 @@ const ACTION_OPTIONS = [
  */
 export function ActionPicker({ onSelect, onClose }: ActionPickerProps) {
   return (
-    <Modal
-      visible
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <TouchableOpacity
-        style={styles.overlay}
-        activeOpacity={1}
-        onPress={onClose}
-      >
+    <Modal visible transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
         <View style={styles.content} onStartShouldSetResponder={() => true}>
           <Text style={styles.title}>Add Action</Text>
 

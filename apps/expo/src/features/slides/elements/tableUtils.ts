@@ -14,9 +14,9 @@ export function getTextStyleRN(style?: TableCellStyle): TextStyle {
   if (style.em) ts.fontStyle = 'italic';
   if (style.underline) ts.textDecorationLine = 'underline';
   if (style.strikethrough) {
-    ts.textDecorationLine = (ts.textDecorationLine
-      ? `${ts.textDecorationLine} line-through`
-      : 'line-through') as any;
+    ts.textDecorationLine = (
+      ts.textDecorationLine ? `${ts.textDecorationLine} line-through` : 'line-through'
+    ) as any;
   }
   if (style.color) ts.color = style.color;
   if (style.backcolor) ts.backgroundColor = style.backcolor;
@@ -96,10 +96,7 @@ function parseBorder(border: string): { width: number; style: string; color: str
 export function getTableSubThemeColor(themeColor: string): [string, string] {
   const rgb = hexToRgb(themeColor);
   if (!rgb) return ['rgba(0,0,0,0.3)', 'rgba(0,0,0,0.1)'];
-  return [
-    `rgba(${rgb.r},${rgb.g},${rgb.b},0.3)`,
-    `rgba(${rgb.r},${rgb.g},${rgb.b},0.1)`,
-  ];
+  return [`rgba(${rgb.r},${rgb.g},${rgb.b},0.3)`, `rgba(${rgb.r},${rgb.g},${rgb.b},0.1)`];
 }
 
 /**
@@ -132,15 +129,18 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
 /**
  * Build border style string for RN from table outline config.
  */
-export function buildBorderStyle(
-  outline?: { width?: number; color?: string; style?: string },
-): { borderWidth: number; borderColor: string; borderStyle: 'solid' | 'dashed' | 'dotted' } {
+export function buildBorderStyle(outline?: { width?: number; color?: string; style?: string }): {
+  borderWidth: number;
+  borderColor: string;
+  borderStyle: 'solid' | 'dashed' | 'dotted';
+} {
   if (!outline) {
     return { borderWidth: 1, borderColor: '#e5e5e5', borderStyle: 'solid' };
   }
   return {
     borderWidth: outline.width ?? 1,
     borderColor: outline.color ?? '#000',
-    borderStyle: outline.style === 'dashed' ? 'dashed' : outline.style === 'dotted' ? 'dotted' : 'solid',
+    borderStyle:
+      outline.style === 'dashed' ? 'dashed' : outline.style === 'dotted' ? 'dotted' : 'solid',
   };
 }

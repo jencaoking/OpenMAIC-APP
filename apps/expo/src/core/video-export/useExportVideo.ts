@@ -5,11 +5,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import {
-  startVideoExport,
-  waitForVideoExport,
-  downloadVideo,
-} from './videoExportClient';
+import { startVideoExport, waitForVideoExport, downloadVideo } from './videoExportClient';
 import type {
   VideoExportConfig,
   VideoExportRequest,
@@ -79,12 +75,9 @@ export function useExportVideo(): UseExportVideoReturn {
     [],
   );
 
-  const downloadExportedVideo = useCallback(
-    async (url: string, filename: string) => {
-      return await downloadVideo(url, filename);
-    },
-    [],
-  );
+  const downloadExportedVideo = useCallback(async (url: string, filename: string) => {
+    return await downloadVideo(url, filename);
+  }, []);
 
   const reset = useCallback(() => {
     setProgress(null);

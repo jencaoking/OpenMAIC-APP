@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, StyleSheet } from 'react-native';
 import type { Action } from './actionTypes';
 import { getActionLabel, getActionIcon } from './actionTypes';
 import { insertAt, removeById, moveByIdDir, setSpeechText } from './actionsEdit';
@@ -68,10 +61,7 @@ export function ActionsBar({ actions, onActionsChange, onActionSelect }: Actions
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Actions Timeline</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => setShowPicker(true)}
-        >
+        <TouchableOpacity style={styles.addButton} onPress={() => setShowPicker(true)}>
           <Text style={styles.addButtonText}>+ Add</Text>
         </TouchableOpacity>
       </View>
@@ -124,14 +114,23 @@ export function ActionsBar({ actions, onActionsChange, onActionSelect }: Actions
                 onPress={() => handleMoveAction(action.id, 'up')}
                 disabled={index === 0}
               >
-                <Text style={[styles.controlText, index === 0 && styles.controlTextDisabled]}>↑</Text>
+                <Text style={[styles.controlText, index === 0 && styles.controlTextDisabled]}>
+                  ↑
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.controlButton}
                 onPress={() => handleMoveAction(action.id, 'down')}
                 disabled={index === actions.length - 1}
               >
-                <Text style={[styles.controlText, index === actions.length - 1 && styles.controlTextDisabled]}>↓</Text>
+                <Text
+                  style={[
+                    styles.controlText,
+                    index === actions.length - 1 && styles.controlTextDisabled,
+                  ]}
+                >
+                  ↓
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.controlButton}
@@ -152,10 +151,7 @@ export function ActionsBar({ actions, onActionsChange, onActionSelect }: Actions
 
       {/* Action Picker Modal */}
       {showPicker && (
-        <ActionPicker
-          onSelect={handleAddAction}
-          onClose={() => setShowPicker(false)}
-        />
+        <ActionPicker onSelect={handleAddAction} onClose={() => setShowPicker(false)} />
       )}
     </View>
   );

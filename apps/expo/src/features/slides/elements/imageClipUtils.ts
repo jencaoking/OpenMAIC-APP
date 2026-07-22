@@ -19,40 +19,23 @@ export interface ClipShape {
  * For full-width/height rendering, multiply by actual dimensions.
  */
 const CLIP_PATHS: Record<string, string> = {
-  rect2:
-    'M 0 0 L 80 0 L 100 20 L 100 100 L 0 100 Z',
-  rect3:
-    'M 0 0 L 80 0 L 100 20 L 100 100 L 20 100 L 0 80 Z',
-  triangle:
-    'M 50 0 L 0 100 L 100 100 Z',
-  triangle2:
-    'M 50 100 L 0 0 L 100 0 Z',
-  triangle3:
-    'M 0 0 L 0 100 L 100 100 Z',
-  rhombus:
-    'M 50 0 L 100 50 L 50 100 L 0 50 Z',
-  pentagon:
-    'M 50 0 L 100 38 L 82 100 L 18 100 L 0 38 Z',
-  hexagon:
-    'M 20 0 L 80 0 L 100 50 L 80 100 L 20 100 L 0 50 Z',
-  heptagon:
-    'M 50 0 L 90 20 L 100 60 L 75 100 L 25 100 L 0 60 L 10 20 Z',
-  octagon:
-    'M 30 0 L 70 0 L 100 30 L 100 70 L 70 100 L 30 100 L 0 70 L 0 30 Z',
-  chevron:
-    'M 75 0 L 100 50 L 75 100 L 0 100 L 25 50 L 0 0 Z',
-  point:
-    'M 0 0 L 75 0 L 100 50 L 75 100 L 0 100 Z',
-  arrow:
-    'M 0 20 L 60 20 L 60 0 L 100 50 L 60 100 L 60 80 L 0 80 Z',
-  parallelogram:
-    'M 30 0 L 100 0 L 70 100 L 0 100 Z',
-  parallelogram2:
-    'M 30 100 L 100 100 L 70 0 L 0 0 Z',
-  trapezoid:
-    'M 25 0 L 75 0 L 100 100 L 0 100 Z',
-  trapezoid2:
-    'M 0 0 L 100 0 L 75 100 L 25 100 Z',
+  rect2: 'M 0 0 L 80 0 L 100 20 L 100 100 L 0 100 Z',
+  rect3: 'M 0 0 L 80 0 L 100 20 L 100 100 L 20 100 L 0 80 Z',
+  triangle: 'M 50 0 L 0 100 L 100 100 Z',
+  triangle2: 'M 50 100 L 0 0 L 100 0 Z',
+  triangle3: 'M 0 0 L 0 100 L 100 100 Z',
+  rhombus: 'M 50 0 L 100 50 L 50 100 L 0 50 Z',
+  pentagon: 'M 50 0 L 100 38 L 82 100 L 18 100 L 0 38 Z',
+  hexagon: 'M 20 0 L 80 0 L 100 50 L 80 100 L 20 100 L 0 50 Z',
+  heptagon: 'M 50 0 L 90 20 L 100 60 L 75 100 L 25 100 L 0 60 L 10 20 Z',
+  octagon: 'M 30 0 L 70 0 L 100 30 L 100 70 L 70 100 L 30 100 L 0 70 L 0 30 Z',
+  chevron: 'M 75 0 L 100 50 L 75 100 L 0 100 L 25 50 L 0 0 Z',
+  point: 'M 0 0 L 75 0 L 100 50 L 75 100 L 0 100 Z',
+  arrow: 'M 0 20 L 60 20 L 60 0 L 100 50 L 60 100 L 60 80 L 0 80 Z',
+  parallelogram: 'M 30 0 L 100 0 L 70 100 L 0 100 Z',
+  parallelogram2: 'M 30 100 L 100 100 L 70 0 L 0 0 Z',
+  trapezoid: 'M 25 0 L 75 0 L 100 100 L 0 100 Z',
+  trapezoid2: 'M 0 0 L 100 0 L 75 100 L 25 100 Z',
 };
 
 /**
@@ -122,9 +105,7 @@ export function getClipShape(
  * Calculate image position within a crop range.
  * Port of Web's useClipImage.ts imgPosition logic.
  */
-export function getImagePosition(
-  clipRange?: [[number, number], [number, number]],
-): {
+export function getImagePosition(clipRange?: [[number, number], [number, number]]): {
   top: number;
   left: number;
   widthPercent: number;

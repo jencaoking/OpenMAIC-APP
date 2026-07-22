@@ -115,11 +115,9 @@ export function GeneralSettings({ apiBaseUrl }: GeneralSettingsProps): ReactNode
       } catch {
         // 开发环境 / 无 OTA 通道：提示用户手动重启
         // 此时设置已被清空，无需回滚 clearing 状态
-        Alert.alert(
-          t('settings.clearCacheSuccess'),
-          '请手动重启应用以使设置生效。',
-          [{ text: t('common.confirm'), onPress: () => setShowClearDialog(false) }],
-        );
+        Alert.alert(t('settings.clearCacheSuccess'), '请手动重启应用以使设置生效。', [
+          { text: t('common.confirm'), onPress: () => setShowClearDialog(false) },
+        ]);
         return;
       }
 
@@ -159,9 +157,7 @@ export function GeneralSettings({ apiBaseUrl }: GeneralSettingsProps): ReactNode
           <View style={styles.dangerContentRow}>
             <View style={styles.dangerContentTextWrap}>
               <Text style={styles.dangerContentTitle}>{t('settings.clearCache')}</Text>
-              <Text style={styles.dangerContentDesc}>
-                {t('settings.clearCacheDescription')}
-              </Text>
+              <Text style={styles.dangerContentDesc}>{t('settings.clearCacheDescription')}</Text>
             </View>
             <Button
               variant="destructive"
@@ -270,9 +266,7 @@ function ClearCacheConfirmDialog({
 
           {/* 确认输入框 */}
           <View style={styles.modalInputWrap}>
-            <Text style={styles.modalInputLabel}>
-              {t('settings.clearCacheConfirmInput')}
-            </Text>
+            <Text style={styles.modalInputLabel}>{t('settings.clearCacheConfirmInput')}</Text>
             <Input
               value={confirmInput}
               onChangeText={onConfirmInput}

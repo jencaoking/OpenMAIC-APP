@@ -32,10 +32,7 @@ describe('agentTypes / pblTypes', () => {
     it('should return 50 for half done', () => {
       const issueboard = {
         agent_ids: [],
-        issues: [
-          { id: '1', is_done: true } as any,
-          { id: '2', is_done: false } as any,
-        ],
+        issues: [{ id: '1', is_done: true } as any, { id: '2', is_done: false } as any],
         current_issue_id: null,
       };
       expect(calculateProgress(issueboard)).toBe(50);
@@ -46,10 +43,7 @@ describe('agentTypes / pblTypes', () => {
     it('should return active issue', () => {
       const issueboard = {
         agent_ids: [],
-        issues: [
-          { id: '1', is_active: false } as any,
-          { id: '2', is_active: true } as any,
-        ],
+        issues: [{ id: '1', is_active: false } as any, { id: '2', is_active: true } as any],
         current_issue_id: null,
       };
       expect(getActiveIssue(issueboard)?.id).toBe('2');
@@ -69,10 +63,7 @@ describe('agentTypes / pblTypes', () => {
     it('should return issue by current_issue_id', () => {
       const issueboard = {
         agent_ids: [],
-        issues: [
-          { id: '1' } as any,
-          { id: '2' } as any,
-        ],
+        issues: [{ id: '1' } as any, { id: '2' } as any],
         current_issue_id: '2',
       };
       expect(getCurrentIssue(issueboard)?.id).toBe('2');

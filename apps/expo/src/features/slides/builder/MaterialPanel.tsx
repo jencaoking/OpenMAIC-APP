@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useBuilderStore, type DslComponentType, type IDslNode } from './builderStore';
 
 interface MaterialItem {
@@ -23,7 +17,13 @@ const materials: MaterialItem[] = [
     label: 'View',
     description: 'Container for layout',
     defaultProps: {
-      style: { padding: 16, backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#e2e8f0' },
+      style: {
+        padding: 16,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+      },
     },
   },
   {

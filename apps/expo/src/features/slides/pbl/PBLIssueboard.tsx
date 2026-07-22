@@ -39,37 +39,27 @@ export function PBLIssueboard({ issueboard }: PBLIssueboardProps) {
         {sortedIssues.map((issue) => (
           <IssueCard key={issue.id} issue={issue} />
         ))}
-        {sortedIssues.length === 0 && (
-          <Text style={styles.emptyText}>暂无任务</Text>
-        )}
+        {sortedIssues.length === 0 && <Text style={styles.emptyText}>暂无任务</Text>}
       </ScrollView>
     </View>
   );
 }
 
 function IssueCard({ issue }: { issue: PBLIssue }) {
-  const statusColor = issue.is_done
-    ? '#10b981'
-    : issue.is_active
-      ? '#7c3aed'
-      : '#9ca3af';
+  const statusColor = issue.is_done ? '#10b981' : issue.is_active ? '#7c3aed' : '#9ca3af';
 
-  const statusBg = issue.is_done
-    ? '#ecfdf5'
-    : issue.is_active
-      ? '#f5f3ff'
-      : '#f9fafb';
+  const statusBg = issue.is_done ? '#ecfdf5' : issue.is_active ? '#f5f3ff' : '#f9fafb';
 
-  const statusLabel = issue.is_done
-    ? '已完成'
-    : issue.is_active
-      ? '进行中'
-      : '待开始';
+  const statusLabel = issue.is_done ? '已完成' : issue.is_active ? '进行中' : '待开始';
 
   return (
-    <View style={[styles.issueCard, { borderColor: statusColor + '80', backgroundColor: statusBg }]}>
+    <View
+      style={[styles.issueCard, { borderColor: statusColor + '80', backgroundColor: statusBg }]}
+    >
       <View style={styles.issueHeader}>
-        <Text style={styles.issueTitle} numberOfLines={1}>{issue.title}</Text>
+        <Text style={styles.issueTitle} numberOfLines={1}>
+          {issue.title}
+        </Text>
         <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
           <Text style={[styles.statusText, { color: statusColor }]}>{statusLabel}</Text>
         </View>

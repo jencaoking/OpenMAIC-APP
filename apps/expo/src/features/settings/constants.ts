@@ -526,21 +526,14 @@ export const PROVIDERS: Record<string, ProviderConfig> = {
  * 这些提供商的 logo 是单色深色图标，在暗色主题下需要 CSS 反色处理。
  * 与 Web 端 `lib/ai/providers.ts` 中的 `MONO_LOGO_PROVIDERS` 保持一致。
  */
-export const MONO_LOGO_PROVIDERS: Set<string> = new Set([
-  'openai',
-  'openrouter',
-  'ollama',
-]);
+export const MONO_LOGO_PROVIDERS: Set<string> = new Set(['openai', 'openrouter', 'ollama']);
 
 /**
  * TTS 提供商映射（仅元信息，用于 UI 展示与下拉选择）。
  *
  * 详细配置（apiKey / baseUrl / voices 等）由 `settingsStore.ttsProvidersConfig` 持久化。
  */
-export const TTS_PROVIDERS: Record<
-  TTSProviderId,
-  { id: string; name: string; icon?: string }
-> = {
+export const TTS_PROVIDERS: Record<TTSProviderId, { id: string; name: string; icon?: string }> = {
   'openai-tts': { id: 'openai-tts', name: 'OpenAI TTS', icon: '/logos/openai.svg' },
   'azure-tts': { id: 'azure-tts', name: 'Azure TTS', icon: '/logos/azure.svg' },
   'glm-tts': { id: 'glm-tts', name: 'GLM TTS', icon: '/logos/glm.svg' },
@@ -566,10 +559,7 @@ export const TTS_PROVIDERS: Record<
  *
  * 详细配置由 `settingsStore.asrProvidersConfig` 持久化。
  */
-export const ASR_PROVIDERS: Record<
-  ASRProviderId,
-  { id: string; name: string; icon?: string }
-> = {
+export const ASR_PROVIDERS: Record<ASRProviderId, { id: string; name: string; icon?: string }> = {
   'openai-whisper': {
     id: 'openai-whisper',
     name: 'OpenAI Whisper',
@@ -590,10 +580,7 @@ export const ASR_PROVIDERS: Record<
  *
  * 详细配置由 `settingsStore.pdfProvidersConfig` 持久化。
  */
-export const PDF_PROVIDERS: Record<
-  PDFProviderId,
-  { id: string; name: string; icon?: string }
-> = {
+export const PDF_PROVIDERS: Record<PDFProviderId, { id: string; name: string; icon?: string }> = {
   mineru: { id: 'mineru', name: 'MinerU', icon: '/logos/mineru.png' },
   alidocmind: { id: 'alidocmind', name: 'AliDocMind', icon: '/logos/aliyun.svg' },
   unpdf: { id: 'unpdf', name: 'unpdf', icon: '/logos/unpdf.svg' },
@@ -635,10 +622,7 @@ export const VIDEO_PROVIDERS: Record<VideoProviderId, { id: string; name: string
  *
  * 详细配置由 `settingsStore.webSearchProvidersConfig` 持久化。
  */
-export const WEB_SEARCH_PROVIDERS: Record<
-  WebSearchProviderId,
-  { id: string; name: string }
-> = {
+export const WEB_SEARCH_PROVIDERS: Record<WebSearchProviderId, { id: string; name: string }> = {
   tavily: { id: 'tavily', name: 'Tavily' },
   brave: { id: 'brave', name: 'Brave Search' },
   bocha: { id: 'bocha', name: 'Bocha' },
