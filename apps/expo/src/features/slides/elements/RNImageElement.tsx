@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
+import Svg, { Rect, Ellipse, Path } from 'react-native-svg';
 import type { PPTImageElement } from '@openmaic/dsl';
 import { getImagePosition } from './imageClipUtils';
+import { getElementOutline, CLIP_PATHS } from './imageOutlineUtils';
 
 interface RNImageElementProps {
   element: PPTImageElement;
@@ -89,6 +91,73 @@ export function RNImageElement({ element }: RNImageElementProps) {
     <View style={[styles.colorMask, { backgroundColor: colorMask }]} />
   ) : null;
 
+  // Outline rendering
+  const outlineStyles = useMemo(() => getElementOutline(element.outline), [element.outline]);
+  const hasOutline = outlineStyles.outlineWidth > 0;
+
+  const outlineElement = useMemo(() => {
+    if (!hasOutline) return null;
+
+    const { outlineWidth, outlineColor, strokeDasharray } = outlineStyles;
+    const elWidth = element.width || 100;
+    const elHeight = (element as any).height || 100;
+
+    // Rect outline (for simple shapes)
+    if (isSimple && shapeName !== 'ellipse') {
+      const borderRadiusVal = shapeName === 'roundRect' ? (radius || 10) : (radius || 0);
+      return (
+        <Svg width={elWidth} height={elHeight} style={styles.outlineSvg}>
+          <Rect
+            width={elWidth}
+            height={elHeight}
+            rx={borderRadiusVal}
+            ry={borderRadiusVal}
+            fill="transparent"
+            stroke={outlineColor}
+            strokeWidth={outlineWidth}
+            strokeDasharray={strokeDasharray}
+          />
+        </Svg>
+      );
+    }
+
+    // Ellipse outline
+    if (shapeName === 'ellipse') {
+      return (
+        <Svg width={elWidth} height={elHeight} style={styles.outlineSvg}>
+          <Ellipse
+            cx={elWidth / 2}
+            cy={elHeight / 2}
+            rx={elWidth / 2}
+            ry={elHeight / 2}
+            fill="transparent"
+            stroke={outlineColor}
+            strokeWidth={outlineWidth}
+            strokeDasharray={strokeDasharray}
+          />
+        </Svg>
+      );
+    }
+
+    // Polygon outline
+    if (isPolygon && shapeName && CLIP_PATHS[shapeName]) {
+      const pathD = CLIP_PATHS[shapeName](elWidth, elHeight);
+      return (
+        <Svg width={elWidth} height={elHeight} style={styles.outlineSvg}>
+          <Path
+            d={pathD}
+            fill="transparent"
+            stroke={outlineColor}
+            strokeWidth={outlineWidth}
+            strokeDasharray={strokeDasharray}
+          />
+        </Svg>
+      );
+    }
+
+    return null;
+  }, [hasOutline, outlineStyles, element, shapeName, radius, elWidth, elHeight]);
+
   // Simple shapes: use native RN borderRadius
   if (isSimple) {
     let borderRadius = 0;
@@ -109,6 +178,7 @@ export function RNImageElement({ element }: RNImageElementProps) {
       >
         {imageInner}
         {colorMaskLayer}
+        {outlineElement}
       </View>
     );
   }
@@ -144,6 +214,7 @@ ${colorMask ? `.mask{position:absolute;inset:0;background:${colorMask}}` : ''}
           javaScriptEnabled
           originWhitelist={['*']}
         />
+        {outlineElement}
       </View>
     );
   }
@@ -153,6 +224,7 @@ ${colorMask ? `.mask{position:absolute;inset:0;background:${colorMask}}` : ''}
     <View style={styles.container}>
       {imageInner}
       {colorMaskLayer}
+      {outlineElement}
     </View>
   );
 }
@@ -181,5 +253,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  outlineSvg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
   },
 });
