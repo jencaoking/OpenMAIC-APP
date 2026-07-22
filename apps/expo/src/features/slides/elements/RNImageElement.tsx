@@ -5,6 +5,7 @@ import Svg, { Rect, Ellipse, Path } from 'react-native-svg';
 import type { PPTImageElement } from '@openmaic/dsl';
 import { getImagePosition } from './imageClipUtils';
 import { getElementOutline, CLIP_PATHS } from './imageOutlineUtils';
+import { imageFiltersToCss } from './imageFilterUtils';
 
 interface RNImageElementProps {
   element: PPTImageElement;
@@ -70,6 +71,10 @@ export function RNImageElement({ element }: RNImageElementProps) {
   const flipStyle = {
     transform: [{ scaleX: flipH ? -1 : 1 }, { scaleY: flipV ? -1 : 1 }],
   };
+
+  // Compute CSS filter string
+  const cssFilter = useMemo(() => imageFiltersToCss(element.filters), [element.filters]);
+  const hasFilters = cssFilter.length > 0;
 
   const imageInner = (
     <View style={[styles.imageWrapper, flipStyle]}>
@@ -167,6 +172,32 @@ export function RNImageElement({ element }: RNImageElementProps) {
       borderRadius = Math.min(elWidth, elHeight) / 2;
     } else if (radius !== undefined && radius > 0) {
       borderRadius = radius;
+    }
+
+    // When filters are present, use WebView to apply CSS filters
+    if (hasFilters) {
+      const filterHtml = `<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:transparent}
+img{width:100%;height:100%;object-fit:cover;filter:${cssFilter};${borderRadius > 0 ? `border-radius:${borderRadius}px` : ''}}
+</style></head>
+<body><img src="${src}" draggable="false"/></body></html>`;
+
+      return (
+        <View style={[styles.container, borderRadius > 0 ? { borderRadius, overflow: 'hidden' } : undefined]}>
+          <WebView
+            source={{ html: filterHtml, baseUrl: '' }}
+            style={styles.webview}
+            scrollEnabled={false}
+            javaScriptEnabled
+            originWhitelist={['*']}
+          />
+          {outlineElement}
+        </View>
+      );
     }
 
     return (
