@@ -109,7 +109,7 @@ export function RNImageElement({ element }: RNImageElementProps) {
 
     // Rect outline (for simple shapes)
     if (isSimple && shapeName !== 'ellipse') {
-      const borderRadiusVal = shapeName === 'roundRect' ? (radius || 10) : (radius || 0);
+      const borderRadiusVal = shapeName === 'roundRect' ? radius || 10 : radius || 0;
       return (
         <Svg width={elWidth} height={elHeight} style={styles.outlineSvg}>
           <Rect
@@ -187,7 +187,12 @@ img{width:100%;height:100%;object-fit:cover;filter:${cssFilter};${borderRadius >
 <body><img src="${src}" draggable="false"/></body></html>`;
 
       return (
-        <View style={[styles.container, borderRadius > 0 ? { borderRadius, overflow: 'hidden' } : undefined]}>
+        <View
+          style={[
+            styles.container,
+            borderRadius > 0 ? { borderRadius, overflow: 'hidden' } : undefined,
+          ]}
+        >
           <WebView
             source={{ html: filterHtml, baseUrl: '' }}
             style={styles.webview}

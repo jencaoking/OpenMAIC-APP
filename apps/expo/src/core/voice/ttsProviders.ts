@@ -47,7 +47,7 @@ async function generateOpenAITTS(
   const response = await fetch(`${baseUrl}/audio/speech`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${config.apiKey}`,
+      Authorization: `Bearer ${config.apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -104,16 +104,13 @@ async function generateAzureTTS(
 /**
  * GLM TTS implementation
  */
-async function generateGLMTTS(
-  config: TTSModelConfig,
-  text: string,
-): Promise<TTSGenerationResult> {
+async function generateGLMTTS(config: TTSModelConfig, text: string): Promise<TTSGenerationResult> {
   const baseUrl = config.baseUrl || TTS_PROVIDERS['glm-tts'].defaultBaseUrl;
 
   const response = await fetch(`${baseUrl}/services/aigc/multimodal-generation/generation`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${config.apiKey}`,
+      Authorization: `Bearer ${config.apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -142,16 +139,13 @@ async function generateGLMTTS(
 /**
  * Qwen TTS implementation
  */
-async function generateQwenTTS(
-  config: TTSModelConfig,
-  text: string,
-): Promise<TTSGenerationResult> {
+async function generateQwenTTS(config: TTSModelConfig, text: string): Promise<TTSGenerationResult> {
   const baseUrl = config.baseUrl || TTS_PROVIDERS['qwen-tts'].defaultBaseUrl;
 
   const response = await fetch(`${baseUrl}/services/aigc/multimodal-generation/generation`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${config.apiKey}`,
+      Authorization: `Bearer ${config.apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -187,7 +181,7 @@ async function generateMiniMaxTTS(
   const response = await fetch(`${baseUrl}/v1/t2a_v2`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${config.apiKey}`,
+      Authorization: `Bearer ${config.apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -224,7 +218,7 @@ async function generateDoubaoTTS(
   const response = await fetch(`${baseUrl}/tts/v1`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${config.apiKey}`,
+      Authorization: `Bearer ${config.apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -258,21 +252,24 @@ async function generateElevenLabsTTS(
 ): Promise<TTSGenerationResult> {
   const baseUrl = config.baseUrl || TTS_PROVIDERS['elevenlabs-tts'].defaultBaseUrl;
 
-  const response = await fetch(`${baseUrl}/text-to-speech/${config.voice || '21m00Tcm4TlvDq8ikWAM'}`, {
-    method: 'POST',
-    headers: {
-      'xi-api-key': config.apiKey!,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      text,
-      model_id: config.modelId || 'eleven_multilingual_v2',
-      voice_settings: {
-        stability: 0.5,
-        similarity_boost: 0.75,
+  const response = await fetch(
+    `${baseUrl}/text-to-speech/${config.voice || '21m00Tcm4TlvDq8ikWAM'}`,
+    {
+      method: 'POST',
+      headers: {
+        'xi-api-key': config.apiKey!,
+        'Content-Type': 'application/json',
       },
-    }),
-  });
+      body: JSON.stringify({
+        text,
+        model_id: config.modelId || 'eleven_multilingual_v2',
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.75,
+        },
+      }),
+    },
+  );
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => response.statusText);

@@ -24,15 +24,13 @@ export const AUTO_VOICE_ID_PREFIX = 'auto-' as const;
  * Sanitize a voice design part value.
  */
 function sanitizeVoiceDesignPart(value?: string): string {
-  return (
-    (value || '')
-      .replace(/[\p{C}]+/gu, ' ')
-      .replace(/[()（）]/gu, ' ')
-      .replace(/\s+/gu, ' ')
-      .trim()
-      .slice(0, VOICE_DESIGN_PROMPT_MAX_CHARS)
-      .trim()
-  );
+  return (value || '')
+    .replace(/[\p{C}]+/gu, ' ')
+    .replace(/[()（）]/gu, ' ')
+    .replace(/\s+/gu, ' ')
+    .trim()
+    .slice(0, VOICE_DESIGN_PROMPT_MAX_CHARS)
+    .trim();
 }
 
 /**
@@ -81,7 +79,7 @@ export async function getDeterministicVoiceId(
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {
     const char = seed.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   const hex = Math.abs(hash).toString(16).padStart(8, '0');

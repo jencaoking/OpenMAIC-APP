@@ -17,8 +17,7 @@ export function RNLineElement({ element }: RNLineElementProps) {
   const { start, end, color, style, width: lineWidth = 2, points } = element;
 
   const strokeColor = color || '#333333';
-  const strokeDasharray =
-    style === 'dashed' ? '8,4' : style === 'dotted' ? '2,2' : undefined;
+  const strokeDasharray = style === 'dashed' ? '8,4' : style === 'dotted' ? '2,2' : undefined;
 
   // Calculate SVG viewBox
   const svgWidth = useMemo(() => {
@@ -41,8 +40,8 @@ export function RNLineElement({ element }: RNLineElementProps) {
   const markerSize = Math.max(lineWidth * 1.5, 3);
 
   // Check if we have endpoints
-  const hasStartMarker = points && points[0] && points[0] !== '';
-  const hasEndMarker = points && points[1] && points[1] !== '';
+  const hasStartMarker = points && points[0] === 'arrow' || points[0] === 'dot';
+  const hasEndMarker = points && points[1] === 'arrow' || points[1] === 'dot';
 
   // Build path for the line
   const pathD = `M ${x1} ${y1} L ${x2} ${y2}`;
@@ -63,7 +62,12 @@ export function RNLineElement({ element }: RNLineElementProps) {
               refY={markerSize * 1.5}
             >
               {points![0] === 'dot' ? (
-                <Circle cx={markerSize * 1.5} cy={markerSize * 1.5} r={markerSize * 0.8} fill={strokeColor} />
+                <Circle
+                  cx={markerSize * 1.5}
+                  cy={markerSize * 1.5}
+                  r={markerSize * 0.8}
+                  fill={strokeColor}
+                />
               ) : (
                 <Path
                   d="M0,0 L10,5 0,10 Z"
@@ -86,7 +90,12 @@ export function RNLineElement({ element }: RNLineElementProps) {
               refY={markerSize * 1.5}
             >
               {points![1] === 'dot' ? (
-                <Circle cx={markerSize * 1.5} cy={markerSize * 1.5} r={markerSize * 0.8} fill={strokeColor} />
+                <Circle
+                  cx={markerSize * 1.5}
+                  cy={markerSize * 1.5}
+                  r={markerSize * 0.8}
+                  fill={strokeColor}
+                />
               ) : (
                 <Path
                   d="M0,0 L10,5 0,10 Z"

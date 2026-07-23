@@ -17,13 +17,15 @@ export function RNChartElement({ element }: RNChartElementProps) {
   const { chartType, data, themeColors, textColor, lineColor } = element;
   const { labels, series, legends } = data;
 
-  const option = JSON.stringify(buildChartOption({
-    type: chartType,
-    data,
-    themeColors: themeColors || [],
-    textColor,
-    lineColor,
-  }));
+  const option = JSON.stringify(
+    buildChartOption({
+      type: chartType,
+      data,
+      themeColors: themeColors || [],
+      textColor,
+      lineColor,
+    }),
+  );
 
   const html = `
     <!DOCTYPE html>
@@ -83,9 +85,7 @@ function buildChartOption({
   const axisLabel = textColor ? { color: textColor } : undefined;
   const splitLine = lineColor ? { lineStyle: { color: lineColor } } : {};
 
-  const legend = series.length > 1
-    ? { top: 'bottom', textStyle }
-    : undefined;
+  const legend = series.length > 1 ? { top: 'bottom', textStyle } : undefined;
 
   // Bar chart
   if (type === 'bar') {
@@ -150,15 +150,17 @@ function buildChartOption({
       color: themeColors,
       textStyle,
       legend: { top: 'bottom', textStyle },
-      series: [{
-        data: labels.map((l, i) => ({ value: series0[i] ?? 0, name: l })),
-        type: 'pie',
-        radius: '70%',
-        emphasis: {
-          itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' },
-          label: { show: true, fontSize: 14, fontWeight: 'bold' },
+      series: [
+        {
+          data: labels.map((l, i) => ({ value: series0[i] ?? 0, name: l })),
+          type: 'pie',
+          radius: '70%',
+          emphasis: {
+            itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' },
+            label: { show: true, fontSize: 14, fontWeight: 'bold' },
+          },
         },
-      }],
+      ],
     };
   }
 
@@ -170,15 +172,17 @@ function buildChartOption({
       color: themeColors,
       textStyle,
       legend: { top: 'bottom', textStyle },
-      series: [{
-        data: labels.map((l, i) => ({ value: series0[i] ?? 0, name: l })),
-        type: 'pie',
-        radius: ['40%', '70%'],
-        padAngle: 1,
-        avoidLabelOverlap: false,
-        itemStyle: { borderRadius: 4 },
-        emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } },
-      }],
+      series: [
+        {
+          data: labels.map((l, i) => ({ value: series0[i] ?? 0, name: l })),
+          type: 'pie',
+          radius: ['40%', '70%'],
+          padAngle: 1,
+          avoidLabelOverlap: false,
+          itemStyle: { borderRadius: 4 },
+          emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } },
+        },
+      ],
     };
   }
 
@@ -212,10 +216,12 @@ function buildChartOption({
         splitLine,
         axisLine: lineColor ? { lineStyle: { color: lineColor } } : undefined,
       },
-      series: [{
-        data: series.map((item, i) => ({ value: item, name: legends[i] })),
-        type: 'radar',
-      }],
+      series: [
+        {
+          data: series.map((item, i) => ({ value: item, name: legends[i] })),
+          type: 'radar',
+        },
+      ],
     };
   }
 
@@ -235,11 +241,13 @@ function buildChartOption({
       textStyle,
       xAxis: { axisLine, axisLabel, splitLine },
       yAxis: { axisLine, axisLabel, splitLine },
-      series: [{
-        symbolSize: 12,
-        data: formattedData,
-        type: 'scatter',
-      }],
+      series: [
+        {
+          symbolSize: 12,
+          data: formattedData,
+          type: 'scatter',
+        },
+      ],
     };
   }
 
