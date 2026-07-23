@@ -40,8 +40,8 @@ export function RNLineElement({ element }: RNLineElementProps) {
   const markerSize = Math.max(lineWidth * 1.5, 3);
 
   // Check if we have endpoints
-  const hasStartMarker = points && points[0] === 'arrow' || points[0] === 'dot';
-  const hasEndMarker = points && points[1] === 'arrow' || points[1] === 'dot';
+  const hasStartMarker = (points && points[0] === 'arrow') || points[0] === 'dot';
+  const hasEndMarker = (points && points[1] === 'arrow') || points[1] === 'dot';
 
   // Build path for the line
   const pathD = `M ${x1} ${y1} L ${x2} ${y2}`;

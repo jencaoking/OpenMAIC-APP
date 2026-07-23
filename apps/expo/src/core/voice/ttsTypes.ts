@@ -78,9 +78,7 @@ export const TTS_PROVIDERS: Record<TTSProviderId, TTSProviderConfig> = {
     name: 'Azure TTS',
     requiresApiKey: true,
     defaultBaseUrl: 'https://{region}.tts.speech.microsoft.com',
-    models: [
-      { id: 'azure-neural', name: 'Azure Neural' },
-    ],
+    models: [{ id: 'azure-neural', name: 'Azure Neural' }],
     defaultModelId: 'azure-neural',
     voices: [
       { id: 'en-US-JennyNeural', name: 'Jenny', language: 'en-US', gender: 'female' },
@@ -95,9 +93,7 @@ export const TTS_PROVIDERS: Record<TTSProviderId, TTSProviderConfig> = {
     name: 'GLM TTS',
     requiresApiKey: true,
     defaultBaseUrl: 'https://open.bigmodel.cn/api/paas/v4',
-    models: [
-      { id: 'cogtts', name: 'CogTTS' },
-    ],
+    models: [{ id: 'cogtts', name: 'CogTTS' }],
     defaultModelId: 'cogtts',
     voices: [
       { id: 'male-qn-qingse', name: '青涩男声', language: 'zh-CN', gender: 'male' },
@@ -112,9 +108,7 @@ export const TTS_PROVIDERS: Record<TTSProviderId, TTSProviderConfig> = {
     name: 'Qwen TTS',
     requiresApiKey: true,
     defaultBaseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-    models: [
-      { id: 'cosyvoice-v1', name: 'CosyVoice V1' },
-    ],
+    models: [{ id: 'cosyvoice-v1', name: 'CosyVoice V1' }],
     defaultModelId: 'cosyvoice-v1',
     voices: [
       { id: 'longxiaochun', name: '小纯', language: 'zh-CN', gender: 'female' },
@@ -128,9 +122,7 @@ export const TTS_PROVIDERS: Record<TTSProviderId, TTSProviderConfig> = {
     name: 'MiniMax TTS',
     requiresApiKey: true,
     defaultBaseUrl: 'https://api.minimax.chat/v1',
-    models: [
-      { id: 'speech-02-turbo', name: 'Speech-02 Turbo' },
-    ],
+    models: [{ id: 'speech-02-turbo', name: 'Speech-02 Turbo' }],
     defaultModelId: 'speech-02-turbo',
     voices: [
       { id: 'male-qn-qingse', name: '青涩男声', language: 'zh-CN', gender: 'male' },
@@ -144,12 +136,15 @@ export const TTS_PROVIDERS: Record<TTSProviderId, TTSProviderConfig> = {
     name: 'Doubao TTS',
     requiresApiKey: true,
     defaultBaseUrl: 'https://openspeech.bytedance.com/api/v1',
-    models: [
-      { id: 'seed-tts-2.0', name: 'Seed TTS 2.0' },
-    ],
+    models: [{ id: 'seed-tts-2.0', name: 'Seed TTS 2.0' }],
     defaultModelId: 'seed-tts-2.0',
     voices: [
-      { id: 'zh_female_shuangkuaisisi_moon_bigtts', name: '思思', language: 'zh-CN', gender: 'female' },
+      {
+        id: 'zh_female_shuangkuaisisi_moon_bigtts',
+        name: '思思',
+        language: 'zh-CN',
+        gender: 'female',
+      },
       { id: 'zh_male_chunhou', name: '淳厚', language: 'zh-CN', gender: 'male' },
     ],
     supportedFormats: ['mp3', 'wav'],
