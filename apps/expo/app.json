@@ -4,7 +4,7 @@
     "slug": "openmaic",
     "version": "1.0.0",
     "orientation": "portrait",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "openmaic",
@@ -55,7 +55,7 @@
       }
     },
     "android": {
-      "newArchEnabled": false,
+      "newArchEnabled": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
