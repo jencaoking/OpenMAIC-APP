@@ -1,8 +1,10 @@
+import '@/lib/persistence/bootstrap';
+
 /**
  * Lazy app-wide RuntimeStore singleton (#869). One `maic-runtime` IndexedDB
  * per origin, shared by every runtime kind (pbl, chat, quizAttempt, playback)
- * as they migrate onto the runtime layer. PBL events and chat sessions use it
- * today; the stage-deletion cascade clears every kind together.
+ * as they migrate onto the runtime layer. PBL events, chat sessions, and quiz
+ * attempts use it today; the stage-deletion cascade clears every kind together.
  *
  * Client-only: the store lazily opens IndexedDB. Server code must not import
  * this module without injecting its own `RuntimeStore`.
@@ -10,6 +12,7 @@
 import { BrowserRuntimeStore, type RuntimeStore } from '@openmaic/storage';
 
 import { registerRuntimeStorageResetHook, resolveConfiguredRuntimeStore } from './config';
+import { APP_RUNTIME_PAYLOAD_VALIDATORS } from './payload-validators';
 
 export {
   configureRuntimeStorage,
@@ -32,7 +35,13 @@ let usesDefaultBrowserStore = false;
 function createRuntimeStore(): RuntimeStore {
   const configured = resolveConfiguredRuntimeStore();
   usesDefaultBrowserStore = configured === undefined;
-  return configured ?? new BrowserRuntimeStore({ dbName: RUNTIME_DB_NAME });
+  return (
+    configured ??
+    new BrowserRuntimeStore({
+      dbName: RUNTIME_DB_NAME,
+      payloadValidators: APP_RUNTIME_PAYLOAD_VALIDATORS,
+    })
+  );
 }
 
 export function getRuntimeStore(): RuntimeStore {

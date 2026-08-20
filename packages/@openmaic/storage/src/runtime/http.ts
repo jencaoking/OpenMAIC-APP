@@ -5,9 +5,14 @@ import type {
   RuntimeRecordInit,
   RuntimeSession,
   RuntimeSessionStatus,
+} from '@openmaic/dsl';
+import type {
+  RuntimeAppendOptions,
   RuntimeSessionInit,
-} from '@openmaic/storage-types';
-import type { RuntimeStore } from './types.js';
+  RuntimeStore,
+  RuntimeTailOptions,
+} from './types.js';
+import { RuntimeAppendConflictError } from './types.js';
 import { assertJsonValue } from './json-value.js';
 
 export interface HttpRuntimeHeadersContext {
@@ -32,19 +37,28 @@ interface ErrorResponseBody {
   error?: {
     code?: unknown;
     message?: unknown;
+    details?: unknown;
   };
+}
+
+interface RuntimeAppendConflictDetails {
+  sessionId?: unknown;
+  expectedLastSeq?: unknown;
+  actualLastSeq?: unknown;
 }
 
 /** A server-side RuntimeStore failure, retaining its machine-readable HTTP identity. */
 export class HttpRuntimeStoreError extends Error {
   readonly status: number;
   readonly code: string;
+  readonly details: unknown;
 
-  constructor(status: number, code: string, message: string) {
+  constructor(status: number, code: string, message: string, details?: unknown) {
     super(message);
     this.name = 'HttpRuntimeStoreError';
     this.status = status;
     this.code = code;
+    this.details = details;
   }
 }
 
@@ -100,6 +114,19 @@ function assertValidRecord<TPayload extends RuntimePayload>(
   );
 }
 
+function assertValidRecordInit<TPayload extends RuntimePayload>(
+  init: RuntimeRecordInit<TPayload>,
+): void {
+  const result = validateRuntimeRecord({ ...init, seq: 0 });
+  if (result.valid) return;
+  const detail = result.errors.map((error) => `${error.path || '/'}: ${error.message}`).join('; ');
+  throw new HttpRuntimeStoreError(
+    400,
+    'VALIDATION_FAILED',
+    `@openmaic/storage: invalid runtime record ${JSON.stringify(init.id)}: ${detail}`,
+  );
+}
+
 function normalizeHeaders(init: HeadersInit | undefined): Record<string, string> {
   const normalized: Record<string, string> = {};
   const set = (name: string, value: string): void => {
@@ -133,10 +160,17 @@ export class HttpRuntimeStore implements RuntimeStore {
     if (options.baseUrl === '') {
       throw new Error('@openmaic/storage: HttpRuntimeStore baseUrl must be non-empty');
     }
-    const fetchImpl = options.fetch ?? globalThis.fetch;
-    if (typeof fetchImpl !== 'function') {
+    // Bind explicitly: browsers require fetch to be invoked with `this === globalThis`
+    // (calling a stored reference as `this.fetchImpl(...)` throws "Illegal
+    // invocation"), while node's undici does not care — which is exactly why
+    // node-only test suites cannot catch the unbound form.
+    // Validate BEFORE binding: .bind on a non-function throws a native
+    // TypeError that would preempt the documented error below.
+    const selectedFetch = options.fetch ?? globalThis.fetch;
+    if (typeof selectedFetch !== 'function') {
       throw new Error('@openmaic/storage: HttpRuntimeStore requires a fetch implementation');
     }
+    const fetchImpl = selectedFetch.bind(globalThis);
     this.baseUrl = options.baseUrl.replace(/\/+$/, '');
     this.fetchImpl = fetchImpl;
     this.headersHook = options.headers;
@@ -171,7 +205,27 @@ export class HttpRuntimeStore implements RuntimeStore {
         typeof errorBody?.error?.message === 'string'
           ? errorBody.error.message
           : `@openmaic/storage: RuntimeStore HTTP request failed with status ${response.status}`;
-      throw new HttpRuntimeStoreError(response.status, code, message);
+      if (code === 'RUNTIME_APPEND_CONFLICT') {
+        const details = errorBody?.error?.details as RuntimeAppendConflictDetails | undefined;
+        if (
+          typeof details?.sessionId === 'string' &&
+          (details.expectedLastSeq === null ||
+            (typeof details.expectedLastSeq === 'number' &&
+              Number.isSafeInteger(details.expectedLastSeq) &&
+              details.expectedLastSeq >= 0)) &&
+          (details.actualLastSeq === null ||
+            (typeof details.actualLastSeq === 'number' &&
+              Number.isSafeInteger(details.actualLastSeq) &&
+              details.actualLastSeq >= 0))
+        ) {
+          throw new RuntimeAppendConflictError(
+            details.sessionId,
+            details.expectedLastSeq,
+            details.actualLastSeq,
+          );
+        }
+      }
+      throw new HttpRuntimeStoreError(response.status, code, message, errorBody?.error?.details);
     }
     if (response.status === 204) return { body: undefined as T, status: response.status };
     return { body: (await response.json()) as T, status: response.status };
@@ -239,11 +293,17 @@ export class HttpRuntimeStore implements RuntimeStore {
     sessionId: string,
     status: RuntimeSessionStatus,
     updatedAt: string,
+    options: RuntimeTailOptions = {},
   ): Promise<void> {
-    await this.request<void>('PATCH', `/runtime/sessions/${segment(sessionId)}/status`, {
+    const body = {
       status,
       updatedAt,
-    });
+      ...(options.expectedLastSeq === undefined
+        ? {}
+        : { expectedLastSeq: options.expectedLastSeq }),
+    };
+    assertJsonValue(body, `runtime session ${JSON.stringify(sessionId)} status update`);
+    await this.request<void>('PATCH', `/runtime/sessions/${segment(sessionId)}/status`, body);
   }
 
   async deleteSession(sessionId: string): Promise<void> {
@@ -252,14 +312,26 @@ export class HttpRuntimeStore implements RuntimeStore {
 
   async appendRecord<TPayload extends RuntimePayload>(
     init: RuntimeRecordInit<TPayload>,
+    options: RuntimeAppendOptions = {},
   ): Promise<RuntimeRecord<TPayload>> {
     assertJsonValue(init.payload, `runtime record ${JSON.stringify(init.id)} payload`);
     const normalizedInit = withoutUndefinedAnchors(init);
     assertJsonValue(normalizedInit, `runtime record ${JSON.stringify(init.id)}`);
+    assertValidRecordInit(normalizedInit);
+    const body = {
+      ...normalizedInit,
+      ...(options.expectedLastSeq === undefined
+        ? {}
+        : { expectedLastSeq: options.expectedLastSeq }),
+      ...(options.sessionTransition === undefined
+        ? {}
+        : { sessionTransition: options.sessionTransition }),
+    };
+    assertJsonValue(body, `runtime record ${JSON.stringify(init.id)} append request`);
     const record = await this.request<RuntimeRecord<TPayload>>(
       'POST',
       `/runtime/sessions/${segment(init.sessionId)}/records`,
-      normalizedInit,
+      body,
     );
     return assertValidRecord(record);
   }

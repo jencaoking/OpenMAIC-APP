@@ -37,6 +37,6 @@
     "packages/docs",
     "openclaw",
     "e2e",
-    "apps/expo"
+    "render-service"
   ]
 }

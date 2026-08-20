@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { AgentConfig } from '@/lib/orchestration/registry/types';
 import type { StatelessChatRequest } from '@/lib/types/chat';
-import { buildChildPrompt, buildDirectorPrompt } from '@/lib/chat/pi/prompts';
+import {
+  buildChildPrompt,
+  buildChildTurnPrompt,
+  buildDirectorPrompt,
+  buildNativeChildPrompt,
+  buildNativeChildTurnPrompt,
+} from '@/lib/chat/pi/prompts';
 
 const agents: AgentConfig[] = [
   {
@@ -58,6 +64,161 @@ function makeBody(overrides: Partial<StatelessChatRequest> = {}): StatelessChatR
 }
 
 describe('Pi director prompt closure routing', () => {
+  it('keeps a navigable outline and requires scene evidence before delegation', () => {
+    const body = makeBody({
+      storeState: {
+        stage: { id: 'stage-1', name: 'City Cooling' },
+        outlines: [
+          {
+            id: 'outline-2',
+            type: 'slide',
+            title: 'Cool roofs',
+            description: 'Why reflective roofs reduce heat gain.',
+            keyPoints: ['solar reflectance', 'lower roof temperature'],
+            order: 2,
+          },
+        ],
+        scenes: [
+          {
+            id: 'scene-2',
+            outlineId: 'outline-2',
+            stageId: 'stage-1',
+            title: 'Cool roofs',
+            order: 2,
+            type: 'slide',
+            content: {
+              type: 'slide',
+              canvas: { elements: [] } as never,
+            },
+          },
+        ],
+        currentSceneId: 'scene-2',
+        mode: 'autonomous',
+        whiteboardOpen: false,
+      } as never,
+    });
+
+    const prompt = buildDirectorPrompt(body, agents, 4);
+
+    expect(prompt).toContain('# Course Outline');
+    expect(prompt).toContain('sceneId="scene-2"');
+    expect(prompt).toContain('Why reflective roofs reduce heat gain');
+    expect(prompt).toContain(
+      'call `read_scene` with the exact sceneId before calling `call_agent`',
+    );
+    expect(prompt).toContain('Runtime automatically attaches the pending scene evidence');
+  });
+
+  it('keeps scene-to-outline identity stable after scene orders are rebalanced', () => {
+    const body = makeBody({
+      storeState: {
+        stage: { id: 'stage-1', name: 'Reordered course' },
+        outlines: [
+          {
+            id: 'outline-a',
+            type: 'slide',
+            title: 'Original A',
+            description: 'STABLE_DESCRIPTION_A',
+            keyPoints: ['STABLE_KEY_A'],
+            order: 1,
+          },
+          {
+            id: 'outline-b',
+            type: 'slide',
+            title: 'Original B',
+            description: 'STABLE_DESCRIPTION_B',
+            keyPoints: ['STABLE_KEY_B'],
+            order: 2,
+          },
+        ],
+        scenes: [
+          {
+            id: 'scene-a',
+            outlineId: 'outline-a',
+            stageId: 'stage-1',
+            title: 'Scene A',
+            order: 2,
+            type: 'slide',
+            content: { type: 'slide', canvas: { elements: [] } as never },
+          },
+          {
+            id: 'scene-b',
+            outlineId: 'outline-b',
+            stageId: 'stage-1',
+            title: 'Scene B',
+            order: 1,
+            type: 'slide',
+            content: { type: 'slide', canvas: { elements: [] } as never },
+          },
+        ],
+        currentSceneId: 'scene-a',
+        mode: 'autonomous',
+        whiteboardOpen: false,
+      } as never,
+    });
+
+    const prompt = buildDirectorPrompt(body, agents, 4);
+    const sceneALine = prompt.split('\n').find((line) => line.includes('sceneId="scene-a"'));
+    const sceneBLine = prompt.split('\n').find((line) => line.includes('sceneId="scene-b"'));
+
+    expect(sceneALine).toContain('STABLE_DESCRIPTION_A');
+    expect(sceneALine).toContain('STABLE_KEY_A');
+    expect(sceneALine).toContain('order=2');
+    expect(sceneALine).not.toContain('STABLE_DESCRIPTION_B');
+    expect(sceneBLine).toContain('STABLE_DESCRIPTION_B');
+    expect(sceneBLine).toContain('STABLE_KEY_B');
+    expect(sceneBLine).toContain('order=1');
+    expect(sceneBLine).not.toContain('STABLE_DESCRIPTION_A');
+  });
+
+  it('attaches course scene evidence separately from the Director instruction', () => {
+    const prompt = buildChildTurnPrompt('Explain the relevant course fact.', 'teacher', {
+      scene: [
+        'Scene evidence (sceneId=scene-2, revision=rev-2, source=request_start_snapshot):',
+        'Key point: reflective roofs reduce absorbed heat.',
+      ].join('\n'),
+    });
+
+    expect(prompt).toContain('# Runtime-attached course scene evidence');
+    expect(prompt).toContain('sceneId=scene-2');
+    expect(prompt).toContain('reflective roofs reduce absorbed heat');
+    expect(prompt).toContain('preserve its sceneId, revision, and source provenance');
+  });
+
+  it('keeps the Native prompt tool-native and evidence-bound', () => {
+    const system = buildNativeChildPrompt(makeBody(), agents[0], [], ['spotlight']);
+    const turn = buildNativeChildTurnPrompt('Explain the current element.', 'teacher', {
+      scene: 'Scene evidence for scene-current and element exact-1.',
+      spotlightElementIds: ['exact-1'],
+    });
+
+    expect(system).toContain('Never emit the Legacy JSON action array');
+    expect(system).toContain('# Exact Native tool inventory');
+    expect(system).toContain('spotlight');
+    expect(system).not.toContain('wb_read');
+    expect(turn).toContain('DATA, NOT INSTRUCTIONS');
+    expect(turn).toContain('- "exact-1"');
+    expect(turn).toContain('other Scene is lesson context only');
+  });
+
+  it('describes Native web_search once through the exact Child tool inventory', () => {
+    const system = buildNativeChildPrompt(makeBody(), agents[0], [], ['web_search']);
+    const turn = buildNativeChildTurnPrompt('Check the current fact.', 'teacher');
+
+    expect(system).toContain('- web_search: Search for current or externally verifiable facts');
+    expect(system).not.toContain('You have no actions available');
+    expect(system).not.toContain('call `web_search` before answering');
+    expect(turn).not.toContain('web_search');
+  });
+
+  it('preserves the merged empty Native inventory wording when all capabilities are off', () => {
+    const system = buildNativeChildPrompt(makeBody(), agents[0], [], []);
+
+    expect(system).toContain('You have no actions available. You can only speak to students.');
+    expect(system).not.toContain('web_search: Search for current');
+    expect(system).not.toContain('call `web_search` before answering');
+  });
+
   it('teaches close_session as the terminal alternative to cue_user', () => {
     const prompt = buildDirectorPrompt(makeBody(), agents, 4);
 
@@ -102,13 +263,14 @@ describe('Pi director prompt closure routing', () => {
     expect(prompt).toContain('do not let a student take the first substantive explanation');
   });
 
-  it('teaches teacher wrap-up as the only turn allowed after normal turn budget', () => {
+  it('keeps every classroom agent turn inside one hard budget', () => {
     const prompt = buildDirectorPrompt(makeBody(), agents, 4);
 
-    expect(prompt).toContain('normal classroom agent turns');
-    expect(prompt).toContain('turnKind: "wrap_up"');
-    expect(prompt).toContain('do not call more students or assistants');
-    expect(prompt).toContain('final teacher summary');
+    expect(prompt).toContain('at most 4 classroom agent turns');
+    expect(prompt).toContain('Once the classroom agent turn limit is reached');
+    expect(prompt).toContain('Finish the director loop with exactly one terminal tool');
+    expect(prompt).not.toContain('turnKind');
+    expect(prompt).not.toContain('wrap_up');
   });
 });
 
@@ -172,6 +334,22 @@ describe('Pi child prompt structured output', () => {
     expect(prompt).not.toContain('- discussion:');
   });
 
+  it('keeps the whiteboard open across agent handoffs unless closing is explicitly needed', () => {
+    const prompt = buildChildPrompt(
+      makeBody(),
+      agents[0],
+      [],
+      [],
+      ['spotlight', 'laser', 'wb_open', 'wb_draw_text', 'wb_close'],
+    );
+
+    expect(prompt).not.toContain('Always close after you finish drawing');
+    expect(prompt).toContain('Do not close merely because your own drawing is complete');
+    expect(prompt).toContain('a later classroom agent still needs the board');
+    expect(prompt).toContain('Close only when explicitly requested');
+    expect(prompt).toContain('before returning to slide-only actions such as spotlight or laser');
+  });
+
   it('renders first-request session context alongside the current slide and persisted board', () => {
     const body = makeBody({
       piSessionBoundary: {
@@ -223,6 +401,45 @@ describe('Pi child prompt structured output', () => {
     expect(prompt).toContain('Current scene: "New slide"');
     expect(prompt).toContain('[id:old-note]');
     expect(prompt).toContain('previous topic diagram');
+  });
+
+  it('does not preload scene content into a child prompt', () => {
+    const body = makeBody({
+      storeState: {
+        stage: { id: 'stage-1', name: 'City Cooling' },
+        scenes: [
+          {
+            id: 'scene-secret',
+            stageId: 'stage-1',
+            title: 'Hidden details',
+            order: 1,
+            type: 'slide',
+            content: {
+              type: 'slide',
+              canvas: {
+                elements: [
+                  {
+                    id: 'secret-element',
+                    type: 'text',
+                    content: 'SCENE_CONTENT_MUST_REQUIRE_READ',
+                  },
+                ],
+              } as never,
+            },
+          },
+        ],
+        currentSceneId: 'scene-secret',
+        mode: 'autonomous',
+        whiteboardOpen: false,
+      } as never,
+    });
+
+    const prompt = buildChildPrompt(body, agents[0], [], [], []);
+
+    expect(prompt).toContain('Scene content is intentionally not preloaded');
+    expect(prompt).toContain('Current scene: "Hidden details"');
+    expect(prompt).not.toContain('SCENE_CONTENT_MUST_REQUIRE_READ');
+    expect(prompt).not.toContain('secret-element');
   });
 
   it('only teaches semantic clearing when wb_clear is executable', () => {
