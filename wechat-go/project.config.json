@@ -1,0 +1,29 @@
+{
+  "description": "围棋·静心对弈微信小游戏",
+  "packOptions": {
+    "ignore": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": false,
+    "minified": true,
+    "coverView": true,
+    "nodeModules": false,
+    "showShadowRootInWxmlPanel": true,
+    "useCompilerPlugins": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "compileType": "game",
+  "libVersion": "3.8.6",
+  "appid": "touristappid",
+  "projectname": "wechat-go",
+  "simulatorType": "wechat",
+  "simulatorPluginLibVersion": {},
+  "condition": {}
+}
