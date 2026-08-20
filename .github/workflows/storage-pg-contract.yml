@@ -3,8 +3,22 @@ name: Storage PostgreSQL Contract
 on:
   push:
     branches: [main]
+    paths:
+      - 'packages/@openmaic/storage/**'
+      - 'packages/@openmaic/storage-types/**'
+      - 'packages/@openmaic/dsl/**'
+      - 'packages/maic-storage-server/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/storage-pg-contract.yml'
   pull_request:
     branches: [main, runtime-server-backend, feat/maic-editor-v0, feat/maic-editor-v1]
+    paths:
+      - 'packages/@openmaic/storage/**'
+      - 'packages/@openmaic/storage-types/**'
+      - 'packages/@openmaic/dsl/**'
+      - 'packages/maic-storage-server/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/storage-pg-contract.yml'
 
 concurrency:
   group: storage-pg-contract-${{ github.ref }}
@@ -40,7 +54,7 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Storage PostgreSQL contract
         run: pnpm --filter @openmaic/storage test

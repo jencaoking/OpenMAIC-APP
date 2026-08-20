@@ -37,7 +37,7 @@ concurrency:
 
 env:
   CI: '1'
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   EAS_VERSION: latest
   EXPO_DIR: apps/expo
   APK_OUTPUT_DIR: ${{ github.workspace }}/apk-build
@@ -65,6 +65,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -75,7 +76,6 @@ jobs:
 
       - name: ESLint
         run: pnpm run lint
-        continue-on-error: true
 
   test:
     name: Unit Tests
@@ -97,6 +97,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -104,7 +105,7 @@ jobs:
       - name: Run Jest unit tests
         working-directory: ${{ env.EXPO_DIR }}
         run: |
-          npx jest --passWithNoTests --coverage --ci
+          pnpm exec jest --passWithNoTests --coverage --ci
 
       - name: Upload coverage
         if: always()
@@ -137,6 +138,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -292,6 +294,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -324,6 +327,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
