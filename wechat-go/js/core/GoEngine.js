@@ -33,17 +33,44 @@ class GoEngine {
     return board.map((row) => row.join('')).join('|')
   }
 
+  exportState() {
+    return {
+      size: this.size,
+      komi: this.komi,
+      board: this.cloneBoard(),
+      currentPlayer: this.currentPlayer,
+      captures: { ...this.captures },
+      moveNumber: this.moveNumber,
+      passCount: this.passCount,
+      lastMove: this.lastMove ? { ...this.lastMove } : null,
+      positionHistory: [...this.positionHistory],
+      history: this.history.map((snapshot) => ({ ...snapshot, board: this.cloneBoard(snapshot.board), captures: { ...snapshot.captures } })),
+      isOver: this.isOver,
+      result: this.result ? { ...this.result } : null,
+    }
+  }
+
+  hydrate(state) {
+    this.size = state.size || this.size
+    this.komi = state.komi || this.komi
+    this.board = this.cloneBoard(state.board)
+    this.currentPlayer = state.currentPlayer
+    this.captures = { ...state.captures }
+    this.moveNumber = state.moveNumber
+    this.passCount = state.passCount
+    this.lastMove = state.lastMove ? { ...state.lastMove } : null
+    this.positionHistory = state.positionHistory ? [...state.positionHistory] : [this.boardSignature()]
+    this.history = state.history ? state.history.map((snapshot) => ({ ...snapshot, board: this.cloneBoard(snapshot.board), captures: { ...snapshot.captures } })) : Array(Math.max(0, this.moveNumber - 1)).fill(null)
+    this.isOver = Boolean(state.isOver)
+    this.result = state.result ? { ...state.result } : null
+  }
+
   isOnBoard(row, col) {
     return row >= 0 && row < this.size && col >= 0 && col < this.size
   }
 
   neighbours(row, col) {
-    return [
-      [row - 1, col],
-      [row + 1, col],
-      [row, col - 1],
-      [row, col + 1],
-    ].filter(([r, c]) => this.isOnBoard(r, c))
+    return [[row - 1, col], [row + 1, col], [row, col - 1], [row, col + 1]].filter(([r, c]) => this.isOnBoard(r, c))
   }
 
   getGroup(row, col, board = this.board) {
@@ -53,7 +80,6 @@ class GoEngine {
     const seen = new Set()
     const liberties = new Set()
     const stones = []
-
     while (pending.length) {
       const [r, c] = pending.pop()
       const key = `${r},${c}`
@@ -65,24 +91,14 @@ class GoEngine {
         if (board[nr][nc] === player && !seen.has(`${nr},${nc}`)) pending.push([nr, nc])
       })
     }
-
-    return {
-      stones,
-      liberties: Array.from(liberties, (key) => key.split(',').map(Number)),
-    }
+    return { stones, liberties: Array.from(liberties, (key) => key.split(',').map(Number)) }
   }
 
   saveSnapshot() {
     return {
-      board: this.cloneBoard(),
-      currentPlayer: this.currentPlayer,
-      captures: { ...this.captures },
-      moveNumber: this.moveNumber,
-      passCount: this.passCount,
-      lastMove: this.lastMove ? { ...this.lastMove } : null,
-      positionHistoryLength: this.positionHistory.length,
-      isOver: this.isOver,
-      result: this.result ? { ...this.result } : null,
+      board: this.cloneBoard(), currentPlayer: this.currentPlayer, captures: { ...this.captures }, moveNumber: this.moveNumber,
+      passCount: this.passCount, lastMove: this.lastMove ? { ...this.lastMove } : null,
+      positionHistoryLength: this.positionHistory.length, isOver: this.isOver, result: this.result ? { ...this.result } : null,
     }
   }
 
@@ -102,22 +118,37 @@ class GoEngine {
     this.currentPlayer = this.currentPlayer === this.BLACK ? this.WHITE : this.BLACK
   }
 
+  isLegalMove(row, col) {
+    const snapshot = this.saveSnapshot()
+    const historyLength = this.history.length
+    const result = this.play(row, col)
+    this.restoreSnapshot(snapshot)
+    this.history.length = historyLength
+    return result.ok
+  }
+
+  getLegalMoves() {
+    const moves = []
+    for (let row = 0; row < this.size; row += 1) {
+      for (let col = 0; col < this.size; col += 1) {
+        if (this.board[row][col] === this.EMPTY && this.isLegalMove(row, col)) moves.push({ row, col })
+      }
+    }
+    return moves
+  }
+
   play(row, col) {
     if (this.isOver) return { ok: false, message: '本局已结束，请开启新局' }
     if (!this.isOnBoard(row, col)) return { ok: false, message: '请在棋盘交叉点落子' }
     if (this.board[row][col] !== this.EMPTY) return { ok: false, message: '该处已有棋子' }
-
     const snapshot = this.saveSnapshot()
     const player = this.currentPlayer
     const opponent = player === this.BLACK ? this.WHITE : this.BLACK
     this.board[row][col] = player
     let captured = 0
     const inspected = new Set()
-
     this.neighbours(row, col).forEach(([nr, nc]) => {
-      if (this.board[nr][nc] !== opponent) return
-      const key = `${nr},${nc}`
-      if (inspected.has(key)) return
+      if (this.board[nr][nc] !== opponent || inspected.has(`${nr},${nc}`)) return
       const group = this.getGroup(nr, nc)
       group.stones.forEach(([gr, gc]) => inspected.add(`${gr},${gc}`))
       if (group.liberties.length === 0) {
@@ -125,19 +156,15 @@ class GoEngine {
         captured += group.stones.length
       }
     })
-
-    const ownGroup = this.getGroup(row, col)
-    if (ownGroup.liberties.length === 0) {
+    if (this.getGroup(row, col).liberties.length === 0) {
       this.restoreSnapshot(snapshot)
       return { ok: false, message: '禁入点：该手棋没有气' }
     }
-
     const signature = this.boardSignature()
     if (this.positionHistory.includes(signature)) {
       this.restoreSnapshot(snapshot)
       return { ok: false, message: '打劫：不可使局面重复' }
     }
-
     this.history.push(snapshot)
     this.captures[player] += captured
     this.lastMove = { row, col, player }
@@ -150,8 +177,7 @@ class GoEngine {
 
   pass() {
     if (this.isOver) return { ok: false, message: '本局已结束，请开启新局' }
-    const snapshot = this.saveSnapshot()
-    this.history.push(snapshot)
+    this.history.push(this.saveSnapshot())
     this.passCount += 1
     this.moveNumber += 1
     this.togglePlayer()
@@ -168,12 +194,7 @@ class GoEngine {
     const winner = resignedPlayer === this.BLACK ? this.WHITE : this.BLACK
     const scores = this.calculateScore()
     this.isOver = true
-    this.result = {
-      title: winner === this.BLACK ? '黑方胜' : '白方胜',
-      detail: resignedPlayer === this.BLACK ? '黑方认输' : '白方认输',
-      blackScore: scores.blackScore,
-      whiteScore: scores.whiteScore,
-    }
+    this.result = { title: winner === this.BLACK ? '黑方胜' : '白方胜', detail: resignedPlayer === this.BLACK ? '黑方认输' : '白方认输', blackScore: scores.blackScore, whiteScore: scores.whiteScore }
     return { ok: true, message: this.result.detail }
   }
 
@@ -209,32 +230,17 @@ class GoEngine {
       for (let col = 0; col < this.size; col += 1) {
         if (this.board[row][col] !== this.EMPTY || visited.has(`${row},${col}`)) continue
         const region = this.getEmptyRegion(row, col, visited)
-        if (region.borders.size === 1) {
-          const owner = Array.from(region.borders)[0]
-          territory[owner] += region.points.length
-        }
+        if (region.borders.size === 1) territory[Array.from(region.borders)[0]] += region.points.length
       }
     }
-    return {
-      blackScore: territory[this.BLACK] + this.captures[this.BLACK],
-      whiteScore: territory[this.WHITE] + this.captures[this.WHITE] + this.komi,
-      territory,
-    }
+    return { blackScore: territory[this.BLACK] + this.captures[this.BLACK], whiteScore: territory[this.WHITE] + this.captures[this.WHITE] + this.komi, territory }
   }
 
   finishByScore(detail) {
     const scores = this.calculateScore()
     const difference = scores.blackScore - scores.whiteScore
-    let title = '和棋'
-    if (difference > 0) title = '黑方胜'
-    if (difference < 0) title = '白方胜'
     this.isOver = true
-    this.result = {
-      title,
-      detail,
-      blackScore: scores.blackScore,
-      whiteScore: scores.whiteScore,
-    }
+    this.result = { title: difference === 0 ? '和棋' : (difference > 0 ? '黑方胜' : '白方胜'), detail, blackScore: scores.blackScore, whiteScore: scores.whiteScore }
   }
 }
 
