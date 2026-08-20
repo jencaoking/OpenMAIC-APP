@@ -1,4 +1,4 @@
-import type { AgentTool } from '@earendil-works/pi-agent-core';
+import { convertToLlm, type AgentTool } from '@earendil-works/pi-agent-core';
 import type { LanguageModel } from 'ai';
 import { buildAgent } from '@/lib/agent/runtime/build-agent';
 import { createCallLlmStreamFn } from '@/lib/agent/runtime/stream-fn';
@@ -7,10 +7,22 @@ import type { AgentTurnSummary, WhiteboardActionRecord } from '@/lib/orchestrati
 import type { StatelessChatRequest, StatelessEvent } from '@/lib/types/chat';
 import type { ThinkingConfig } from '@/lib/types/provider';
 import { buildDirectorPrompt, buildUserPrompt, toHistoryMessages } from './prompts';
-import type { SendEvent } from './types';
+import { createDirectorCompactionRuntime } from './director-compaction';
+import type { DirectorToolTraceEntry, SendEvent } from './types';
+import type { ChildRuntimeMode } from './child-runtime';
 import { buildCallAgentTool } from './tools/call-agent';
 import { buildCloseSessionTool } from './tools/close-session';
 import { buildCueUserTool } from './tools/cue-user';
+import {
+  buildReadSceneTool,
+  type DirectorSceneEvidenceMetadata,
+  type DirectorSceneEvidencePacket,
+} from './tools/read-scene';
+import type { NativeWebSearchConfig } from './tools/web-search';
+
+function formatSceneEvidenceForDelegation(evidence: DirectorSceneEvidencePacket[]): string {
+  return evidence.map((packet) => packet.content).join('\n\n');
+}
 
 export async function runPiDirectorLoop(opts: {
   body: StatelessChatRequest;
@@ -19,25 +31,47 @@ export async function runPiDirectorLoop(opts: {
   languageModel: LanguageModel;
   thinkingConfig: ThinkingConfig;
   maxOutputTokens?: number;
+  contextWindow?: number;
   abortSignal: AbortSignal;
   signal: AbortSignal;
   maxAgentTurns: number;
   maxActionsPerAgent: number;
   enableWhiteboardTools: boolean;
+  childRuntimeMode?: ChildRuntimeMode;
+  enableNativeChildSpotlight?: boolean;
+  nativeWebSearchConfig?: NativeWebSearchConfig;
 }): Promise<void> {
   let totalAgents = 0;
   let totalActions = 0;
   let agentHadContent = false;
   let userCued = false;
   let sessionClosed = false;
-  let teacherWrapUpUsed = false;
   let endReason: string | undefined;
   let directorToolCalls = 0;
+  const pendingSceneEvidence = new Map<string, DirectorSceneEvidencePacket>();
+  const directorToolTrace: DirectorToolTraceEntry[] = [];
   const maxDirectorToolCalls = Math.max(opts.maxAgentTurns * 3, opts.maxAgentTurns + 3);
   const piAgentResponses: AgentTurnSummary[] = [];
   const piWhiteboardLedger: WhiteboardActionRecord[] = [];
-  const getNormalTurnCount = (): number =>
-    piAgentResponses.filter((summary) => summary.turnKind !== 'wrap_up').length;
+  const requestStartCurrentScene = (() => {
+    const sceneId = opts.body.storeState.currentSceneId;
+    const scene = sceneId
+      ? opts.body.storeState.scenes.find((candidate) => candidate.id === sceneId)
+      : undefined;
+    if (!scene) return undefined;
+    const elementIds =
+      scene.content.type === 'slide'
+        ? scene.content.canvas.elements
+            .map((element) => element.id)
+            .filter((id): id is string => typeof id === 'string' && id.length > 0)
+        : [];
+    return Object.freeze({
+      sceneId: scene.id,
+      sceneType: scene.content.type,
+      elementIds: Object.freeze(elementIds),
+    });
+  })();
+  const getAgentTurnCount = (): number => piAgentResponses.length;
   const isTeachingSubstantiveTurn = (summary: AgentTurnSummary): boolean => {
     const agent = opts.agentConfigs.find((candidate) => candidate.id === summary.agentId);
     return (
@@ -75,8 +109,19 @@ export async function runPiDirectorLoop(opts: {
     source: 'pi-chat-director',
     abortSignal: opts.abortSignal,
   });
+  const compactionRuntime = createDirectorCompactionRuntime({
+    streamFn,
+    contextWindow: opts.contextWindow,
+    maxOutputTokens: opts.maxOutputTokens,
+  });
 
   const tools: AgentTool[] = [
+    buildReadSceneTool({
+      body: opts.body,
+      onEvidence: (evidence) => {
+        pendingSceneEvidence.set(evidence.details.sceneId, evidence);
+      },
+    }),
     buildCallAgentTool({
       body: opts.body,
       agentConfigs: opts.agentConfigs,
@@ -95,7 +140,7 @@ export async function runPiDirectorLoop(opts: {
       maxOutputTokens: opts.maxOutputTokens,
       abortSignal: opts.abortSignal,
       maxAgentTurns: opts.maxAgentTurns,
-      getAgentTurnCount: getNormalTurnCount,
+      getAgentTurnCount,
       getAgentResponses: () => [
         ...(opts.body.directorState?.agentResponses ?? []),
         ...piAgentResponses,
@@ -105,12 +150,30 @@ export async function runPiDirectorLoop(opts: {
       getWhiteboardLedger: () => piWhiteboardLedger,
       maxActionsPerAgent: opts.maxActionsPerAgent,
       enableWhiteboardTools: opts.enableWhiteboardTools,
-      isTeacherWrapUpUsed: () => teacherWrapUpUsed,
-      onTeacherWrapUpDone: () => {
-        teacherWrapUpUsed = true;
-      },
+      childRuntimeMode: opts.childRuntimeMode ?? 'legacy',
+      enableNativeChildSpotlight: opts.enableNativeChildSpotlight === true,
+      nativeWebSearchConfig: opts.nativeWebSearchConfig,
+      requestStartCurrentScene,
       isUserCued: () => userCued,
       isSessionClosed: () => sessionClosed,
+      takeSceneEvidence: () => {
+        if (pendingSceneEvidence.size === 0) return undefined;
+        const packets = [...pendingSceneEvidence.values()];
+        pendingSceneEvidence.clear();
+        return {
+          content: formatSceneEvidenceForDelegation(packets),
+          metadata: packets.map(
+            (packet): DirectorSceneEvidenceMetadata => ({
+              sceneId: packet.details.sceneId,
+              title: packet.details.title,
+              sceneType: packet.details.sceneType,
+              order: packet.details.order,
+              revision: packet.details.revision,
+              source: packet.details.source,
+            }),
+          ),
+        };
+      },
     }),
     buildCloseSessionTool({
       closeSession,
@@ -131,18 +194,44 @@ export async function runPiDirectorLoop(opts: {
     systemPrompt: buildDirectorPrompt(opts.body, opts.agentConfigs, opts.maxAgentTurns),
     tools,
     allowedToolNames: new Set(tools.map((tool) => tool.name)),
-    history: toHistoryMessages(opts.body.messages),
-    afterToolCall: () => {
+    history: toHistoryMessages(opts.body.messages, null),
+    transformContext: compactionRuntime.transformContext,
+    convertToLlm,
+    afterToolCall: (context) => {
       directorToolCalls += 1;
-      if (sessionClosed || userCued || directorToolCalls >= maxDirectorToolCalls) {
-        return { terminate: true };
-      }
-      return undefined;
+      const evidenceStatus =
+        context.toolCall.name === 'read_scene'
+          ? (context.result.details as { status?: string } | undefined)?.status
+          : undefined;
+      const evidenceError = evidenceStatus !== undefined && evidenceStatus !== 'ok';
+      const isError = context.isError || evidenceError;
+      const resultPreview = context.result.content
+        .map((content) => (content.type === 'text' ? content.text : '[image]'))
+        .join('\n')
+        .slice(0, 800);
+      directorToolTrace.push({
+        sequence: directorToolCalls,
+        toolName: context.toolCall.name,
+        args: context.args,
+        isError,
+        resultPreview,
+        details: context.result.details,
+      });
+      const terminate = sessionClosed || userCued || directorToolCalls >= maxDirectorToolCalls;
+      if (!terminate && !evidenceError) return undefined;
+      return {
+        ...(terminate ? { terminate: true } : {}),
+        ...(evidenceError ? { isError: true } : {}),
+      };
     },
   });
 
-  await director.prompt(buildUserPrompt(opts.body));
-  await director.waitForIdle();
+  try {
+    await director.prompt(buildUserPrompt(opts.body));
+    await director.waitForIdle();
+  } finally {
+    compactionRuntime.dispose();
+  }
 
   if (opts.signal.aborted) return;
 
@@ -159,8 +248,10 @@ export async function runPiDirectorLoop(opts: {
       cueUserReceived: userCued,
       sessionClosed,
       endReason,
+      directorCompaction: compactionRuntime.getTrace(),
+      directorToolTrace,
       directorState: {
-        turnCount: getNormalTurnCount(),
+        turnCount: getAgentTurnCount(),
         agentResponses: [...(opts.body.directorState?.agentResponses ?? []), ...piAgentResponses],
         // Return only this turn's whiteboard mutations. The cross-turn board
         // state is carried by storeState's request-start snapshot, and Pi child

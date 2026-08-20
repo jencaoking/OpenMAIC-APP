@@ -1,23 +1,27 @@
 {
   "name": "openmaic",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "private": true,
-  "main": "electron/main.js",
   "license": "MIT",
   "engines": {
     "node": ">=20.9.0"
   },
   "scripts": {
-    "postinstall": "cd packages/mathml2omml && npm run build && cd ../pptxgenjs && npm run build && cd ../@openmaic/dsl && pnpm run build && cd ../storage-types && pnpm run build && cd ../storage && pnpm run build && cd ../importer && pnpm run build && cd ../renderer && pnpm run build && cd ../../.. && node scripts/sync-maic-importer.mjs",
+    "postinstall": "cd packages/mathml2omml && npm run build && cd ../pptxgenjs && npm run build && cd ../@openmaic/dsl && pnpm run build && cd ../generation && pnpm run build && cd ../storage && pnpm run build && cd ../importer && pnpm run build && cd ../renderer && pnpm run build && cd ../editor && pnpm run build && cd ../../.. && node scripts/sync-maic-importer.mjs",
     "sync:maic-importer": "node scripts/sync-maic-importer.mjs",
+    "gen:video-export-katex": "node scripts/generate-video-export-katex.mjs",
+    "gen:video-export-noto-cjk": "node scripts/generate-video-export-noto-cjk.mjs",
+    "gen:video-export-noto-script-fonts": "node scripts/generate-video-export-noto-script-fonts.mjs",
     "dev": "next dev",
     "build": "node scripts/assert-vendor-maic-importer.mjs && next build",
     "start": "next start",
     "lint": "eslint",
     "check:i18n-keys": "node scripts/check-i18n-keys.mjs",
+    "check:package-versions": "node scripts/check-package-version-bumps.mjs",
     "check": "prettier . --check",
     "format": "prettier . --write",
     "test": "vitest run",
+    "test:package-tarballs": "node scripts/smoke-test-package-tarballs.mjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "eval:pbl-v2-planner": "tsx eval/pbl-v2-planner/runner.ts",
@@ -25,12 +29,10 @@
     "eval:outline-language": "tsx eval/outline-language/runner.ts",
     "eval:orchestration": "tsx eval/orchestration/runner.ts",
     "eval:orchestration:answering": "tsx eval/orchestration/answering-runner.ts",
-    "eval:orchestration:answer-content": "tsx eval/orchestration/answer-content-runner.ts",
-    "electron": "electron .",
-    "prepare:electron": "node scripts/prepare-electron.mjs",
-    "dist:win": "pnpm sync:maic-importer && next build && node scripts/build-win.mjs"
+    "eval:orchestration:answer-content": "tsx eval/orchestration/answer-content-runner.ts"
   },
   "dependencies": {
+    "@ai-sdk/amazon-bedrock": "^4.0.103",
     "@ai-sdk/anthropic": "^3.0.71",
     "@ai-sdk/azure": "^3.0.88",
     "@ai-sdk/google": "^3.0.64",
@@ -43,6 +45,9 @@
     "@assistant-ui/react": "^0.14.18",
     "@assistant-ui/react-markdown": "^0.14.1",
     "@assistant-ui/react-streamdown": "^0.3.3",
+    "@aws-sdk/client-s3": "^3.1048.0",
+    "@aws-sdk/credential-providers": "^3.1045.0",
+    "@aws-sdk/s3-request-presigner": "^3.1048.0",
     "@base-ui/react": "^1.1.0",
     "@copilotkit/backend": "^0.37.0",
     "@copilotkit/runtime": "^1.51.2",
@@ -54,6 +59,7 @@
     "@fontsource/lxgw-wenkai": "^5.2.5",
     "@fontsource/merriweather": "^5.2.11",
     "@fontsource/montserrat": "^5.2.8",
+    "@fontsource/noto-sans-kr": "^5.2.9",
     "@fontsource/noto-sans-sc": "^5.2.9",
     "@fontsource/noto-serif-sc": "^5.2.8",
     "@fontsource/open-sans": "^5.2.7",
@@ -65,12 +71,12 @@
     "@langchain/langgraph": "^1.1.1",
     "@modelcontextprotocol/sdk": "^1.27.1",
     "@napi-rs/canvas": "^0.1.88",
-    "@openmaic/core-engine": "workspace:*",
     "@openmaic/dsl": "workspace:*",
+    "@openmaic/editor": "workspace:*",
+    "@openmaic/generation": "workspace:*",
     "@openmaic/importer": "workspace:*",
     "@openmaic/renderer": "workspace:*",
     "@openmaic/storage": "workspace:*",
-    "@openmaic/storage-types": "workspace:*",
     "@radix-ui/react-checkbox": "^1.3.3",
     "@radix-ui/react-popover": "^1.1.15",
     "@radix-ui/react-slider": "^1.3.6",
@@ -88,8 +94,10 @@
     "dexie": "^4.2.1",
     "echarts": "^6.0.0",
     "embla-carousel-react": "^8.6.0",
+    "es-module-lexer": "^2.0.0",
     "file-saver": "^2.0.5",
     "geist": "^1.7.0",
+    "graphemer": "1.4.0",
     "i18next": "^26.0.1",
     "i18next-resources-to-backend": "^1.2.1",
     "immer": "^11.1.3",
@@ -107,6 +115,11 @@
     "next-themes": "^0.4.6",
     "openai": "^4.104.0",
     "partial-json": "^0.1.7",
+    "parse5": "^8.0.1",
+    "parse-srcset": "^1.0.2",
+    "pg": "^8.16.3",
+    "postcss": "^8.5.15",
+    "postcss-value-parser": "^4.2.0",
     "pptxgenjs": "workspace:*",
     "pptxtojson": "^1.11.0",
     "prosemirror-commands": "^1.7.1",
@@ -146,6 +159,8 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@fontsource/noto-sans": "5.3.0",
+    "@fontsource/noto-sans-arabic": "5.3.0",
     "@playwright/test": "^1.58.2",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^16.0.1",
@@ -154,21 +169,21 @@
     "@types/katex": "^0.16.8",
     "@types/lodash": "^4.17.23",
     "@types/node": "^20",
+    "@types/pg": "^8.15.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/sanitize-html": "^2.16.1",
     "@types/tinycolor2": "^1.4.6",
-    "@types/web": "^0.0.352",
-    "babel-preset-expo": "^57.0.3",
-    "electron": "^43.1.1",
-    "electron-builder": "^26.15.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.2",
     "fake-indexeddb": "^6.2.5",
+    "fontkit": "2.0.4",
     "gsap": "^3.15.0",
+    "hyperframes": "0.7.60",
     "prettier": "3.8.1",
     "rollup": "^4.35.0",
     "rollup-plugin-typescript2": "^0.36.0",
+    "semver": "7.8.5",
     "tailwindcss": "^4",
     "tslib": "^2.8.0",
     "tsx": "^4.21.0",
@@ -182,16 +197,5 @@
       "unrs-resolver"
     ]
   },
-  "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48",
-  "expo": {
-    "doctor": {
-      "reactNativeDirectoryCheck": {
-        "exclude": [
-          "expo-av",
-          "@react-native-vector-icons/material-design-icons"
-        ],
-        "listUnknownPackages": false
-      }
-    }
-  }
+  "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48"
 }

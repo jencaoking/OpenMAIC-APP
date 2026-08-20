@@ -2,6 +2,8 @@ import type { IncomingMessage, RequestListener, ServerResponse } from 'node:http
 import { RUNTIME_DSL_VERSION } from '@openmaic/dsl';
 import { IDBFactory } from 'fake-indexeddb';
 import { describe, expect, test, vi } from 'vitest';
+import type { AssetId } from '../src/asset/id.js';
+import type { AssetStore } from '../src/asset/types.js';
 import { BrowserRuntimeStore } from '../src/runtime/browser.js';
 import { HttpRuntimeStore } from '../src/runtime/http.js';
 import type { RuntimePayloadValidator, RuntimeStore } from '../src/runtime/types.js';
@@ -239,6 +241,7 @@ describe('reference HTTP handler principal capabilities', () => {
       authorizeAdmin: async () => true,
       authorizeMerge: async () => true,
       payloadValidators: {},
+      maxBodyBytes: 64,
     });
     const handler = server.listeners('request')[0] as RequestListener;
 
@@ -249,6 +252,15 @@ describe('reference HTTP handler principal capabilities', () => {
     );
     expect(response.status).toBe(204);
     expect(statements).toContain('DELETE FROM runtime_sessions');
+
+    const oversized = await handlerFetch(handler, async () => 'Bearer capability-only')(
+      `${BASE_URL}/runtime/learners/merge`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ padding: 'x'.repeat(100) }),
+      },
+    );
+    expect(oversized.status).toBe(413);
   });
 
   test('returns 403 FORBIDDEN_LEARNER on learner routes without learnerKey', async () => {
@@ -266,7 +278,89 @@ describe('reference HTTP handler principal capabilities', () => {
   });
 });
 
+describe('reference server asset byte egress', () => {
+  const bytes = Buffer.from([1, 2, 3, 4]);
+
+  function signingAssetStore(): AssetStore {
+    return {
+      put: async () => 'ast_stub' as AssetId,
+      identify: async () => ({ mime: 'image/png', revision: 3, byteLength: bytes.byteLength }),
+      resolve: async () => ({ bytes, mime: 'image/png', revision: 3 }),
+      resolveIndirect: async () => ({ url: 'https://objects.example/signed', revision: 3 }),
+      remove: async () => undefined,
+      replace: async () => 4,
+    };
+  }
+
+  function queryable(): ConnectableQueryable {
+    const query = async () => ({ rows: [] });
+    return {
+      query,
+      connect: async () => ({ query, release: () => undefined }),
+    } as unknown as ConnectableQueryable;
+  }
+
+  async function requestAsset(byteEgress?: {
+    mode: 'redirect';
+    collectionGraceMs: number;
+  }): Promise<Response> {
+    const server = await createReferenceRuntimeServer(queryable(), {
+      assetStore: signingAssetStore(),
+      ...(byteEgress === undefined ? {} : { byteEgress }),
+    });
+    const handler = server.listeners('request')[0] as RequestListener;
+    return handlerFetch(handler, async () => 'Bearer learner-a')(
+      `${BASE_URL}/assets/ast_example/content`,
+      {
+        headers: { authorization: 'Bearer learner-a' },
+        redirect: 'manual',
+      },
+    );
+  }
+
+  test('forwards redirect egress through the composed reference server', async () => {
+    const response = await requestAsset({
+      mode: 'redirect',
+      collectionGraceMs: 60 * 60 * 1000,
+    });
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get('location')).toBe('https://objects.example/signed');
+  });
+
+  test('keeps direct byte egress when the reference server option is omitted', async () => {
+    const response = await requestAsset();
+
+    expect(response.status).toBe(200);
+    expect(Array.from(new Uint8Array(await response.arrayBuffer()))).toEqual(Array.from(bytes));
+  });
+});
+
 describe('reference HTTP handler validation boundary', () => {
+  test('rejects an oversized request body with 413 and accepts an under-limit body', async () => {
+    const store = new BrowserRuntimeStore({ indexedDB: new IDBFactory() });
+    const handler = createRuntimeHttpHandler(store, {
+      authenticate: async () => ({ learnerKey: 'anon:device-1' }),
+      maxBodyBytes: 256,
+    });
+    const request = handlerFetch(handler, async () => 'Bearer anon:device-1');
+
+    const oversized = await request(`${BASE_URL}/runtime/sessions`, {
+      method: 'POST',
+      body: JSON.stringify({ padding: 'x'.repeat(300) }),
+    });
+    expect(oversized.status).toBe(413);
+    await expect(oversized.json()).resolves.toMatchObject({
+      error: { code: 'PAYLOAD_TOO_LARGE' },
+    });
+
+    const accepted = await request(`${BASE_URL}/runtime/sessions`, {
+      method: 'POST',
+      body: JSON.stringify(makeSession({ id: 'under-limit' })),
+    });
+    expect(accepted.status).toBe(201);
+  });
+
   test.each([
     ['session id with NUL', makeSession({ id: 'bad\u0000session' })],
     ['session stageId with a lone surrogate', makeSession({ stageId: 'bad\ud800stage' })],

@@ -184,7 +184,16 @@ function AgentVoicePill({
         setPreviewingId(null);
       }
     },
-    [agent, locale, previewingId, stopPreview, t, ttsProvidersConfig],
+    [
+      agent.name,
+      agent.persona,
+      agent.role,
+      locale,
+      previewingId,
+      stopPreview,
+      t,
+      ttsProvidersConfig,
+    ],
   );
 
   // Cleanup on unmount

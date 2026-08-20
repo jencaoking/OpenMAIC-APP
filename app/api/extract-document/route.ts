@@ -119,13 +119,12 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const fd = formData as unknown as globalThis.FormData;
-    const documentFile = (fd.get('file') || fd.get('pdf')) as File | null;
-    const preferredProviderId = fd.get('providerId') as string | null;
-    const apiKey = fd.get('apiKey') as string | null;
-    const baseUrl = fd.get('baseUrl') as string | null;
-    const accessKeyId = fd.get('accessKeyId') as string | null;
-    const accessKeySecret = fd.get('accessKeySecret') as string | null;
+    const documentFile = (formData.get('file') || formData.get('pdf')) as File | null;
+    const preferredProviderId = formData.get('providerId') as string | null;
+    const apiKey = formData.get('apiKey') as string | null;
+    const baseUrl = formData.get('baseUrl') as string | null;
+    const accessKeyId = formData.get('accessKeyId') as string | null;
+    const accessKeySecret = formData.get('accessKeySecret') as string | null;
 
     if (!documentFile) {
       return apiError('MISSING_REQUIRED_FIELD', 400, 'No course material file provided');

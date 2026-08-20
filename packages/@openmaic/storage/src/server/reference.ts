@@ -14,23 +14,50 @@ import { pathToFileURL } from 'node:url';
 import { PgRuntimeStore, ensureSchema } from '../runtime/pg.js';
 import type { Queryable, WithTransaction } from '../runtime/pg.js';
 import type { RuntimePayloadValidator } from '../runtime/types.js';
-import { createRuntimeHttpHandler } from './index.js';
+import type { AssetStore } from '../asset/types.js';
 import type {
+  DocumentStore,
+  SceneLike,
+  SceneValidator,
+  StageValidator,
+} from '../document/types.js';
+import type { Scene, Stage } from '@openmaic/dsl';
+import { createRuntimeHttpHandler, createStorageHttpHandler } from './index.js';
+import type {
+  DocumentHttpAuthorize,
+  AssetHttpAuthorize,
   RuntimeHttpAuthenticate,
   RuntimeHttpAuthorizeAdmin,
   RuntimeHttpAuthorizeMerge,
+  StorageHttpHandlerOptions,
 } from './index.js';
 
 export interface ConnectableQueryable extends Queryable {
   connect(): Promise<Queryable & { release(): void }>;
 }
 
-export interface ReferenceRuntimeServerOptions {
+export interface ReferenceRuntimeServerOptions<
+  TScene extends SceneLike = Scene,
+  TStage extends Stage = Stage,
+> {
   authenticate?: RuntimeHttpAuthenticate;
   authorizeMerge?: RuntimeHttpAuthorizeMerge;
   authorizeAdmin?: RuntimeHttpAuthorizeAdmin;
   /** Whole-table replacement; pass the same validator table to the store and handler. */
   payloadValidators?: Record<string, RuntimePayloadValidator>;
+  /** When supplied, the same server also exposes the `/documents` contract. */
+  documentStore?: DocumentStore<TScene, TStage>;
+  authorizeDocuments?: DocumentHttpAuthorize;
+  /** When supplied, the same server also exposes the `/assets` contract. */
+  assetStore?: AssetStore;
+  authorizeAssets?: AssetHttpAuthorize;
+  /** Byte `GET` egress for the optional asset contract. Defaults to direct. */
+  byteEgress?: StorageHttpHandlerOptions['byteEgress'];
+  /** Pass the same validators configured on documentStore. */
+  validateScene?: SceneValidator;
+  validateStage?: StageValidator;
+  /** Maximum JSON request-body size in bytes. Defaults to 32 MiB. */
+  maxBodyBytes?: number;
 }
 
 /**
@@ -61,9 +88,12 @@ export function nodePostgresTransaction(pool: ConnectableQueryable): WithTransac
  * Replace it, and the default authorization hooks, before exposing the server.
  * This factory creates an unbound Server; only main() binds it to an address.
  */
-export async function createReferenceRuntimeServer(
+export async function createReferenceRuntimeServer<
+  TScene extends SceneLike = Scene,
+  TStage extends Stage = Stage,
+>(
   pool: ConnectableQueryable,
-  options: ReferenceRuntimeServerOptions = {},
+  options: ReferenceRuntimeServerOptions<TScene, TStage> = {},
 ): Promise<Server> {
   await ensureSchema(pool);
   const store = new PgRuntimeStore(pool, {
@@ -72,27 +102,38 @@ export async function createReferenceRuntimeServer(
       ? {}
       : { payloadValidators: options.payloadValidators }),
   });
+  const handlerOptions: StorageHttpHandlerOptions = {
+    authenticate:
+      options.authenticate ??
+      (async (req) => {
+        const authorization = req.headers.authorization;
+        if (typeof authorization !== 'string' || !authorization.startsWith('Bearer ')) {
+          return undefined;
+        }
+        const learnerKey = authorization.slice('Bearer '.length);
+        return learnerKey === '' ? undefined : { learnerKey, key: learnerKey };
+      }),
+    authorizeMerge:
+      options.authorizeMerge ??
+      (async (principal, fromKey, toKey) => principal.learnerKey === fromKey && fromKey === toKey),
+    authorizeAdmin: options.authorizeAdmin ?? (async () => false),
+    ...(options.payloadValidators === undefined
+      ? {}
+      : { payloadValidators: options.payloadValidators }),
+    ...(options.authorizeDocuments === undefined
+      ? {}
+      : { authorizeDocuments: options.authorizeDocuments }),
+    ...(options.assetStore === undefined ? {} : { assetStore: options.assetStore }),
+    ...(options.authorizeAssets === undefined ? {} : { authorizeAssets: options.authorizeAssets }),
+    ...(options.byteEgress === undefined ? {} : { byteEgress: options.byteEgress }),
+    ...(options.validateScene === undefined ? {} : { validateScene: options.validateScene }),
+    ...(options.validateStage === undefined ? {} : { validateStage: options.validateStage }),
+    ...(options.maxBodyBytes === undefined ? {} : { maxBodyBytes: options.maxBodyBytes }),
+  };
   return createServer(
-    createRuntimeHttpHandler(store, {
-      authenticate:
-        options.authenticate ??
-        (async (req) => {
-          const authorization = req.headers.authorization;
-          if (typeof authorization !== 'string' || !authorization.startsWith('Bearer ')) {
-            return undefined;
-          }
-          const learnerKey = authorization.slice('Bearer '.length);
-          return learnerKey === '' ? undefined : { learnerKey };
-        }),
-      authorizeMerge:
-        options.authorizeMerge ??
-        (async (principal, fromKey, toKey) =>
-          principal.learnerKey === fromKey && fromKey === toKey),
-      authorizeAdmin: options.authorizeAdmin ?? (async () => false),
-      ...(options.payloadValidators === undefined
-        ? {}
-        : { payloadValidators: options.payloadValidators }),
-    }),
+    options.documentStore === undefined && options.assetStore === undefined
+      ? createRuntimeHttpHandler(store, handlerOptions)
+      : createStorageHttpHandler(store, options.documentStore, handlerOptions),
   );
 }
 

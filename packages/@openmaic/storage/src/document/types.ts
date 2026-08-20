@@ -15,10 +15,10 @@ import type { Stage, Scene } from '@openmaic/dsl';
  * The minimal scene shape the store itself depends on — the fields it uses to
  * normalize (`stageId` + `id` are the compound row key), order (`order`), and
  * integrity-check scenes. The DSL `Scene` satisfies it. The store is generic
- * over the concrete scene type so an app can persist its own widened scene union
- * (interactive / pbl / …) — content the DSL does not own — by supplying a
- * matching {@link SceneValidator}. Everything below `SceneLike` is opaque to the
- * store and rides along verbatim.
+ * over the concrete scene type so an app can persist widened payloads for the
+ * contract's interactive / pbl kinds by supplying a matching
+ * {@link SceneValidator}. Everything below `SceneLike` is opaque to the store
+ * and rides along verbatim.
  */
 export interface SceneLike {
   id: string;
@@ -27,14 +27,45 @@ export interface SceneLike {
 }
 
 /**
- * Validate a scene at the write boundary. Defaults to the DSL `validateScene`
- * (which owns the universal `slide` / `quiz` kinds); an app that widens `Scene`
- * with its own content kinds injects a validator that also accepts those, so the
- * gate stays fail-loud for the app's shapes rather than silently rejecting them.
+ * Validate a scene at the write boundary. Defaults to the DSL `validateScene`,
+ * which owns all four persisted content kinds. An app that widens their payloads
+ * injects its own validator so the gate applies the app's compatibility policy
+ * instead of rejecting its richer or historical shapes.
  */
 export type SceneValidator = (
   scene: unknown,
 ) => { valid: true } | { valid: false; errors: { path: string; message: string }[] };
+
+/** Validate a stage at the write boundary. Defaults to the DSL `validateStage`. */
+export type StageValidator = (
+  stage: unknown,
+) => { valid: true } | { valid: false; errors: { path: string; message: string }[] };
+
+/** A document write was rejected because its persisted DSL version is incompatible. */
+export class DocumentVersionError extends Error {
+  override readonly name = 'DocumentVersionError';
+
+  constructor(
+    readonly stageId: string,
+    readonly kind: 'future' | 'not-current',
+    readonly storedVersion: string | undefined,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+/** An incremental document write requires a parent document that does not exist. */
+export class DocumentNotFoundError extends Error {
+  override readonly name = 'DocumentNotFoundError';
+
+  constructor(
+    readonly stageId: string,
+    message: string,
+  ) {
+    super(message);
+  }
+}
 
 /**
  * The portable, embedded form of a persisted course. Storage normalizes it into
@@ -53,8 +84,8 @@ export type SceneValidator = (
  * `dslVersion` is the migrate() envelope stamp ({@link DSL_VERSION_KEY}); absent
  * on legacy data written before the version field existed.
  */
-export interface MaicDocument<TScene extends SceneLike = Scene> {
-  stage: Stage;
+export interface MaicDocument<TScene extends SceneLike = Scene, TStage extends Stage = Stage> {
+  stage: TStage;
   scenes: TScene[];
   outline?: unknown;
   dslVersion?: string;
@@ -67,6 +98,10 @@ export interface MaicDocument<TScene extends SceneLike = Scene> {
 export interface DocumentSummary {
   id: string;
   name: string;
+  /** Optional stage metadata whose meaning is independent of the DSL version. */
+  description?: string;
+  interactiveMode?: boolean;
+  taskEngineMode?: boolean;
   createdAt: number;
   updatedAt: number;
   sceneCount: number;
@@ -78,7 +113,7 @@ export interface DocumentSummary {
  * migrate-on-reads. The `*Scene` methods are incremental conveniences over the
  * normalized rows for scene-level editing.
  */
-export interface DocumentStore<TScene extends SceneLike = Scene> {
+export interface DocumentStore<TScene extends SceneLike = Scene, TStage extends Stage = Stage> {
   /**
    * Validate the aggregate, stamp it at the current DSL version, split it into
    * rows, write every scene, and delete scenes no longer present. Atomic: an
@@ -86,17 +121,18 @@ export interface DocumentStore<TScene extends SceneLike = Scene> {
    * opaque scene content is not attempted; cheap per-scene writes use
    * {@link putScene}.)
    */
-  saveDocument(doc: MaicDocument<TScene>): Promise<void>;
+  saveDocument(doc: MaicDocument<TScene, TStage>): Promise<void>;
 
   /**
    * Reassemble the document for `stageId` (scenes sorted by `order`, outline
    * attached), migrated forward to the current DSL version. `null` if absent.
    */
-  loadDocument(stageId: string): Promise<MaicDocument<TScene> | null>;
+  loadDocument(stageId: string): Promise<MaicDocument<TScene, TStage> | null>;
 
   /**
    * A summary per stored document. Returns only version-independent fields
-   * (id / name / timestamps / sceneCount) and never migrates or reads content,
+   * (id / name / optional display metadata / timestamps / sceneCount) and never
+   * migrates or reads content,
    * so — unlike the content APIs — it intentionally tolerates a corrupt or
    * unrecognized `dslVersion` stamp rather than failing the whole listing on one
    * bad row (a broken document still surfaces fail-loud when actually opened).
@@ -109,6 +145,16 @@ export interface DocumentStore<TScene extends SceneLike = Scene> {
    * coarse action and is intentionally not version-guarded.
    */
   deleteDocument(stageId: string): Promise<void>;
+
+  /**
+   * Validate and upsert the stage row of an existing, already-current document
+   * without touching its scenes or outline. The stored document must be at the
+   * current DSL version for the same reason as {@link putScene}: a stale row
+   * must be normalized by a full load + save, and a newer row must not be
+   * downgraded. Throws if the document is absent, not current, or `stage.id`
+   * does not match `stageId`.
+   */
+  putStage(stageId: string, stage: TStage): Promise<void>;
 
   /**
    * Validate and upsert a single scene into an existing, already-current
