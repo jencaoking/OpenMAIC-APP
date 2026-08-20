@@ -34,7 +34,7 @@ concurrency:
 
 env:
   CI: '1'
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   JAVA_VERSION: '17'
   EXPO_DIR: apps/expo
 
@@ -98,7 +98,7 @@ jobs:
         working-directory: ${{ env.EXPO_DIR }}
         env:
           APP_VARIANT: ${{ steps.config.outputs.variant }}
-        run: npx expo prebuild --platform android --clean
+        run: pnpm exec expo prebuild --platform android --clean
 
       - name: Build APK with Gradle
         working-directory: ${{ env.EXPO_DIR }}/android

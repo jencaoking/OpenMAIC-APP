@@ -5,13 +5,17 @@ on:
     branches: [main]
   pull_request:
     branches: [main, feat/maic-editor-v0, feat/maic-editor-v1, runtime-server-backend]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
 
 jobs:
   # ==================== Web Quality Checks ====================
@@ -28,9 +32,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Prettier
         run: pnpm check
@@ -39,7 +44,7 @@ jobs:
         run: pnpm lint
 
       - name: TypeScript
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
 
       - name: i18n Key Alignment
         run: pnpm check:i18n-keys
@@ -70,9 +75,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: TypeScript TypeCheck (Expo)
         working-directory: apps/expo
@@ -80,7 +86,7 @@ jobs:
 
       - name: Jest Unit Tests (Expo)
         working-directory: apps/expo
-        run: npx jest --passWithNoTests --coverage --ci
+        run: pnpm exec jest --passWithNoTests --coverage --ci
 
       - name: Upload Coverage Report
         if: always()
@@ -91,8 +97,12 @@ jobs:
           retention-days: 7
 
   # ==================== E2E Tests ====================
+  # Full browser coverage is intentionally deferred from pull requests: it is
+  # expensive and runs after the fast checks, so it does not improve initial
+  # feedback. It still runs after merges to main and on manual dispatch.
   e2e:
     name: E2E Tests
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: [web-check]
@@ -105,9 +115,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Install Playwright browsers
         run: pnpm exec playwright install chromium --with-deps
@@ -123,8 +134,11 @@ jobs:
           retention-days: 7
 
   # ==================== Build Verification ====================
+  # Production builds are release confidence checks rather than PR feedback.
+  # Keep them on main/manual runs, after the fast quality gates have passed.
   build-verify:
     name: Build Verification
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: [web-check, expo-check]
@@ -137,14 +151,14 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Build Web
         run: pnpm build
 
-      - name: Verify Expo Build (dry run)
+      - name: Verify Expo Build
         working-directory: apps/expo
-        run: npx expo export --platform web --output-dir /tmp/expo-export
-        continue-on-error: true
+        run: pnpm exec expo export --platform web --output-dir /tmp/expo-export
